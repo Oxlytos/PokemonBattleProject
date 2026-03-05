@@ -1,0 +1,23 @@
+using System.Threading.Tasks;
+using Pokemon.Services.Interfaces;
+using PokemonBattle.ViewModels;
+
+namespace PokemonBattle;
+
+public partial class TeamBuilderPage : ContentPage
+{
+    public TeamBuilderPage()
+	{
+		InitializeComponent();
+    }
+
+    private async void OnClickBattleButton(object sender, EventArgs e)
+    {
+        await Shell.Current.Navigation.PushAsync(new BattlePage());
+    }
+
+    private void OnClickGetPokemonAsyncButton(object sender, EventArgs e)
+    {
+
+    }
+}
