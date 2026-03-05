@@ -41,10 +41,10 @@
            VerticalOptions="Start"
           WidthRequest="150"
           HorizontalOptions="Center"
-          ItemsSource="{Binding Pokemons}"
+          ItemsSource="{Binding AllPokemon}"
           x:Name="MyCollectionView"
           SelectionMode="Single"
-          SelectedItem="{Binding SelectedPokemon}"
+          SelectedItem="{Binding SelectedPokemonModel, Mode=TwoWay}"
                               >
             <CollectionView.ItemTemplate>
                 <DataTemplate>
@@ -60,9 +60,9 @@
         VerticalOptions="Start"
           MinimumHeightRequest="150"
        HorizontalOptions="Center"
-       ItemsSource="{Binding TeamPokemons}"
+       ItemsSource="{Binding TeamPokemon}"
        x:Name="TeamCollectionView"
-          SelectedItem="{Binding SelectedPokemon}"
+          SelectedItem="{Binding SelectedPokemonModel,Mode=TwoWay}"
        SelectionMode="Single"
                            >
             <CollectionView.ItemsLayout>

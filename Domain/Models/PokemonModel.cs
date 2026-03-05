@@ -45,6 +45,8 @@ namespace Domain.Models.Models
 
         public List<MoveModel> Moves { get; set; }
 
+        public SpriteCollection Sprites { get; set; }
+
         public async void SetBaseStatTotals()
         {
             Health = await SetHealthBaseStat();
