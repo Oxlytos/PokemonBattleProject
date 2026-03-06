@@ -14,6 +14,7 @@ namespace Pokemon.Services.Interfaces
         string GetSprite(string name, string spriteFileName);
         string GetFolder(string name);
         public string GetSpritePath(string pokemonName, string spriteFileName);
+        public bool AreAllSpritesStored(string pokemonName);
 
 
     }

@@ -25,8 +25,11 @@ namespace PokemonBattle.Services
         public string GetFolder(string name)
         {
             var folder = Path.Combine(_baseFolderPath, name);
-            Directory.CreateDirectory(folder);
-            Console.WriteLine(folder);
+            if (Directory.Exists(folder))
+            {
+                Directory.CreateDirectory(folder);
+            }
+           
             return folder;
         }
         //hämta specifik sprite genom pokemonsprites/magmar/front_default
@@ -65,28 +68,62 @@ namespace PokemonBattle.Services
 
                 if (string.IsNullOrEmpty(key.Value))
                 {
-                    continue;
+                    //continue;
                 }
                 //Kolla om fil och sökväg finns
                 //Key blir front_default
                 //Value är själva nät addressen
                 var filePath = GetSpritePath(name, key.Key);
 
-                //Den filen finns
-                if(File.Exists(filePath))
+                //Kolla om map finns, på key.key som är front_defaul t.ex.
+                var folder = Path.GetDirectoryName(filePath);
+
+               
+
+                //finns inte ens mappen
+                if (!Directory.Exists(folder))
+                {
+                    //skapa mappen
+                    Directory.CreateDirectory(folder);
+                }
+
+                //Vi behöver ladda ner om X fil inte finns, eller om det är tomt
+                bool needToDownloadAgain = !File.Exists(filePath) || new FileInfo(filePath).Length == 0;
+
+                if(!needToDownloadAgain)
                 {
                     continue;
                 }
-
-                using var stream = await _client.GetStreamAsync(key.Value);
-                using var fileSteam = File.Create(filePath);
-                await stream.CopyToAsync(fileSteam);
+               
+                if (needToDownloadAgain)
+                {
+                    using var stream = await _client.GetStreamAsync(key.Value);
+                    using var fileSteam = File.Create(filePath);
+                    await stream.CopyToAsync(fileSteam);
+                }
+               
             }
         }
 
         public string GetSpritePath(string pokemonName, string spriteFileName)
         {
-            return Path.Combine(GetFolder(pokemonName), spriteFileName);
+            var folder = GetFolder(pokemonName);
+            return Path.Combine(folder, spriteFileName);
+        }
+
+        public bool AreAllSpritesStored(string pokemonName)
+        {
+            string folder = GetFolder(pokemonName);
+            string[] spriteFileNames = { "front_default.png", "front_shiny.png", "back_default.png", "back_shiny.png" };
+            foreach(var sprite in spriteFileNames)
+            {
+                string existingPath = Path.Combine(folder, sprite);
+                if(!File.Exists(existingPath) ||new FileInfo(existingPath).Length == 0)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

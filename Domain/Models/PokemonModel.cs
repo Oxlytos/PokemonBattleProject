@@ -46,6 +46,7 @@ namespace Domain.Models.Models
         public List<MoveModel> Moves { get; set; }
 
         public SpriteCollection Sprites { get; set; }
+        public string SpritePath { get; set; }
 
         public async void SetBaseStatTotals()
         {
@@ -57,6 +58,10 @@ namespace Domain.Models.Models
             Speed = await SetSpeedBaseStat();
         }
        
+        SpriteModel GetSprite()
+        {
+            return null;
+        }
         async Task<int?> SetHealthBaseStat()
         {
             return Stats[0].BaseStat;

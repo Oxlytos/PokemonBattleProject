@@ -40,6 +40,7 @@ namespace Pokemon.Infrastructure.Repositories
 
                     //Gör till pokemon model
                     var normalPokemon = JsonSerializer.Deserialize<PokemonModel>(content);
+                    normalPokemon.Name = char.ToUpper(normalPokemon.Name[0]) + normalPokemon.Name.Substring(1); 
 
                     //Gör till den fånigt långa och komplicerade spritecollectionen
                     var sprites = JsonSerializer.Deserialize<SpriteCollection>(content);
@@ -70,7 +71,13 @@ namespace Pokemon.Infrastructure.Repositories
             {
                 var pokeJson = await responsemsg.Content.ReadFromJsonAsync<PokemonListRequestModel>();
                 var pokemonPlural = pokeJson.Result.ToList();
-                return pokemonPlural;
+                List<PokemonModel> result = new List<PokemonModel>();
+                foreach (var pokemon in pokemonPlural)
+                {
+                    pokemon.Name = char.ToUpper(pokemon.Name[0]) + pokemon.Name.Substring(1);
+                    result.Add(pokemon);
+                }
+                    return result;
             }
             else
             {

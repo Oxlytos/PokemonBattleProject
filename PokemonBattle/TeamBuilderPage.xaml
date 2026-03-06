@@ -8,8 +8,8 @@
             <RowDefinition Height="1*" />
             <RowDefinition Height="1*" />
             <RowDefinition Height="1*" />
-            <RowDefinition Height="1*" />
-            <RowDefinition Height="1*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
@@ -60,7 +60,7 @@
         VerticalOptions="Start"
           MinimumHeightRequest="150"
        HorizontalOptions="Center"
-       ItemsSource="{Binding TeamPokemon}"
+       ItemsSource="{Binding DisplayTeamPokemon}"
        x:Name="TeamCollectionView"
           SelectedItem="{Binding SelectedPokemonModel,Mode=TwoWay}"
        SelectionMode="Single"
@@ -71,7 +71,18 @@
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <StackLayout Padding="5" >
-                        <Label Text="{Binding Name}" FontSize="18"/>
+                        <Label Text="{Binding Name}" 
+                               FontSize="18"
+                               VerticalTextAlignment="Center"
+                               HorizontalTextAlignment="Center"/>
+                        <Image Source="{Binding SpritePath}"   
+                               WidthRequest="150"
+                               HeightRequest="150"/>
+                        <Button
+                            Text="Remove"
+                            TextColor="Black"
+                            WidthRequest="150"
+                            />
                     </StackLayout>
                 </DataTemplate>
             </CollectionView.ItemTemplate>

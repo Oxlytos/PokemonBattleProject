@@ -10,6 +10,7 @@ using Domain.Models.Models;
 using Pokemon.Infrastructure.Interfaces;
 using Pokemon.Services.Interfaces;
 using PokemonBattle.Interfaces;
+using PokemonBattle.ListModel;
 
 namespace PokemonBattle.ViewModels
 {
@@ -20,6 +21,7 @@ namespace PokemonBattle.ViewModels
         private ITeamPokemonService _teamPokemonService;
         public ObservableCollection<PokemonModel> AllPokemon { get; }
         public ObservableCollection<PokemonModel> TeamPokemon => _teamPokemonService.TeamPokemon;
+        public ObservableCollection<ListPokemonDisplayModel> DisplayTeamPokemon { get; } = new();
         public ICommand GetPokemonCommand { get; }
         public ICommand AddToTeamCommand { get; }
         public ICommand RemoveFromTeamCommand { get; }
@@ -36,6 +38,7 @@ namespace PokemonBattle.ViewModels
                 if (_pokemonImage != value)
                 {
                     _pokemonImage = value;
+                    OnPropertyChanged(nameof(PokemonImage));
                 }
             }
         }
@@ -61,7 +64,6 @@ namespace PokemonBattle.ViewModels
                 ((Command)AddToTeamCommand).ChangeCanExecute();
                 //Command load image?
                 _ = LoadPokemonSpriteAsync();
-                OnPropertyChanged(nameof(PokemonImage));
             }
         }
 
@@ -81,30 +83,41 @@ namespace PokemonBattle.ViewModels
         }
         public async Task LoadPokemonSpriteAsync()
         {
-            Console.WriteLine($"Loading sprites for {_pokemonName}");
             //har vi tryckt på en pokemon i listan, annars returnera
             if (SelectedPokemonModel==null) return;
             
             //vägen dit (om den finns)
             var path = _imageService.GetSpritePath(SelectedPokemonModel.Name, "front_default.png");
+            var fullPokemonInfo = await _fetchService.GetPokemonSingularAsync(_pokemonName);
+            if(fullPokemonInfo?.Sprites!=null && !_imageService.AreAllSpritesStored(_pokemonName))
+            {
+                await _imageService.SaveImage(_pokemonName, fullPokemonInfo.Sprites.SpriteModel);
+            }
 
-            if(File.Exists(path))
+            if (File.Exists(path))
             {
                 PokemonImage = ImageSource.FromFile(path);
             }
+         
+        }
+        public async Task LoadSpriteForPokemonListItemAsync(ListPokemonDisplayModel listItem)
+        {
+            if(listItem == null) return;
 
-            //finns inte? skapa nytt
-            if (!File.Exists(path))
+            var pokemonName = listItem.Name;
+            var parth = _imageService.GetSpritePath(pokemonName, "front_default.png");
+            var fullPokemonInfo = await _fetchService.GetPokemonSingularAsync(pokemonName);
+            if (fullPokemonInfo?.Sprites != null && !_imageService.AreAllSpritesStored(pokemonName))
             {
-                //all info här, även sprites
-                var fullPokemonInfo = await _fetchService.GetPokemonSingularAsync(_pokemonName);
-
-                if(fullPokemonInfo != null && fullPokemonInfo.Sprites != null)
-                {
-                    await _imageService.SaveImage(_pokemonName, fullPokemonInfo.Sprites.SpriteModel);
-                    PokemonImage = ImageSource.FromFile(path);
-                }
+                await _imageService.SaveImage(pokemonName, fullPokemonInfo.Sprites.SpriteModel);
             }
+
+            if (File.Exists(parth))
+            {
+                listItem.SpritePath = parth;
+                PokemonImage = ImageSource.FromFile(parth);
+            }
+
         }
         public async Task AddToTeam()
         {
@@ -114,7 +127,13 @@ namespace PokemonBattle.ViewModels
             }
 
             await _teamPokemonService.AddToTeam(_selectedPokemonModel);
-            OnPropertyChanged(nameof(SelectedPokemonModel));
+
+            var displayTeamMember = new ListPokemonDisplayModel(_selectedPokemonModel);
+            DisplayTeamPokemon.Add(displayTeamMember);
+
+            _=LoadSpriteForPokemonListItemAsync(displayTeamMember);
+
+
             SelectedPokemonModel = null;
         }
         public async Task LoadPokemonAsync()
