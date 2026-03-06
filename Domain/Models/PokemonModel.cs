@@ -26,6 +26,8 @@ namespace Domain.Models.Models
         [JsonPropertyName("stats")]
         public PokemonStat[] Stats { get; set; }
 
+        [JsonPropertyName("types")]
+        public TypeRequest[] Types { get; set; }
 
         public int? Health { get; set; }
 
@@ -50,12 +52,23 @@ namespace Domain.Models.Models
 
         public async void SetBaseStatTotals()
         {
-            Health = await SetHealthBaseStat();
-            Attack = await SetAttackBaseStat();
-            Defense = await SetDefenseBaseStat();
-            SpecialAttack = await SetSpecialAttackBaseStat();
-            SpecialDefense = await SetSpecialDefenseBaseStat();
-            Speed = await SetSpeedBaseStat();
+            //Värderna
+            var healthTask = SetHealthBaseStat();
+            var attackTask = SetAttackBaseStat();
+            var defenseTask = SetDefenseBaseStat();
+            var spAttackTask = SetSpecialAttackBaseStat();
+            var spDefenseTask = SetSpecialDefenseBaseStat();
+            var speedTask = SetSpeedBaseStat();
+
+            //Assigna typ som en queue
+            await Task.WhenAll(healthTask,attackTask,defenseTask,spAttackTask,spDefenseTask,speedTask);
+
+            Health = await healthTask;
+            Attack = await attackTask;
+            Defense = await defenseTask;
+            SpecialAttack = await spAttackTask;
+            SpecialDefense = await spDefenseTask;
+            Speed = await speedTask;
         }
        
         SpriteModel GetSprite()

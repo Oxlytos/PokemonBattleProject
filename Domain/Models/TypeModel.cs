@@ -7,9 +7,23 @@ using System.Threading.Tasks;
 
 namespace Domain.Models.Models
 {
+  
+    public class TypeRequest
+    {
+        [JsonPropertyName("slot")]
+        public int SlotNumber { get; set; }
+
+        [JsonPropertyName("type")]
+        public TypeModel Types { get; set; }
+    }
     public class TypeModel
     {
+
+        [JsonPropertyName("name")]
         public string Name { get; set; }
+
+        [JsonPropertyName("url")]
+        public string Url { get; set; }
 
         //Stark emot => Gräs mot vatten
         [JsonPropertyName("double_damage_to")]
@@ -28,6 +42,11 @@ namespace Domain.Models.Models
         public List<Type>? TypesResisting {  get; set; }
 
         //Immunities => Denna typ (t.ex. flying) är immun mot t.ex. ground 
+        [JsonPropertyName("no_damage_from")]
         public List<Type>? Immunities { get; set; }
+
+        //Steel är t.ex. immun mot denna typ som kan vara poison
+        [JsonPropertyName("no_damage_to")]
+        public List<Type>? TypesImmune { get; set; }
     }
 }

@@ -40,11 +40,13 @@ namespace Pokemon.Infrastructure.Repositories
 
                     //Gör till pokemon model
                     var normalPokemon = JsonSerializer.Deserialize<PokemonModel>(content);
-                    normalPokemon.Name = char.ToUpper(normalPokemon.Name[0]) + normalPokemon.Name.Substring(1); 
-
+                    normalPokemon.Name = char.ToUpper(normalPokemon.Name[0]) + normalPokemon.Name.Substring(1);
                     //Gör till den fånigt långa och komplicerade spritecollectionen
                     var sprites = JsonSerializer.Deserialize<SpriteCollection>(content);
-
+                    foreach (var type in normalPokemon.Types)
+                    {
+                        Console.WriteLine(type.SlotNumber);
+                    }
                     //Pokemonen har nu koll på sina egna sprites (url länkar, inte lokala)
                     normalPokemon.Sprites = sprites;
                     return normalPokemon;
