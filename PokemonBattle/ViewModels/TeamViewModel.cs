@@ -9,6 +9,7 @@ using System.Windows.Input;
 using Domain.Models.Models;
 using Pokemon.Infrastructure.Interfaces;
 using Pokemon.Services.Interfaces;
+using Pokemon.Shared.Extensions;
 using PokemonBattle.Interfaces;
 using PokemonBattle.ListModel;
 
@@ -107,6 +108,11 @@ namespace PokemonBattle.ViewModels
             var pokemonName = listItem.Name;
             var parth = _imageService.GetSpritePath(pokemonName, "front_default.png");
             var fullPokemonInfo = await _fetchService.GetPokemonSingularAsync(pokemonName);
+
+            string types ="";
+
+            types = string.Join("/", fullPokemonInfo.Types.Select(t=>t.Types.Name.Capitalize()));
+            listItem.Types = types;
             if (fullPokemonInfo?.Sprites != null && !_imageService.AreAllSpritesStored(pokemonName))
             {
                 await _imageService.SaveImage(pokemonName, fullPokemonInfo.Sprites.SpriteModel);
@@ -114,7 +120,9 @@ namespace PokemonBattle.ViewModels
 
             if (File.Exists(parth))
             {
+                //Actual sprite som vin bindar till
                 listItem.SpritePath = parth;
+                
                 PokemonImage = ImageSource.FromFile(parth);
             }
 

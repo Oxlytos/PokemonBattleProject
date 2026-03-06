@@ -16,12 +16,28 @@ namespace PokemonBattle.ListModel
 
         //Orginella pokemonen
         public PokemonModel Pokemon { get; }
-        private string _spritePath;
+    
         
         public ListPokemonDisplayModel(PokemonModel pokemon)
         {
             Pokemon = pokemon;
         }
+
+        private string _types;
+        public string Types
+        {
+            get
+            {
+                return _types;
+            }
+            set
+            {
+                _types = value;
+                OnPropertyChanged(nameof(Types));
+            }
+        }
+
+        private string _spritePath;
         public string SpritePath
         {
             get { return _spritePath; }

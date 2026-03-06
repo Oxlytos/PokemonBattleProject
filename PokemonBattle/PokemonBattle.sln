@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35931.197 d17.13
+VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PokemonBattle.Presentation", "PokemonBattle.Presentation.csproj", "{BC33EE3D-7C8C-4903-9B5C-6BF9EB2A7E6C}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pokemon.Services", "..\Pokemon.Services\Pokemon.Services.csproj", "{025D8EAE-D99C-4394-BC28-126DF91A5FED}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pokemon.Infrastructure", "..\Pokemon.Infrastructure\Pokemon.Infrastructure.csproj", "{35F6E4F4-5F45-4DC5-A7C0-C542D5EAA955}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pokemon.Shared", "..\Pokemon.Shared\Pokemon.Shared.csproj", "{36B5BCD9-7FEA-46FA-851D-26E5022580CE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{35F6E4F4-5F45-4DC5-A7C0-C542D5EAA955}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{35F6E4F4-5F45-4DC5-A7C0-C542D5EAA955}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{35F6E4F4-5F45-4DC5-A7C0-C542D5EAA955}.Release|Any CPU.Build.0 = Release|Any CPU
+		{36B5BCD9-7FEA-46FA-851D-26E5022580CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36B5BCD9-7FEA-46FA-851D-26E5022580CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36B5BCD9-7FEA-46FA-851D-26E5022580CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36B5BCD9-7FEA-46FA-851D-26E5022580CE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
