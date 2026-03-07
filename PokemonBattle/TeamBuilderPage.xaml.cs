@@ -22,4 +22,9 @@ public partial class TeamBuilderPage : ContentPage
     {
 
     }
+
+    private async void OnClickGoToHomeMenu(object sender, EventArgs e)
+    {
+        await Shell.Current.Navigation.PopToRootAsync();
+    }
 }

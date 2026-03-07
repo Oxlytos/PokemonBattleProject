@@ -16,37 +16,44 @@ namespace Domain.Models.Models
         [JsonPropertyName("type")]
         public TypeModel Types { get; set; }
     }
+    public class TypeData
+    {
+        [JsonPropertyName("name")]
+        public string TypeName { get; set; }
+    }
+    public class DamageRelations
+    {
+        [JsonPropertyName("double_damage_to")]
+        public TypeData[] Effectivnesses { get; set; }
+
+        //Immunities => Denna typ (t.ex. flying) är immun mot t.ex. ground 
+        [JsonPropertyName("no_damage_from")]
+        public TypeData[] Immunities { get; set; }
+
+        //Steel är t.ex. immun mot denna typ som kan vara poison
+        [JsonPropertyName("no_damage_to")]
+        public TypeData[] TypesImmune { get; set; }
+
+        [JsonPropertyName("double_damage_from")]
+        public TypeData[] Weaknesses { get; set; }
+
+        [JsonPropertyName("half_damage_from")]
+        public TypeData[] Resistances { get; set; }
+
+        [JsonPropertyName("half_damage_to")]
+        public TypeData[] TypesResisting {  get; set; }
+
+    }
     public class TypeModel
     {
 
         [JsonPropertyName("name")]
         public string Name { get; set; }
 
-        [JsonPropertyName("url")]
-        public string Url { get; set; }
+        [JsonPropertyName("damage_relations")]
+        public DamageRelations DamageRelations { get; set; }
 
         //Stark emot => Gräs mot vatten
-        [JsonPropertyName("double_damage_to")]
-        public List<Type>? Effectivness { get; set; }
-
-        //Svag emot => Gräs tål inte eld
-        [JsonPropertyName("double_damage_from")]
-        public List<Type>? Weaknesses { get; set; }
-
-        //Typ resistance => Gräs tål vatten
-        [JsonPropertyName("half_damage_from")]
-        public List<Type>? TypeResistances { get; set; }
-
-        //Typ resiting => Steel resistar gräs
-        [JsonPropertyName("half_damage_to")]
-        public List<Type>? TypesResisting {  get; set; }
-
-        //Immunities => Denna typ (t.ex. flying) är immun mot t.ex. ground 
-        [JsonPropertyName("no_damage_from")]
-        public List<Type>? Immunities { get; set; }
-
-        //Steel är t.ex. immun mot denna typ som kan vara poison
-        [JsonPropertyName("no_damage_to")]
-        public List<Type>? TypesImmune { get; set; }
+        
     }
 }

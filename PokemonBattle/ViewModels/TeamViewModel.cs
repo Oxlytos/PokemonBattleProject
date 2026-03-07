@@ -23,9 +23,11 @@ namespace PokemonBattle.ViewModels
         public ObservableCollection<PokemonModel> AllPokemon { get; }
         public ObservableCollection<PokemonModel> TeamPokemon => _teamPokemonService.TeamPokemon;
         public ObservableCollection<ListPokemonDisplayModel> DisplayTeamPokemon { get; } = new();
+        
         public ICommand GetPokemonCommand { get; }
         public ICommand AddToTeamCommand { get; }
         public ICommand RemoveFromTeamCommand { get; }
+        public ICommand GoToHomeMenuCommand { get; }
 
         private ImageSource _pokemonImage;
         public ImageSource PokemonImage
@@ -68,6 +70,8 @@ namespace PokemonBattle.ViewModels
             }
         }
 
+        
+       
         //De services som behövs
         public TeamViewModel(IPokemonFetchService pokemonFetchService, IImageService imageService, ITeamPokemonService teamPokemonService)
         {
@@ -80,7 +84,8 @@ namespace PokemonBattle.ViewModels
             GetPokemonCommand = new Command(async () => await LoadPokemonAsync());
             AddToTeamCommand = new Command(async () => await AddToTeam(), () => SelectedPokemonModel!=null);
 
-            
+           
+
         }
         public async Task LoadPokemonSpriteAsync()
         {
@@ -90,7 +95,8 @@ namespace PokemonBattle.ViewModels
             //vägen dit (om den finns)
             var path = _imageService.GetSpritePath(SelectedPokemonModel.Name, "front_default.png");
             var fullPokemonInfo = await _fetchService.GetPokemonSingularAsync(_pokemonName);
-            if(fullPokemonInfo?.Sprites!=null && !_imageService.AreAllSpritesStored(_pokemonName))
+            var result = await _fetchService.GetTypeModelAsync("ghost");
+            if (fullPokemonInfo?.Sprites!=null && !_imageService.AreAllSpritesStored(_pokemonName))
             {
                 await _imageService.SaveImage(_pokemonName, fullPokemonInfo.Sprites.SpriteModel);
             }
@@ -137,10 +143,15 @@ namespace PokemonBattle.ViewModels
             await _teamPokemonService.AddToTeam(_selectedPokemonModel);
 
             var displayTeamMember = new ListPokemonDisplayModel(_selectedPokemonModel);
-            DisplayTeamPokemon.Add(displayTeamMember);
+            if (DisplayTeamPokemon.Count >= TeamPokemon.Count)
+            {
 
-            _=LoadSpriteForPokemonListItemAsync(displayTeamMember);
-
+            }
+            else
+            {
+                DisplayTeamPokemon.Add(displayTeamMember);
+                _ = LoadSpriteForPokemonListItemAsync(displayTeamMember);
+            }
 
             SelectedPokemonModel = null;
         }

@@ -25,5 +25,10 @@ namespace Pokemon.Services.Services
         {
             return await _repository.GetPokemonModelModelAsync(name);
         }
+
+        public async Task<TypeModel> GetTypeModelAsync(string name)
+        {
+            return await _repository.GetTypeModelAsync(name);
+        }
     }
 }

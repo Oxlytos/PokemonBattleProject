@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="PokemonBattle.TeamBuilderPage">
 
-    <Grid Margin="25" ColumnSpacing="10" >
+    <Grid Margin="50" ColumnSpacing="50" >
         <Grid.RowDefinitions>
             <RowDefinition Height="1*" />
             <RowDefinition Height="1*" />
@@ -17,35 +17,77 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
+        <!-- Horizontal grid lines -->
+        <BoxView Grid.Row="0" Grid.ColumnSpan="5" HeightRequest="1" BackgroundColor="Red"/>
+        <BoxView Grid.Row="1" Grid.ColumnSpan="5" HeightRequest="1" BackgroundColor="Red"/>
+        <BoxView Grid.Row="2" Grid.ColumnSpan="5" HeightRequest="1" BackgroundColor="Red"/>
+        <BoxView Grid.Row="3" Grid.ColumnSpan="5" HeightRequest="1" BackgroundColor="Red"/>
+        <BoxView Grid.Row="4" Grid.ColumnSpan="5" HeightRequest="1" BackgroundColor="Red"/>
+        <!-- Extra bottom line -->
+        <BoxView Grid.Row="4" Grid.ColumnSpan="5" HeightRequest="1" BackgroundColor="Red" VerticalOptions="End"/>
+
+        <!-- Vertical grid lines -->
+        <BoxView Grid.Column="0" Grid.RowSpan="5" WidthRequest="1" BackgroundColor="Blue"/>
+        <BoxView Grid.Column="1" Grid.RowSpan="5" WidthRequest="1" BackgroundColor="Blue"/>
+        <BoxView Grid.Column="2" Grid.RowSpan="5" WidthRequest="1" BackgroundColor="Blue"/>
+        <BoxView Grid.Column="3" Grid.RowSpan="5" WidthRequest="1" BackgroundColor="Blue"/>
+        <BoxView Grid.Column="4" Grid.RowSpan="5" WidthRequest="1" BackgroundColor="Blue"/>
+        <!-- Extra right line -->
+        <BoxView Grid.Column="4" Grid.RowSpan="5" WidthRequest="1" BackgroundColor="Blue" HorizontalOptions="End"/>
+       
+      
+        <Label
+            Text="Current Team"
+            Grid.Column="3"
+            Grid.Row="1"
+            />
+        <HorizontalStackLayout
+             Grid.Row="0"
+             Grid.Column="1">
+            <Button 
+                Text="Main Menu"
+                WidthRequest="150"
+                VerticalOptions="Center"
+                HorizontalOptions="Center"
+                Clicked="OnClickGoToHomeMenu"
+                />
+            <Button 
+      Text="BattleButton" 
+      Clicked="OnClickBattleButton"   
+      WidthRequest="150"
+      VerticalOptions="Center"
+      HorizontalOptions="Center"/>
         <Button
-          Grid.Row="1"
-          Grid.Column="0"
           WidthRequest="150"
           VerticalOptions="Center"
           HorizontalOptions="Center"
           Text="GetPokemons"
             Command="{Binding GetPokemonCommand}"
           />
-        <Button 
-          Grid.Row="0" 
-          Grid.Column="0" 
-          Text="BattleButton" 
-          Clicked="OnClickBattleButton"   
-          WidthRequest="150"
-          VerticalOptions="Center"
-          HorizontalOptions="Center"/>
+        
+        </HorizontalStackLayout>
+        <Label 
+     Grid.Row="1"
+     Grid.Column="1"
+            Margin="-25"
+     Text="Available Pokemon(Click on the list)"/>
         <CollectionView 
-           Grid.Row="2"
-           Grid.Column="0"
+            BackgroundColor="Grey"
+           Grid.Row="1"
+           Grid.Column="1"
            VerticalOptions="Start"
           WidthRequest="150"
           HorizontalOptions="Center"
           ItemsSource="{Binding AllPokemon}"
           x:Name="MyCollectionView"
           SelectionMode="Single"
-          SelectedItem="{Binding SelectedPokemonModel, Mode=TwoWay}"
-                              >
+          SelectedItem="{Binding SelectedPokemonModel, Mode=TwoWay}">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <StackLayout Padding="5" >
@@ -56,9 +98,9 @@
         </CollectionView>
         <CollectionView 
         Grid.Row="1"
-        Grid.Column="3"
+        Grid.Column="4"
         VerticalOptions="Start"
-          MinimumHeightRequest="150"
+          MinimumHeightRequest="200"
        HorizontalOptions="Center"
        ItemsSource="{Binding DisplayTeamPokemon}"
        x:Name="TeamCollectionView"
@@ -93,7 +135,11 @@
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
-
+        <Label
+      Grid.Row="1"
+      Grid.Column="2"
+    
+      Text="Current Selected Pokemon"/>
         <VerticalStackLayout
       Grid.Row="1"
       Grid.Column="2"
@@ -109,21 +155,22 @@
             <Image
             x:Name="PokemonImage"
               VerticalOptions="Center"
-          WidthRequest="150"
-          HeightRequest="150"
+          WidthRequest="200"
+          HeightRequest="200"
           Aspect="AspectFit"
            Source="{Binding PokemonImage}" />
-        </VerticalStackLayout>
-        <Button        
-          WidthRequest="150"
-         HeightRequest="50"
-         Grid.Row="2"
-         Grid.Column="1"
-          Command="{Binding AddToTeamCommand}"
-          Text="Add to team"
-          TextColor="Black"
-          BackgroundColor="LightGreen">
+            <Button        
+   WidthRequest="150"
+  HeightRequest="50"
+  Grid.Row="2"
+  Grid.Column="1"
+   Command="{Binding AddToTeamCommand}"
+   Text="Add to team"
+   TextColor="Black"
+   BackgroundColor="LightGreen">
 
-        </Button>
+            </Button>
+        </VerticalStackLayout>
+      
     </Grid>
 </ContentPage>

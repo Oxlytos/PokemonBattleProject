@@ -14,5 +14,7 @@ namespace Pokemon.Services.Interfaces
 
         //Endast en
         public Task<PokemonModel> GetPokemonSingularAsync(string name);
+
+        public Task<TypeModel> GetTypeModelAsync(string name);
     }
 }

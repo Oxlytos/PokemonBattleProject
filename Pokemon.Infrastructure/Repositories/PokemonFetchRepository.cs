@@ -43,10 +43,10 @@ namespace Pokemon.Infrastructure.Repositories
                     normalPokemon.Name = char.ToUpper(normalPokemon.Name[0]) + normalPokemon.Name.Substring(1);
                     //Gör till den fånigt långa och komplicerade spritecollectionen
                     var sprites = JsonSerializer.Deserialize<SpriteCollection>(content);
-                    foreach (var type in normalPokemon.Types)
-                    {
-                        Console.WriteLine(type.SlotNumber);
-                    }
+
+                    var types = normalPokemon.Types;
+
+                    Console.WriteLine(types);
                     //Pokemonen har nu koll på sina egna sprites (url länkar, inte lokala)
                     normalPokemon.Sprites = sprites;
                     return normalPokemon;
@@ -85,6 +85,32 @@ namespace Pokemon.Infrastructure.Repositories
             {
                 return null;
             }
+        }
+
+        public async Task<TypeModel> GetTypeModelAsync(string name)
+        {
+            //requestlänk för att hämta pokemon och bilder
+            string request = "type/" + name;
+
+            //Hämta
+            HttpResponseMessage msg = await _client.GetAsync(_client.BaseAddress+request);
+
+            try
+            {
+                if (msg.IsSuccessStatusCode)
+                {
+                    var typeJson = await msg.Content.ReadFromJsonAsync<TypeModel>();
+                    Console.WriteLine(typeJson);
+
+                    return typeJson;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return null;
+
         }
     }
 }

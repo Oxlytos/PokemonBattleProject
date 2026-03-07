@@ -11,5 +11,6 @@ namespace Pokemon.Infrastructure.Interfaces
     {
         public Task<List<PokemonModel>> GetPokemonModelsAsync();
         public Task<PokemonModel> GetPokemonModelModelAsync(string name);
+        public Task<TypeModel> GetTypeModelAsync(string name);
     }
 }

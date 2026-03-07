@@ -13,6 +13,8 @@ namespace PokemonBattle.Interfaces
     public interface ITeamViewModel
     {
         public ObservableCollection<PokemonModel> TeamPokemon {  get; }
+
+        public ICommand GoToHomeMenuCommand { get; }
         public ICommand GetPokemonCommand { get; }
         public ICommand AddToTeamCommand { get; }
         public ICommand RemoveFromTeamCommand { get; }
