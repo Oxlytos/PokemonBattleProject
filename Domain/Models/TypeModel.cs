@@ -20,6 +20,9 @@ namespace Domain.Models.Models
     {
         [JsonPropertyName("name")]
         public string TypeName { get; set; }
+
+        [JsonPropertyName("url")]
+        public string TypeUrl { get; set; }
     }
     public class DamageRelations
     {
@@ -53,7 +56,25 @@ namespace Domain.Models.Models
         [JsonPropertyName("damage_relations")]
         public DamageRelations DamageRelations { get; set; }
 
+        [JsonPropertyName("sprites")]
+        public TypeSpriteCollection Sprites { get; set; }
+
         //Stark emot => Gräs mot vatten
         
+    }
+    public class TypeSpriteCollection
+    {
+        [JsonPropertyName("generation-iii")]
+        public GenerationThreeTypeSprites TypeCollections { get; set; }
+    }
+    public class GenerationThreeTypeSprites
+    {
+        [JsonPropertyName("firered-leafgreen")]
+        public TypeIconSprite FireRedLeafGreenTypeIconSprite { get; set; }
+    }
+    public class TypeIconSprite
+    {
+        [JsonPropertyName("name_icon")]
+        public string TypeIconUrl { get; set; }
     }
 }

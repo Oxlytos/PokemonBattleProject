@@ -72,6 +72,9 @@ namespace PokemonBattle
             builder.Services.AddSingleton<IPokemonFetchService, PokemonFetchService>();
             builder.Services.AddSingleton<IPokemonFetchRepository, PokemonFetchRepository>();
 
+            builder.Services.AddSingleton<ITypeService, TypeService>();
+            builder.Services.AddSingleton<ITypeRepo, TypeRepo>();
+
             builder.Services.AddTransient<MainPage>();
             builder.Services.AddTransient<MainViewModel>();
             return builder.Build();

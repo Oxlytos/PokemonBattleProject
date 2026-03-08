@@ -6,18 +6,23 @@ using System.Threading.Tasks;
 using Domain.Models.Models;
 using Pokemon.Services.Interfaces;
 using Microsoft.VisualBasic;
+using System.IO;
+using System.Net.NetworkInformation;
 
 namespace PokemonBattle.Services
 {
     public class ImageService : IImageService
     {
         private readonly string _baseFolderPath;
+        private readonly string _typeFolderPath;
         private readonly HttpClient _client;
         public ImageService()
         {
             //MAui storage och inte visual basic storage
             _baseFolderPath = Path.Combine(Microsoft.Maui.Storage.FileSystem.AppDataDirectory, "PokemonSprites");
+            _typeFolderPath = Path.Combine(Microsoft.Maui.Storage.FileSystem.AppDataDirectory, "TypeSprites");
             Directory.CreateDirectory(_baseFolderPath);
+            Directory.CreateDirectory(_typeFolderPath);
             _client = new HttpClient();
         }
 
@@ -32,6 +37,16 @@ namespace PokemonBattle.Services
            
             return folder;
         }
+        public string GetTypeFolder(string name)
+        {
+            var folder = Path.Combine(_typeFolderPath, name);
+            if (!Directory.Exists(folder))
+            {
+                Directory.CreateDirectory(folder);
+            }
+
+            return folder;
+        }
         //hämta specifik sprite genom pokemonsprites/magmar/front_default
         public string GetSprite(string name, string spriteFileName)
         {
@@ -41,8 +56,6 @@ namespace PokemonBattle.Services
         {
             throw new NotImplementedException();
         }
-        
-
         public async Task SaveImage(string name, SpriteModel spriteModel)
         {
             //är de viktiga spritesen null?
@@ -73,7 +86,7 @@ namespace PokemonBattle.Services
                 //Kolla om fil och sökväg finns
                 //Key blir front_default
                 //Value är själva nät addressen
-                var filePath = GetSpritePath(name, key.Key);
+                var filePath = await GetSpritePath(name, key.Key);
 
                 //Kolla om map finns, på key.key som är front_defaul t.ex.
                 var folder = Path.GetDirectoryName(filePath);
@@ -105,7 +118,7 @@ namespace PokemonBattle.Services
             }
         }
 
-        public string GetSpritePath(string pokemonName, string spriteFileName)
+        public async Task<string> GetSpritePath(string pokemonName, string spriteFileName)
         {
             var folder = GetFolder(pokemonName);
             return Path.Combine(folder, spriteFileName);
@@ -113,8 +126,13 @@ namespace PokemonBattle.Services
 
         public bool AreAllSpritesStored(string pokemonName)
         {
+            //Hitta mapp
             string folder = GetFolder(pokemonName);
+
+            //Är dessa här`??
             string[] spriteFileNames = { "front_default.png", "front_shiny.png", "back_default.png", "back_shiny.png" };
+
+            //Loopa igenom och kolla att det finns en väg till dem
             foreach(var sprite in spriteFileNames)
             {
                 string existingPath = Path.Combine(folder, sprite);
@@ -125,5 +143,41 @@ namespace PokemonBattle.Services
             }
             return true;
         }
+        public async Task<string> GetTypeSpriteFolder(string name)
+        {
+            var folder = GetTypeFolder(name);
+            return Path.Combine(folder, name+".png");
+        }
+        public Task<TypeSpriteCollection> GetTypeSprite(string name)
+        {
+            return null;
+
+        }
+
+        public async Task SaveTypeSprite(string name, TypeSpriteCollection spriteModel)
+        {
+            if(spriteModel == null)
+            {
+                return;
+            }
+
+            var spriteUrl = spriteModel.TypeCollections.FireRedLeafGreenTypeIconSprite.TypeIconUrl;
+
+
+            //Kolla om map finns, på key.key som är front_defaul t.ex.
+            var folder = Path.Combine(_typeFolderPath,name);
+            //finns inte ens mappen
+            if (!Directory.Exists(folder))
+            {
+                //skapa mappen
+                Directory.CreateDirectory(folder);
+            }
+            var filePath = Path.Combine(folder, $"{name}.png");
+            using var stream = await _client.GetStreamAsync(spriteUrl);
+            using var fileSteam = File.Create(filePath);
+            await stream.CopyToAsync(fileSteam);
+
+        }
+
     }
 }

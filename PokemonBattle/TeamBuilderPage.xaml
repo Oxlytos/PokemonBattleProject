@@ -96,42 +96,64 @@
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
+        
+        
+        
+        
+        <!--Team och select pokemon-->
         <CollectionView 
         Grid.Row="1"
         Grid.Column="4"
         VerticalOptions="Start"
-          MinimumHeightRequest="200"
-       HorizontalOptions="Center"
-       ItemsSource="{Binding DisplayTeamPokemon}"
-       x:Name="TeamCollectionView"
-          SelectedItem="{Binding SelectedPokemonModel,Mode=TwoWay}"
-       SelectionMode="Single"
+        MinimumHeightRequest="200"
+        HorizontalOptions="Center"
+        ItemsSource="{Binding DisplayTeamPokemon}"
+        x:Name="TeamCollectionView"
+        SelectedItem="{Binding SelectedPokemonModel,Mode=TwoWay}"
+            SelectionMode="Single"
                            >
             <CollectionView.ItemsLayout>
                 <LinearItemsLayout Orientation="Horizontal" ItemSpacing="10"></LinearItemsLayout>
             </CollectionView.ItemsLayout>
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <StackLayout Padding="5" >
+                    <VerticalStackLayout  Padding="5" >
                         <Label Text="{Binding Name}" 
                                FontSize="18"
                                VerticalTextAlignment="Center"
                                HorizontalTextAlignment="Center"/>
-                        <Label Text="{Binding Types}"
-                                FontSize="18"
-                                VerticalTextAlignment="Center"
-                                HorizontalTextAlignment="Center"
-                            />
+                       
                         <Image Source="{Binding SpritePath}"   
                                WidthRequest="150"
-                               HeightRequest="150"/>
+                               HeightRequest="150">
+                            <Image.GestureRecognizers>
+                            <TapGestureRecognizer
+                                NumberOfTapsRequired="2"
+                                Command="{Binding Source={x:Reference TeamCollectionView}, Path=BindingContext.GoToMoveAssignerPageCommand}"
+                                >
+                            </TapGestureRecognizer>
+                            </Image.GestureRecognizers>
+                        </Image>
+                        <HorizontalStackLayout
+                            Padding="20"
+                            BindableLayout.ItemsSource="{Binding SpriteTypePaths}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate>
+                                    <Image Source="{Binding}"
+                                           WidthRequest="70"
+                                           HeightRequest="30"/>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </HorizontalStackLayout>
                         <Button
                             Text="Remove"
                             TextColor="Black"
                             WidthRequest="150"
                             BackgroundColor="Orange"
+                            Command="{Binding Source={x:Reference TeamCollectionView}, Path=BindingContext.RemoveFromTeamCommand}"
+                            CommandParameter="{Binding .}"
                             />
-                    </StackLayout>
+                    </VerticalStackLayout>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>

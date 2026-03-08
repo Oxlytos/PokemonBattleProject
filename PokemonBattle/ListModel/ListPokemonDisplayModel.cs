@@ -51,7 +51,19 @@ namespace PokemonBattle.ListModel
             }
         }
         public string Name => Pokemon.Name;
-
+        private string[] _typePaths;
+        public string[] SpriteTypePaths
+        {
+            get
+            {
+               return _typePaths;
+            }
+            set
+            {
+                _typePaths = value;
+                OnPropertyChanged(nameof(SpriteTypePaths));
+            }
+        }
 
         void OnPropertyChanged(string propertyName)
         {

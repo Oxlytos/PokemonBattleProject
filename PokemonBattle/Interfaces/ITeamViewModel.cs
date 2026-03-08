@@ -18,6 +18,8 @@ namespace PokemonBattle.Interfaces
         public ICommand GetPokemonCommand { get; }
         public ICommand AddToTeamCommand { get; }
         public ICommand RemoveFromTeamCommand { get; }
+
+        public ICommand GoToMoveAssignerPageCommand { get; }
         Task LoadPokemonAsync();
         Task LoadTeamAsync();
     }
