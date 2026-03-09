@@ -29,6 +29,10 @@ namespace Domain.Models.Models
         [JsonPropertyName("types")]
         public TypeRequest[] Types { get; set; }
 
+        public MoveRequestCollection Moves { get; set; }
+
+        public SpriteCollection Sprites { get; set; }
+
         public int? Health { get; set; }
 
         public int? Attack {  get; set; }
@@ -45,9 +49,7 @@ namespace Domain.Models.Models
 
         public List<TypeModel> Type { get; set; }
 
-        public List<MoveModel> Moves { get; set; }
-
-        public SpriteCollection Sprites { get; set; }
+       
         public string SpritePath { get; set; }
 
         public async void SetBaseStatTotals()

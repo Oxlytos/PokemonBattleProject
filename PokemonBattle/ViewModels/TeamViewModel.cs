@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Domain.Models;
 using Domain.Models.Models;
 using Pokemon.Infrastructure.Interfaces;
 using Pokemon.Infrastructure.Services;
@@ -16,21 +17,36 @@ using PokemonBattle.ListModel;
 
 namespace PokemonBattle.ViewModels
 {
-    public class TeamViewModel:ITeamViewModel, INotifyPropertyChanged
+    public class TeamViewModel : ITeamViewModel, INotifyPropertyChanged
     {
         private IPokemonFetchService _fetchService;
         private IImageService _imageService;
         private ITeamPokemonService _teamPokemonService;
         private ITypeService _typeService;
+        private IMauiStorageDirectoryHelper _mauiStorageDirectoryHelper;
         public ObservableCollection<PokemonModel> AllPokemon { get; }
         public ObservableCollection<PokemonModel> TeamPokemon => _teamPokemonService.TeamPokemon;
-        public ObservableCollection<ListPokemonDisplayModel> DisplayTeamPokemon { get; } = new();
-        
+        public ObservableCollection<ListPokemonDisplayModel> DisplayTeamPokemon { get;  } = new();
+        private ObservableCollection<MoveRequestModel> _moves;
+        public ObservableCollection<MoveRequestModel>? BasicMovesModels
+        {
+            get
+            {
+                return _moves;
+            }
+            set
+            {
+                _moves = value;
+                OnPropertyChanged(nameof(BasicMovesModels));
+
+            }
+        }
         public ICommand GetPokemonCommand { get; }
         public ICommand AddToTeamCommand { get; }
         public ICommand RemoveFromTeamCommand { get; }
         public ICommand GoToHomeMenuCommand { get; }
         public ICommand GoToMoveAssignerPageCommand { get; }
+        public ICommand GetMovesCommand { get; }
 
         private ImageSource _pokemonImage;
         public ImageSource PokemonImage
@@ -66,32 +82,48 @@ namespace PokemonBattle.ViewModels
                 _pokemonName = value?.Name;
                 OnPropertyChanged(nameof(SelectedPokemonModel));
                 OnPropertyChanged(nameof(PokemonName));
-               
+
                 ((Command)AddToTeamCommand).ChangeCanExecute();
                 //Command load image?
                 _ = LoadPokemonSpriteAsync();
             }
         }
+        public TeamViewModel(
+            IPokemonFetchService pokemonFetchService,
+            IImageService imageService,
+            ITeamPokemonService teamPokemonService,
+            ITypeService typeService,
+            IMauiStorageDirectoryHelper mauiStorageDirectoryHelper
 
-       
-
-
-
-        //De services som behövs
-        public TeamViewModel(IPokemonFetchService pokemonFetchService, IImageService imageService, ITeamPokemonService teamPokemonService, ITypeService typeService)
+            )
         {
+            _mauiStorageDirectoryHelper = mauiStorageDirectoryHelper;
             _fetchService = pokemonFetchService;
             _imageService = imageService;
             _teamPokemonService = teamPokemonService;
             _typeService = typeService;
 
+
             AllPokemon = new ObservableCollection<PokemonModel>();
             GetPokemonCommand = new Command(async () => await LoadPokemonAsync());
-            AddToTeamCommand = new Command(async () => await AddToTeam(), () => SelectedPokemonModel!=null);
+            AddToTeamCommand = new Command(async () => await AddToTeam(), () => SelectedPokemonModel != null);
             RemoveFromTeamCommand = new Command<ListPokemonDisplayModel>(async (poke) => await RemoveFromTeam(poke));
-            GoToMoveAssignerPageCommand = new Command(async () => await GoToBattlePage());
-           
+            GoToMoveAssignerPageCommand = new Command(async () => await GoToMoveAssignerPage());
+            GetMovesCommand = new Command(async() => await GetPokemonRequestModelMoves());
+        }
+        public async Task GetPokemonRequestModelMoves()
+        {
+            if(SelectedPokemonModel != null)
+            {
+                var movesList = SelectedPokemonModel.Moves?.Moves ?? new MoveRequestModel[1];
+                BasicMovesModels = new ObservableCollection<MoveRequestModel>(movesList);
 
+            }
+        }
+        public async Task GoToMoveAssignerPage()
+        {
+            var page = new MoveAssignerPage(SelectedPokemonModel, this);
+            await Shell.Current.Navigation.PushAsync(page);
         }
         public async Task GoToBattlePage()
         {
@@ -115,13 +147,13 @@ namespace PokemonBattle.ViewModels
         public async Task LoadPokemonSpriteAsync()
         {
             //har vi tryckt på en pokemon i listan, annars returnera
-            if (SelectedPokemonModel==null) return;
-            
+            if (SelectedPokemonModel == null) return;
+
             //vägen dit (om den finns)
             var path = await _imageService.GetSpritePath(SelectedPokemonModel.Name, "front_default.png");
             var fullPokemonInfo = await _fetchService.GetPokemonSingularAsync(_pokemonName);
-            var result = await _fetchService.GetTypeModelAsync("ghost");
-            if (fullPokemonInfo?.Sprites!=null && !_imageService.AreAllSpritesStored(_pokemonName))
+            SelectedPokemonModel.Moves = fullPokemonInfo.Moves;
+            if (fullPokemonInfo?.Sprites != null && !_imageService.AreAllSpritesStored(_pokemonName))
             {
                 await _imageService.SaveImage(_pokemonName, fullPokemonInfo.Sprites.SpriteModel);
             }
@@ -130,23 +162,23 @@ namespace PokemonBattle.ViewModels
             {
                 PokemonImage = ImageSource.FromFile(path);
             }
-         
+
         }
         public async Task LoadSpriteForPokemonListItemAsync(ListPokemonDisplayModel listItem)
         {
-            if(listItem == null) return;
+            if (listItem == null) return;
 
             var pokemonName = listItem.Name;
             var fullPokemonInfo = await _fetchService.GetPokemonSingularAsync(pokemonName);
 
-
+            SelectedPokemonModel.Moves = fullPokemonInfo.Moves;
             var spritePath = await _imageService.GetSpritePath(pokemonName, "front_default.png");
 
 
             var typeList = fullPokemonInfo.Types.Select(t => t.Types.Name).ToList();
             var typeSpriteList = new List<string>();
 
-            foreach(var type in typeList)
+            foreach (var type in typeList)
             {
                 var fullTypeInfo = await _typeService.GetTypeData(type);
 
@@ -166,10 +198,10 @@ namespace PokemonBattle.ViewModels
             {
                 //Actual sprite som vin bindar till
                 listItem.SpritePath = spritePath;
-                
+
                 PokemonImage = ImageSource.FromFile(spritePath);
             }
-            
+
 
         }
         public async Task AddToTeam()
@@ -192,7 +224,7 @@ namespace PokemonBattle.ViewModels
                 _ = LoadSpriteForPokemonListItemAsync(displayTeamMember);
             }
 
-            SelectedPokemonModel = null;
+            //SelectedPokemonModel = null;
         }
         public async Task LoadPokemonAsync()
         {

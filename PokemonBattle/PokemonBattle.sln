@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "..\Domain\Domain.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pokemon.Repository", "..\Pokemon.Repository\Pokemon.Repository.csproj", "{71DF1B6D-F056-4709-8D73-C88A8C5B3C29}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pokemon.Services", "..\Pokemon.Services\Pokemon.Services.csproj", "{025D8EAE-D99C-4394-BC28-126DF91A5FED}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pokemon.Infrastructure", "..\Pokemon.Infrastructure\Pokemon.Infrastructure.csproj", "{35F6E4F4-5F45-4DC5-A7C0-C542D5EAA955}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pokemon.Shared", "..\Pokemon.Shared\Pokemon.Shared.csproj", "{36B5BCD9-7FEA-46FA-851D-26E5022580CE}"
@@ -33,10 +31,6 @@ Global
 		{71DF1B6D-F056-4709-8D73-C88A8C5B3C29}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{71DF1B6D-F056-4709-8D73-C88A8C5B3C29}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{71DF1B6D-F056-4709-8D73-C88A8C5B3C29}.Release|Any CPU.Build.0 = Release|Any CPU
-		{025D8EAE-D99C-4394-BC28-126DF91A5FED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{025D8EAE-D99C-4394-BC28-126DF91A5FED}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{025D8EAE-D99C-4394-BC28-126DF91A5FED}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{025D8EAE-D99C-4394-BC28-126DF91A5FED}.Release|Any CPU.Build.0 = Release|Any CPU
 		{35F6E4F4-5F45-4DC5-A7C0-C542D5EAA955}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{35F6E4F4-5F45-4DC5-A7C0-C542D5EAA955}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{35F6E4F4-5F45-4DC5-A7C0-C542D5EAA955}.Release|Any CPU.ActiveCfg = Release|Any CPU

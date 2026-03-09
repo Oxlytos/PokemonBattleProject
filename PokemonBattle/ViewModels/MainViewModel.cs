@@ -98,24 +98,6 @@ namespace PokemonBattle.ViewModels
             await Shell.Current.GoToAsync(nameof(TeamBuilderPage));
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         protected void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

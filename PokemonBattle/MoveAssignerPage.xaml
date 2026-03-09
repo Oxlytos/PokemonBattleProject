@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PokemonBattle.MoveAssignerPage"
+             Title="MoveAssignerPage">
+    <Grid Margin="50" ColumnSpacing="50" >
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <!-- Horizontal grid lines -->
+        <BoxView Grid.Row="0" Grid.ColumnSpan="5" HeightRequest="1" BackgroundColor="Red"/>
+        <BoxView Grid.Row="1" Grid.ColumnSpan="5" HeightRequest="1" BackgroundColor="Red"/>
+        <BoxView Grid.Row="2" Grid.ColumnSpan="5" HeightRequest="1" BackgroundColor="Red"/>
+        <BoxView Grid.Row="3" Grid.ColumnSpan="5" HeightRequest="1" BackgroundColor="Red"/>
+        <BoxView Grid.Row="4" Grid.ColumnSpan="5" HeightRequest="1" BackgroundColor="Red"/>
+        <!-- Extra bottom line -->
+        <BoxView Grid.Row="4" Grid.ColumnSpan="5" HeightRequest="1" BackgroundColor="Red" VerticalOptions="End"/>
+
+        <!-- Vertical grid lines -->
+        <BoxView Grid.Column="0" Grid.RowSpan="5" WidthRequest="1" BackgroundColor="Blue"/>
+        <BoxView Grid.Column="1" Grid.RowSpan="5" WidthRequest="1" BackgroundColor="Blue"/>
+        <BoxView Grid.Column="2" Grid.RowSpan="5" WidthRequest="1" BackgroundColor="Blue"/>
+        <BoxView Grid.Column="3" Grid.RowSpan="5" WidthRequest="1" BackgroundColor="Blue"/>
+        <BoxView Grid.Column="4" Grid.RowSpan="5" WidthRequest="1" BackgroundColor="Blue"/>
+        <!-- Extra right line -->
+        <BoxView Grid.Column="4" Grid.RowSpan="5" WidthRequest="1" BackgroundColor="Blue" HorizontalOptions="End"/>
+        <Label
+            Grid.Row="0"
+            Grid.Column="0"
+            Text="Move page"/>
+        <HorizontalStackLayout
+      Grid.Row="0"
+      Grid.Column="1">
+            <Button 
+         Text="Main Menu"
+         WidthRequest="150"
+         VerticalOptions="Center"
+         HorizontalOptions="Center"
+                Clicked="GoToMainMenuButtonClicked"
+         />
+            <Button 
+       Text="Go Back" 
+                Clicked="GoBackButtonClicked"
+       WidthRequest="150"
+       VerticalOptions="Center"
+       HorizontalOptions="Center"/>
+            <Button
+                Text="Get Moves"
+       WidthRequest="150"
+       VerticalOptions="Center"
+       HorizontalOptions="Center"
+       Command="{Binding GetMovesCommand}"/>
+            
+        </HorizontalStackLayout>
+        <VerticalStackLayout
+        Grid.Row="1"
+        Grid.Column="1"
+        HorizontalOptions="Center"
+        VerticalOptions="Center"
+        Spacing="10">
+            <Label
+        x:Name="CurrentChoosenPokemon"
+            HorizontalTextAlignment="Center"
+            WidthRequest="100"
+        Text="{Binding PokemonName}"
+            HorizontalOptions="Center"/>
+            <Image
+          x:Name="PokemonImage"
+            VerticalOptions="Center"
+        WidthRequest="200"
+        HeightRequest="200"
+        Aspect="AspectFit"
+         Source="{Binding PokemonImage}" />
+        </VerticalStackLayout>
+        <CollectionView 
+          Grid.Row="1"
+          Grid.Column="2"
+          VerticalOptions="Start"
+          WidthRequest="150"
+          HorizontalOptions="Center"
+          ItemsSource="{Binding BasicMovesModels}"
+          x:Name="MyCollectionView"
+          SelectionMode="Single">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <StackLayout Padding="5" >
+                        <Label Text="{Binding Move.Name}" FontSize="18"/>
+                    </StackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+
+</ContentPage>

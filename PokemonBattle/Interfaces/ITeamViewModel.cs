@@ -1,26 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Domain.Models.Models;
+using PokemonBattle.ListModel;
 
 namespace PokemonBattle.Interfaces
 {
     public interface ITeamViewModel
     {
-        public ObservableCollection<PokemonModel> TeamPokemon {  get; }
+        ICommand AddToTeamCommand { get; }
+        ObservableCollection<PokemonModel> AllPokemon { get; }
+        ObservableCollection<ListPokemonDisplayModel> DisplayTeamPokemon { get; }
+        ICommand GetPokemonCommand { get; }
+        ICommand GoToHomeMenuCommand { get; }
+        ICommand GoToMoveAssignerPageCommand { get; }
+        ImageSource PokemonImage { get; set; }
+        string PokemonName { get; }
+        ICommand RemoveFromTeamCommand { get; }
+        PokemonModel SelectedPokemonModel { get; set; }
+        ObservableCollection<PokemonModel> TeamPokemon { get; }
 
-        public ICommand GoToHomeMenuCommand { get; }
-        public ICommand GetPokemonCommand { get; }
-        public ICommand AddToTeamCommand { get; }
-        public ICommand RemoveFromTeamCommand { get; }
+        event PropertyChangedEventHandler? PropertyChanged;
 
-        public ICommand GoToMoveAssignerPageCommand { get; }
+        Task AddToTeam();
+        Task GoToBattlePage();
+        Task GoToMoveAssignerPage();
         Task LoadPokemonAsync();
+        Task LoadPokemonSpriteAsync();
+        Task LoadSpriteForPokemonListItemAsync(ListPokemonDisplayModel listItem);
         Task LoadTeamAsync();
+        Task RemoveFromTeam(ListPokemonDisplayModel listpokmeon);
     }
 }

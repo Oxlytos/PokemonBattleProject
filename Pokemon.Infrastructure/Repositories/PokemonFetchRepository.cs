@@ -2,27 +2,62 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Json;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Domain.Models;
 using Domain.Models.Models;
 using Pokemon.Infrastructure.Interfaces;
+using Pokemon.Repository.Repositories;
 
 namespace Pokemon.Infrastructure.Repositories
 {
     public class PokemonFetchRepository : IPokemonFetchRepository
     {
         private readonly HttpClient _client;
+        private readonly JsonStorage _jsonStorage;
         private string baseUrl = "https://pokeapi.co/api/v2/";
-        public PokemonFetchRepository(HttpClient client)
+        public PokemonFetchRepository(HttpClient client, JsonStorage jsonStorage)
         {
             _client = client;
             _client.BaseAddress = new Uri(baseUrl);
+            _jsonStorage = jsonStorage;
         }
+
+        public async Task<PokemonModel> DeserializePokemonModel(string jsonResponse)
+        {
+            var normalPokemon = JsonSerializer.Deserialize<PokemonModel>(jsonResponse);
+            normalPokemon.Name = char.ToUpper(normalPokemon.Name[0]) + normalPokemon.Name.Substring(1);
+            var sprites = JsonSerializer.Deserialize<SpriteCollection>(jsonResponse);
+            normalPokemon.Sprites = sprites;
+            var pokemonMoves = JsonSerializer.Deserialize<MoveRequestCollection>(jsonResponse);
+            Console.WriteLine(pokemonMoves);
+            normalPokemon.Moves = pokemonMoves;
+            Console.WriteLine(normalPokemon.Sprites);
+            //Gör till den fånigt långa och komplicerade spritecollectionen
+            return normalPokemon;
+
+        }
+        public async Task<TypeModel> DeserializeTypeModel (string jsonResponse)
+        {
+            var typeJson =  JsonSerializer.Deserialize<TypeModel>(jsonResponse);
+            return typeJson;
+        }
+
 
         public async Task<PokemonModel> GetPokemonModelModelAsync(string name)
         {
-          
+            //detta är filvägen
+            var localFileCheck = _jsonStorage.GetPokemon(name);
+            if(localFileCheck !=null && File.Exists(localFileCheck))
+            {
+                //detta är filen, läs den istället för att ladda ner igen
+                var jsonContent = await File.ReadAllTextAsync(localFileCheck);
+                var result = await DeserializePokemonModel(jsonContent);
+                return result;
+            }
+            //har vi inte redan infomrationen, ladda ner
             //requestlänk för att hämta pokemon och bilder
             string request = "pokemon/" + name;
 
@@ -32,24 +67,21 @@ namespace Pokemon.Infrastructure.Repositories
 
             try
             {
-
                 if (msg.IsSuccessStatusCode)
                 {
                     //Läs till sträng
                     var content = await msg.Content.ReadAsStringAsync();
-
-                    //Gör till pokemon model
-                    var normalPokemon = JsonSerializer.Deserialize<PokemonModel>(content);
-                    normalPokemon.Name = char.ToUpper(normalPokemon.Name[0]) + normalPokemon.Name.Substring(1);
-                    //Gör till den fånigt långa och komplicerade spritecollectionen
-                    var sprites = JsonSerializer.Deserialize<SpriteCollection>(content);
-
-                    var types = normalPokemon.Types;
-
-                    Console.WriteLine(types);
-                    //Pokemonen har nu koll på sina egna sprites (url länkar, inte lokala)
-                    normalPokemon.Sprites = sprites;
-                    return normalPokemon;
+                        var normalPokemon = JsonSerializer.Deserialize<PokemonModel>(content);
+                        
+                        normalPokemon.Name = char.ToUpper(normalPokemon.Name[0]) + normalPokemon.Name.Substring(1);
+                        var sprites = JsonSerializer.Deserialize<SpriteCollection>(content);
+                        normalPokemon.Sprites = sprites;
+                    var pokemonMoves = JsonSerializer.Deserialize<MoveRequestCollection>(content);
+                    normalPokemon.Moves = pokemonMoves;
+                    Console.WriteLine(normalPokemon.Sprites);
+                        await _jsonStorage.SavePokemonData(name, content);
+                        return normalPokemon;
+                  
                 }
                 else
                 {
@@ -89,6 +121,11 @@ namespace Pokemon.Infrastructure.Repositories
 
         public async Task<TypeModel> GetTypeModelAsync(string name)
         {
+            var localFileCheck = await _jsonStorage.GetTypeFolder(name);
+            if (localFileCheck !=null && File.Exists(localFileCheck))
+            {
+                return await DeserializeTypeModel(localFileCheck);
+            }
             //requestlänk för att hämta pokemon och bilder
             string request = "type/" + name;
 
@@ -99,9 +136,10 @@ namespace Pokemon.Infrastructure.Repositories
             {
                 if (msg.IsSuccessStatusCode)
                 {
-                    var typeJson = await msg.Content.ReadFromJsonAsync<TypeModel>();
-                    Console.WriteLine(typeJson);
+                    string content = await msg.Content.ReadAsStringAsync();
+                    var typeJson = await DeserializeTypeModel(content);
 
+                     await _jsonStorage.SaveTypeData(name, content);
                     return typeJson;
                 }
             }

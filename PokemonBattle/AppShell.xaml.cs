@@ -8,6 +8,7 @@
 
             //Routing för att hitta korrekt och inte krascha
             Routing.RegisterRoute(nameof(TeamBuilderPage), typeof(TeamBuilderPage));
+            Routing.RegisterRoute(nameof(MoveAssignerPage), typeof(MoveAssignerPage));
         }
     }
 }

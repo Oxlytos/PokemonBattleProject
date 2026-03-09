@@ -9,6 +9,7 @@ using PokemonBattle.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Pokemon.Infrastructure.Services;
 using PokemonBattle.Services;
+using Pokemon.Repository.Repositories;
 
 namespace PokemonBattle
 {
@@ -72,8 +73,12 @@ namespace PokemonBattle
             builder.Services.AddSingleton<IPokemonFetchService, PokemonFetchService>();
             builder.Services.AddSingleton<IPokemonFetchRepository, PokemonFetchRepository>();
 
+            builder.Services.AddSingleton<IMauiStorageDirectoryHelper, MauiStorageDirectoryHelperService>();
+
             builder.Services.AddSingleton<ITypeService, TypeService>();
             builder.Services.AddSingleton<ITypeRepo, TypeRepo>();
+
+            builder.Services.AddSingleton<JsonStorage>();
 
             builder.Services.AddTransient<MainPage>();
             builder.Services.AddTransient<MainViewModel>();
