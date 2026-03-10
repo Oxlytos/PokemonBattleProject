@@ -9,10 +9,10 @@ namespace PokemonBattle;
 public partial class MoveAssignerPage : ContentPage
 {
 	private PokemonModel _pokemonModel;
-	public MoveAssignerPage(PokemonModel? pokemon, ITeamViewModel vm)
+	public MoveAssignerPage(MoveViewModel vm)
 	{
 		InitializeComponent();
-		BindingContext = vm;
+        BindingContext = vm;
     }
 
     private async void GoBackButtonClicked(object sender, EventArgs e)

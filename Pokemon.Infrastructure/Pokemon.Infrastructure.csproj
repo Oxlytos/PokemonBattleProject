@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Domain\Domain.csproj" />
     <ProjectReference Include="..\Pokemon.Repository\Pokemon.Repository.csproj" />
+    <ProjectReference Include="..\Pokemon.Shared\Pokemon.Shared.csproj" />
   </ItemGroup>
 
 </Project>

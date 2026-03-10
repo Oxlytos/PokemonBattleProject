@@ -30,7 +30,7 @@ namespace PokemonBattle.Interfaces
 
         Task AddToTeam();
         Task GoToBattlePage();
-        Task GoToMoveAssignerPage();
+        Task GoToMoveAssignerPage(ListPokemonDisplayModel pokemonDisplayModel);
         Task LoadPokemonAsync();
         Task LoadPokemonSpriteAsync();
         Task LoadSpriteForPokemonListItemAsync(ListPokemonDisplayModel listItem);

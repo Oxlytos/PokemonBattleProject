@@ -16,5 +16,7 @@ namespace Pokemon.Services.Interfaces
         public Task<PokemonModel> GetPokemonSingularAsync(string name);
 
         public Task<TypeModel> GetTypeModelAsync(string name);
+
+        public Task<MoveModel> GetMoveModelAsync(string name);
     }
 }

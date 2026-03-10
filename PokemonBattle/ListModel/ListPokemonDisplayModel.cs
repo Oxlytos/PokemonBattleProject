@@ -21,6 +21,8 @@ namespace PokemonBattle.ListModel
         public ListPokemonDisplayModel(PokemonModel pokemon)
         {
             Pokemon = pokemon;
+            SpritePath = pokemon.SpritePath;
+
         }
 
         private string _types;
@@ -36,7 +38,21 @@ namespace PokemonBattle.ListModel
                 OnPropertyChanged(nameof(Types));
             }
         }
-
+        //länkar till själva bild på hårdisk
+        private ImageSource _spriteImage;
+        public ImageSource SpriteImage
+        {
+            get => _spriteImage;
+            set
+            {
+                if (_spriteImage != value)
+                {
+                    _spriteImage = value;
+                    OnPropertyChanged(nameof(SpriteImage));
+                }
+            }
+        }
+        //vägen dit till bilden
         private string _spritePath;
         public string SpritePath
         {
@@ -46,11 +62,27 @@ namespace PokemonBattle.ListModel
                 if(_spritePath != value)
                 {
                     _spritePath = value;
+                    //from file hjälper och ta bort //User//Files till relativ väg från vad jag förstår
+                    SpriteImage = ImageSource.FromFile(_spritePath);
+                    Console.WriteLine(SpriteImage);
                     OnPropertyChanged(nameof(SpritePath));
                 }
             }
         }
         public string Name => Pokemon.Name;
+        public string? Nickname
+        {
+            get=>Pokemon.Nickname;
+            set
+            {
+                if(Pokemon.Nickname != value)
+                {
+                    Pokemon.Nickname = value;
+                    OnPropertyChanged(nameof(Nickname));
+                }
+            }
+        }
+        
         private string[] _typePaths;
         public string[] SpriteTypePaths
         {

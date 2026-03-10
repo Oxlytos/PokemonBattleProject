@@ -13,5 +13,9 @@ namespace Pokemon.Infrastructure.Interfaces
         public ObservableCollection<PokemonModel> TeamPokemon { get; }
         public Task AddToTeam(PokemonModel pokemon);
         public Task RemoveFromTeam(PokemonModel pokemon);
+
+        public void UpdateTeamMember(PokemonModel pokemon);
+
+        public Task<bool> CanWeAddToTeam();
     }
 }

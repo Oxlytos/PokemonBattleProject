@@ -20,6 +20,9 @@ namespace Domain.Models.Models
         [JsonPropertyName("name")]
         public string? Name { get; set; }
 
+        [JsonPropertyName("nickname")]
+        public string? Nickname { get; set; }
+
         [JsonPropertyName("url")]
         public string? Url { get; set; }
 
@@ -28,6 +31,9 @@ namespace Domain.Models.Models
 
         [JsonPropertyName("types")]
         public TypeRequest[] Types { get; set; }
+
+        [JsonPropertyName("learned_moves")]
+        public MoveRequestModel[] LearnedMoves { get; set; } = Array.Empty<MoveRequestModel>();
 
         public MoveRequestCollection Moves { get; set; }
 

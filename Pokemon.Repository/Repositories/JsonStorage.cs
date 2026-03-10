@@ -2,13 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
+using Domain.Models.Models;
+using Pokemon.Repository.Interfaces;
 using Pokemon.Repository.Repositories;
 using PokemonBattle.Interfaces;
 
 namespace Pokemon.Repository.Repositories
 {
-    public class JsonStorage
+  
+
+    public class JsonStorage : IJsonStorage
     {
         HttpClient _client;
         private readonly string _dataFolderPath;
@@ -16,12 +21,30 @@ namespace Pokemon.Repository.Repositories
         public JsonStorage(IMauiStorageDirectoryHelper provider)
         {
             _provider = provider;
-            _dataFolderPath=  Path.Combine(provider.GetDirectory(), "JsonData");
+            _dataFolderPath = Path.Combine(provider.GetDirectory(), "JsonData");
             Directory.CreateDirectory(_dataFolderPath);
             Directory.CreateDirectory(Path.Combine(_dataFolderPath, "moves"));
             Directory.CreateDirectory(Path.Combine(_dataFolderPath, "types"));
             Directory.CreateDirectory(Path.Combine(_dataFolderPath, "pokemon"));
             _client = new HttpClient();
+        }
+        public async Task SaveTeamAsync(List<PokemonModel> team)
+        {
+            var json = JsonSerializer.Serialize(team, new JsonSerializerOptions { WriteIndented = true });
+            var filePath = Path.Combine(_dataFolderPath, "team.json");
+            await File.WriteAllTextAsync(filePath, json);
+        }
+        public async Task<List<PokemonModel>> LoadTeamAsync()
+        {
+            var filePath = Path.Combine(_dataFolderPath, "team.json");
+            if (!File.Exists(filePath))
+            {
+                //tomt på något sätt?
+                return new List<PokemonModel>();
+            }
+            var json = await File.ReadAllTextAsync(filePath);
+            var team = JsonSerializer.Deserialize<List<PokemonModel>>(json) ?? new List<PokemonModel>();
+            return team;
         }
         public string GetDataFolder(string folderName)
         {
@@ -32,9 +55,9 @@ namespace Pokemon.Repository.Repositories
             }
             return folder;
         }
-        public async Task<string> GetMove(string moveName)
+        public string? GetMove(string moveName)
         {
-            var move = Path.Combine(_dataFolderPath, "moves", moveName+".json");
+            var move = Path.Combine(_dataFolderPath, "moves", moveName + ".json");
             if (!File.Exists(move))
             {
                 //Ladda ner
@@ -52,10 +75,10 @@ namespace Pokemon.Repository.Repositories
         }
         public string? GetPokemon(string pokemonName)
         {
-            var pokemon = Path.Combine(_dataFolderPath,"pokemon", pokemonName + ".json");
-            if (!File.Exists(pokemon))  
+            var pokemon = Path.Combine(_dataFolderPath, "pokemon", pokemonName + ".json");
+            if (!File.Exists(pokemon))
             {
-               
+
             }
             return pokemon;
         }
@@ -65,7 +88,7 @@ namespace Pokemon.Repository.Repositories
             {
                 return;
             }
-            if(string.IsNullOrEmpty(jsonData))
+            if (string.IsNullOrEmpty(jsonData))
             {
                 return;
             }

@@ -17,6 +17,12 @@ namespace Domain.Models
     {
         [JsonPropertyName("move")]
         public Move Move {  get; set; }
+
+        public int? Power { get; set; }
+
+        public string? TypeName { get; set; }
+
+        public string DisplayInfo => $"{Move.Name} | {TypeName} | {Power}";
         
     }
     public class Move

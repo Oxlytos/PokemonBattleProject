@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Domain.Models;
 using Domain.Models.Models;
 using Pokemon.Infrastructure.Interfaces;
+using Pokemon.Repository.Interfaces;
 using Pokemon.Repository.Repositories;
 
 namespace Pokemon.Infrastructure.Repositories
@@ -16,9 +17,9 @@ namespace Pokemon.Infrastructure.Repositories
     public class PokemonFetchRepository : IPokemonFetchRepository
     {
         private readonly HttpClient _client;
-        private readonly JsonStorage _jsonStorage;
+        private readonly IJsonStorage _jsonStorage;
         private string baseUrl = "https://pokeapi.co/api/v2/";
-        public PokemonFetchRepository(HttpClient client, JsonStorage jsonStorage)
+        public PokemonFetchRepository(HttpClient client, IJsonStorage jsonStorage)
         {
             _client = client;
             _client.BaseAddress = new Uri(baseUrl);
@@ -39,12 +40,60 @@ namespace Pokemon.Infrastructure.Repositories
             return normalPokemon;
 
         }
+
+        public async Task<MoveModel> DeserializeMoveModel(string jsonResponse)
+        {
+            var move = JsonSerializer.Deserialize<MoveModel>(jsonResponse);
+            var moveType = JsonSerializer.Deserialize<TypeModel>(jsonResponse);
+            Console.WriteLine(moveType);
+            return move;
+        }
+
+
+
         public async Task<TypeModel> DeserializeTypeModel (string jsonResponse)
         {
             var typeJson =  JsonSerializer.Deserialize<TypeModel>(jsonResponse);
             return typeJson;
         }
 
+        public async Task<MoveModel> GetMoveModelAsync(string name)
+        {
+            var localFileCheck = _jsonStorage.GetMove(name);
+            if (localFileCheck != null && File.Exists(localFileCheck))
+            {
+                //detta är filen, läs den istället för att ladda ner igen
+                var jsonContent = await File.ReadAllTextAsync(localFileCheck);
+                var result = await DeserializeMoveModel(jsonContent);
+                return result;
+            }
+
+            string request = "move/" + name;
+
+            HttpResponseMessage msg = await _client.GetAsync(request);
+            Console.WriteLine("Status code" + msg.StatusCode);
+            try
+            {
+                if (msg.IsSuccessStatusCode)
+                {
+                    var content = await msg.Content.ReadAsStringAsync();
+                    
+                    var move = JsonSerializer.Deserialize<MoveModel>(content);
+                    var moveType = JsonSerializer.Deserialize<TypeRequest>(content);
+
+                    move.Type = moveType;
+
+                    await _jsonStorage.SaveMoveData(name, content);
+                    return move;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            Console.WriteLine("Nothing happended?");
+            return null;
+        }
 
         public async Task<PokemonModel> GetPokemonModelModelAsync(string name)
         {
@@ -70,15 +119,15 @@ namespace Pokemon.Infrastructure.Repositories
                 if (msg.IsSuccessStatusCode)
                 {
                     //Läs till sträng
-                    var content = await msg.Content.ReadAsStringAsync();
+                        var content = await msg.Content.ReadAsStringAsync();
                         var normalPokemon = JsonSerializer.Deserialize<PokemonModel>(content);
                         
                         normalPokemon.Name = char.ToUpper(normalPokemon.Name[0]) + normalPokemon.Name.Substring(1);
                         var sprites = JsonSerializer.Deserialize<SpriteCollection>(content);
                         normalPokemon.Sprites = sprites;
-                    var pokemonMoves = JsonSerializer.Deserialize<MoveRequestCollection>(content);
-                    normalPokemon.Moves = pokemonMoves;
-                    Console.WriteLine(normalPokemon.Sprites);
+                        var pokemonMoves = JsonSerializer.Deserialize<MoveRequestCollection>(content);
+                        normalPokemon.Moves = pokemonMoves;
+                        Console.WriteLine(normalPokemon.Sprites);
                         await _jsonStorage.SavePokemonData(name, content);
                         return normalPokemon;
                   

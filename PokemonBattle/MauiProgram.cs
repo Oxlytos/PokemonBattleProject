@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Pokemon.Infrastructure.Services;
 using PokemonBattle.Services;
 using Pokemon.Repository.Repositories;
+using Pokemon.Repository.Interfaces;
 
 namespace PokemonBattle
 {
@@ -60,8 +61,13 @@ namespace PokemonBattle
              Singleton tjänster är alltid desamma. En ny instans skapas bara en gång.
 
              */
+            builder.Services.AddSingleton<IJsonStorage, JsonStorage>();
             builder.Services.AddSingleton<ITeamViewModel, TeamViewModel>();
             builder.Services.AddTransient<IPokemonListViewModel, PokemonListViewModel>();
+
+            builder.Services.AddTransient<MoveViewModel>();
+            builder.Services.AddTransient<MoveAssignerPage>();
+            builder.Services.AddTransient<IMoveService, MoveService>();
 
             builder.Services.AddTransient<IImageService, ImageService>();
             builder.Services.AddSingleton<ITeamPokemonService, TeamPokemonService>();
@@ -70,7 +76,7 @@ namespace PokemonBattle
 
             builder.Services.AddSingleton<IApplicationState, ApplicationState>();
 
-            builder.Services.AddSingleton<IPokemonFetchService, PokemonFetchService>();
+            builder.Services.AddSingleton<IPokemonFetchService, FetchService>();
             builder.Services.AddSingleton<IPokemonFetchRepository, PokemonFetchRepository>();
 
             builder.Services.AddSingleton<IMauiStorageDirectoryHelper, MauiStorageDirectoryHelperService>();
@@ -78,7 +84,7 @@ namespace PokemonBattle
             builder.Services.AddSingleton<ITypeService, TypeService>();
             builder.Services.AddSingleton<ITypeRepo, TypeRepo>();
 
-            builder.Services.AddSingleton<JsonStorage>();
+            
 
             builder.Services.AddTransient<MainPage>();
             builder.Services.AddTransient<MainViewModel>();

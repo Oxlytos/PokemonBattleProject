@@ -25,6 +25,13 @@ namespace Domain.Models.Models
         [JsonPropertyName("priority")]
         public int? Priority { get; set; }
 
+        [JsonPropertyName("generation")]
+        public MoveGeneration MoveGeneration { get; set; }
+
+        [JsonPropertyName("type")]
+        public TypeRequest Type { get; set; }
+
+
         public List<MoveType>? MoveType { get; set; }
 
         public List<EffectChange>? MoveEffects { get; set; }
@@ -34,6 +41,13 @@ namespace Domain.Models.Models
     }
     //May crit?
     //May leave foe paralyzed
+    public class MoveGeneration
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+
+
+    }
     public class EffectChange
     {
         public int EffectChance { get; set; }
