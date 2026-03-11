@@ -16,8 +16,6 @@ namespace PokemonBattle.ListModel
 
         //Orginella pokemonen
         public RequestPokeonModel Pokemon { get; }
-    
-        
         public ListPokemonDisplayModel(RequestPokeonModel pokemon)
         {
             Pokemon = pokemon;

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Domain.Models.Game;
 using Domain.Models.Models;
 using Domain.Models.RequestModels;
 using Pokemon.Infrastructure.Interfaces;
@@ -49,6 +50,20 @@ namespace PokemonBattle.ViewModels
         public string PokemonName
         {
             get { return _pokemonName; }
+        }
+        private PartyPokemonModel _actualPokemon;
+        public PartyPokemonModel ActualPokemon
+        {
+            get
+            {
+                return _actualPokemon;
+            }
+            set
+            {
+                _actualPokemon = value;
+                SelectedPokemonModel = new ListPokemonDisplayModel()
+                OnPropertyChanged(nameof(ActualPokemon));
+            }
         }
         private ListPokemonDisplayModel _selectedPokemonModel;
         public ListPokemonDisplayModel SelectedPokemonModel
@@ -142,7 +157,6 @@ namespace PokemonBattle.ViewModels
 
         private async Task AddMoveToPokemon()
         {
-
             var moves = await _moveService.AddMove(SelectedPokemonModel.Pokemon, CurrentMove);
             
             //räkna från högsta tal, neråt, -1 för det är array logik

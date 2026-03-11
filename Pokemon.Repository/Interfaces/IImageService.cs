@@ -9,7 +9,6 @@ namespace Pokemon.Services.Interfaces
 {
     public interface IImageService
     {
-        public Task<SpriteCollection> GetImage(string name);
         public Task SaveImage(string name, RequestSpriteModel spriteModel);
         public Task<string[]> GetTypeSprite(string[] name);
         public Task<string> GetTypeSpriteFolder(string name);

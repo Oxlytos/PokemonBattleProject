@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
-using Domain.Models.RequestModels;
+﻿using System.Text.Json;
+using Domain.Models.Base;
+using Domain.Models.Game;
 using Pokemon.Repository.Interfaces;
-using Pokemon.Repository.Repositories;
 using PokemonBattle.Interfaces;
 
 namespace Pokemon.Repository.Repositories
@@ -21,29 +16,29 @@ namespace Pokemon.Repository.Repositories
         public JsonStorage(IMauiStorageDirectoryHelper provider)
         {
             _provider = provider;
-            _dataFolderPath = Path.Combine(provider.GetDirectory(), "JsonData");
+            _dataFolderPath = Path.Combine(_provider.GetDirectory(), "JsonData");
             Directory.CreateDirectory(_dataFolderPath);
             Directory.CreateDirectory(Path.Combine(_dataFolderPath, "moves"));
             Directory.CreateDirectory(Path.Combine(_dataFolderPath, "types"));
             Directory.CreateDirectory(Path.Combine(_dataFolderPath, "pokemon"));
             _client = new HttpClient();
         }
-        public async Task SaveTeamAsync(List<RequestPokeonModel> team)
+        public async Task SaveTeamAsync(List<PartyPokemonModel> team)
         {
             var json = JsonSerializer.Serialize(team, new JsonSerializerOptions { WriteIndented = true });
             var filePath = Path.Combine(_dataFolderPath, "team.json");
             await File.WriteAllTextAsync(filePath, json);
         }
-        public async Task<List<RequestPokeonModel>> LoadTeamAsync()
+        public async Task<List<PartyPokemonModel>> LoadTeamAsync()
         {
             var filePath = Path.Combine(_dataFolderPath, "team.json");
             if (!File.Exists(filePath))
             {
                 //tomt på något sätt?
-                return new List<RequestPokeonModel>();
+                return new List<PartyPokemonModel>();
             }
             var json = await File.ReadAllTextAsync(filePath);
-            var team = JsonSerializer.Deserialize<List<RequestPokeonModel>>(json) ?? new List<RequestPokeonModel>();
+            var team = JsonSerializer.Deserialize<List<PartyPokemonModel>>(json) ?? new List<PartyPokemonModel>();
             return team;
         }
         public string GetDataFolder(string folderName)

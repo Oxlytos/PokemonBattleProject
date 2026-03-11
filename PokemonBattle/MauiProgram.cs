@@ -74,8 +74,6 @@ namespace PokemonBattle
             builder.Services.AddSingleton(new HttpClient());
 
 
-            builder.Services.AddSingleton<IApplicationState, ApplicationState>();
-
             builder.Services.AddSingleton<IPokemonFetchService, FetchService>();
             builder.Services.AddSingleton<IPokemonFetchRepository, PokemonFetchRepository>();
 

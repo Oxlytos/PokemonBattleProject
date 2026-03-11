@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using Domain.Models.RequestModels;
+﻿using System.Text.Json.Serialization;
 
 namespace Domain.Models.Game
 {
     public class PartyPokemonModel
     {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
         [JsonPropertyName("name")]
         public string Name { get; set; }
         [JsonPropertyName("nickname")]
@@ -19,7 +15,7 @@ namespace Domain.Models.Game
         public List<MoveModel> Moves { get; set; }
 
         [JsonPropertyName("types")]
-        public List<RequestTypeModel> Types { get; set; }
+        public List<TypeModel> Types { get; set; }
 
         [JsonPropertyName("stats")]
         public StatModel Stats { get; set; }

@@ -66,9 +66,7 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\Domain\Domain.csproj" />
-	  <ProjectReference Include="..\Pokemon.Infrastructure\Pokemon.Infrastructure.csproj" />
-	  <ProjectReference Include="..\Pokemon.Repository\Pokemon.Repository.csproj" />
-	  <ProjectReference Include="..\Pokemon.Shared\Pokemon.Shared.csproj" />
+	  <ProjectReference Include="..\PokemonBattle.Application\PokemonBattle.Application.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

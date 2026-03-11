@@ -12,6 +12,8 @@ using System.Text.Json;
 using Pokemon.Repository.Interfaces;
 using System.Reflection.Metadata;
 using System.Xml.Linq;
+using Domain.Models.Game;
+using PokemonBattle.Interfaces;
 
 namespace PokemonBattle.Services
 {
@@ -21,11 +23,13 @@ namespace PokemonBattle.Services
         private readonly string _typeFolderPath;
         private readonly HttpClient _client;
         private readonly string _baseUrl = "https://pokeapi.co/api/v2/";
-        public ImageService(IJsonStorage storage)
+        private readonly IMauiStorageDirectoryHelper _provider;
+        public ImageService(IMauiStorageDirectoryHelper provider)
         {
             //MAui storage och inte visual basic storage
-            _baseFolderPath = Path.Combine(Microsoft.Maui.Storage.FileSystem.AppDataDirectory, "PokemonSprites");
-            _typeFolderPath = Path.Combine(Microsoft.Maui.Storage.FileSystem.AppDataDirectory, "TypeSprites");
+            _provider = provider;
+            _baseFolderPath = Path.Combine(_provider.GetDirectory(), "PokemonSprites");
+            _typeFolderPath = Path.Combine(_provider.GetDirectory(), "TypeSprites");
             Directory.CreateDirectory(_baseFolderPath);
             Directory.CreateDirectory(_typeFolderPath);
             _client = new HttpClient();
@@ -57,10 +61,6 @@ namespace PokemonBattle.Services
         public string GetSprite(string name, string spriteFileName)
         {
             return Path.Combine(GetFolder(name), spriteFileName);
-        }
-        public Task<SpriteCollection> GetImage(string name)
-        {
-            throw new NotImplementedException();
         }
         public async Task SaveImage(string name, RequestSpriteModel spriteModel)
         {
@@ -186,13 +186,13 @@ namespace PokemonBattle.Services
                         {
                             var content = await msg.Content.ReadAsStringAsync();
 
-                            var typedata = JsonSerializer.Deserialize<RequestTypeModel>(content);
+                            var typedata = JsonSerializer.Deserialize<TypeRequest>(content);
 
                             if (typedata == null)
                             {
                                 return Array.Empty<string>();
                             }
-                            await SaveTypeSprite(type, typedata.Sprites);
+                            await SaveTypeSprite(type, typedata.Types.Sprites);
                             //Retunera 1 fil, en array av filer (2) eller inget
                         }
                     }

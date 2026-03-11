@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pokemon.Infrastructure", ".
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pokemon.Shared", "..\Pokemon.Shared\Pokemon.Shared.csproj", "{36B5BCD9-7FEA-46FA-851D-26E5022580CE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PokemonBattle.Application", "..\PokemonBattle.Application\PokemonBattle.Application.csproj", "{40D27ED4-AACE-433D-BE44-2AE7AC2738FF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{36B5BCD9-7FEA-46FA-851D-26E5022580CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{36B5BCD9-7FEA-46FA-851D-26E5022580CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{36B5BCD9-7FEA-46FA-851D-26E5022580CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40D27ED4-AACE-433D-BE44-2AE7AC2738FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40D27ED4-AACE-433D-BE44-2AE7AC2738FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40D27ED4-AACE-433D-BE44-2AE7AC2738FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40D27ED4-AACE-433D-BE44-2AE7AC2738FF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

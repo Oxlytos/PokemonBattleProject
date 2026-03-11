@@ -79,7 +79,7 @@ namespace Pokemon.Infrastructure.Repositories
                     var content = await msg.Content.ReadAsStringAsync();
                     
                     var move = JsonSerializer.Deserialize<MoveModel>(content);
-                    var moveType = JsonSerializer.Deserialize<TypeRequest>(content);
+                    var moveType = JsonSerializer.Deserialize<TypeModel>(content);
 
                     move.Type = moveType;
 

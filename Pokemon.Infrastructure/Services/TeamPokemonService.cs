@@ -5,6 +5,7 @@ using System.Data.SqlTypes;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Domain.Models.Game;
 using Domain.Models.RequestModels;
 using Pokemon.Infrastructure.Interfaces;
 
@@ -12,9 +13,8 @@ namespace Pokemon.Infrastructure.Services
 {
     public class TeamPokemonService : ITeamPokemonService
     {
-
-        public ObservableCollection<RequestPokeonModel> TeamPokemon { get; set; } = new();
-        public async Task AddToTeam(RequestPokeonModel pokemon)
+        public ObservableCollection<PartyPokemonModel> TeamPokemon { get; set; } = new();
+        public async Task AddToTeam(PartyPokemonModel pokemon)
         {
             if (TeamPokemon.Count < 6)
             {
@@ -39,7 +39,7 @@ namespace Pokemon.Infrastructure.Services
             return true;
         }
 
-        public async Task RemoveFromTeam(RequestPokeonModel pokemon)
+        public async Task RemoveFromTeam(PartyPokemonModel pokemon)
         {
             if(TeamPokemon.Count > 0)
             {
@@ -49,14 +49,14 @@ namespace Pokemon.Infrastructure.Services
             }
         }
 
-        public async void UpdateTeamMember(RequestPokeonModel pokemon)
+        public async void UpdateTeamMember(PartyPokemonModel pokemon)
         {
             var thisPokemon = TeamPokemon.FirstOrDefault(p=>p.Id==pokemon.Id);
 
             if (thisPokemon != null)
             {
-                thisPokemon.LearnedMoves = pokemon.LearnedMoves;
-                Console.WriteLine(thisPokemon.LearnedMoves);
+                thisPokemon.Moves = pokemon.Moves;
+                Console.WriteLine(thisPokemon.Moves);
             }
         }
     }

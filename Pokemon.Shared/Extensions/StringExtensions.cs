@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-
-namespace Pokemon.Shared.Extensions
+﻿namespace Pokemon.Shared.Extensions
 {
     public static class StringExtensions
     {

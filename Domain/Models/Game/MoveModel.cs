@@ -1,17 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using Domain.Models.Models;
-using Domain.Models.RequestModels;
+﻿using System.Text.Json.Serialization;
 
 namespace Domain.Models.Game
 {
     public class MoveModel
     {
-       
         [JsonPropertyName("name")]
         public string Name { get; set; }
 
@@ -31,15 +23,7 @@ namespace Domain.Models.Game
         public MoveGeneration MoveGeneration { get; set; }
 
         [JsonPropertyName("type")]
-        public TypeRequest Type { get; set; }
-
-
-        public List<MoveType>? MoveType { get; set; }
-
-        public List<EffectChange>? MoveEffects { get; set; }
-
-        //För på sig själv som Bulk Up, eller mot fiende som Superpower
-        public List<TargetModel> TargetOfMove { get; set; }
+        public TypeModel Type { get; set; }
     }
     //May crit?
     //May leave foe paralyzed
@@ -47,20 +31,10 @@ namespace Domain.Models.Game
     {
         [JsonPropertyName("name")]
         public string Name { get; set; }
-
-
     }
     public class EffectChange
     {
         public int EffectChance { get; set; }
-    }
-
-    //For physical, special
-    //Buff, debuff
-    //Other
-    public class MoveType
-    {
-
     }
     public enum MoveTypes
     {

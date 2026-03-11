@@ -15,14 +15,11 @@ namespace Pokemon.Services.Services
     public class FetchService : IPokemonFetchService
     {
         private readonly IPokemonFetchRepository _repository;
-        private readonly IJsonStorage _storage;
         public FetchService(
-            IPokemonFetchRepository pokemonFetchRepository,
-            IJsonStorage jsonStorage
+            IPokemonFetchRepository pokemonFetchRepository
             )
         {
             _repository = pokemonFetchRepository;
-            _storage = jsonStorage;
         }
 
         public async Task<MoveModel> GetMoveModelAsync(string name)
