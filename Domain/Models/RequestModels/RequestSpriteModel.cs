@@ -5,15 +5,15 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Domain.Models.Models
+namespace Domain.Models.RequestModels
 {
     public class SpriteCollection
     {
         [JsonPropertyName("sprites")]
-        public SpriteModel SpriteModel { get; set; }
+        public RequestSpriteModel SpriteModel { get; set; }
     }
 
-    public class SpriteModel
+    public class RequestSpriteModel
     {
         [JsonPropertyName("back_default")]
         public string BackDefault { get; set; }

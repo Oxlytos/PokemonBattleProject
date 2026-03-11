@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using Domain.Models.Models;
+using Domain.Models.RequestModels;
 using Pokemon.Services.Interfaces;
 using PokemonBattle.Interfaces;
 using PokemonBattle.ViewModels;
@@ -8,7 +8,7 @@ namespace PokemonBattle;
 
 public partial class MoveAssignerPage : ContentPage
 {
-	private PokemonModel _pokemonModel;
+	private RequestPokeonModel _pokemonModel;
 	public MoveAssignerPage(MoveViewModel vm)
 	{
 		InitializeComponent();

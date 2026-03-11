@@ -6,8 +6,8 @@ using System.Reflection.Metadata;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Domain.Models;
-using Domain.Models.Models;
+using Domain.Models.Game;
+using Domain.Models.RequestModels;
 using Pokemon.Infrastructure.Interfaces;
 using Pokemon.Repository.Interfaces;
 using Pokemon.Repository.Repositories;
@@ -26,9 +26,9 @@ namespace Pokemon.Infrastructure.Repositories
             _jsonStorage = jsonStorage;
         }
 
-        public async Task<PokemonModel> DeserializePokemonModel(string jsonResponse)
+        public async Task<RequestPokeonModel> DeserializePokemonModel(string jsonResponse)
         {
-            var normalPokemon = JsonSerializer.Deserialize<PokemonModel>(jsonResponse);
+            var normalPokemon = JsonSerializer.Deserialize<RequestPokeonModel>(jsonResponse);
             normalPokemon.Name = char.ToUpper(normalPokemon.Name[0]) + normalPokemon.Name.Substring(1);
             var sprites = JsonSerializer.Deserialize<SpriteCollection>(jsonResponse);
             normalPokemon.Sprites = sprites;
@@ -44,16 +44,16 @@ namespace Pokemon.Infrastructure.Repositories
         public async Task<MoveModel> DeserializeMoveModel(string jsonResponse)
         {
             var move = JsonSerializer.Deserialize<MoveModel>(jsonResponse);
-            var moveType = JsonSerializer.Deserialize<TypeModel>(jsonResponse);
+            var moveType = JsonSerializer.Deserialize<RequestTypeModel>(jsonResponse);
             Console.WriteLine(moveType);
             return move;
         }
 
 
 
-        public async Task<TypeModel> DeserializeTypeModel (string jsonResponse)
+        public async Task<RequestTypeModel> DeserializeTypeModel (string jsonResponse)
         {
-            var typeJson =  JsonSerializer.Deserialize<TypeModel>(jsonResponse);
+            var typeJson =  JsonSerializer.Deserialize<RequestTypeModel>(jsonResponse);
             return typeJson;
         }
 
@@ -95,7 +95,7 @@ namespace Pokemon.Infrastructure.Repositories
             return null;
         }
 
-        public async Task<PokemonModel> GetPokemonModelModelAsync(string name)
+        public async Task<RequestPokeonModel> GetPokemonModelModelAsync(string name)
         {
             //detta är filvägen
             var localFileCheck = _jsonStorage.GetPokemon(name);
@@ -112,7 +112,6 @@ namespace Pokemon.Infrastructure.Repositories
 
             //Hämta
             HttpResponseMessage msg = await _client.GetAsync(request);
-            Console.WriteLine("Status code" +msg.StatusCode);
 
             try
             {
@@ -120,7 +119,7 @@ namespace Pokemon.Infrastructure.Repositories
                 {
                     //Läs till sträng
                         var content = await msg.Content.ReadAsStringAsync();
-                        var normalPokemon = JsonSerializer.Deserialize<PokemonModel>(content);
+                        var normalPokemon = JsonSerializer.Deserialize<RequestPokeonModel>(content);
                         
                         normalPokemon.Name = char.ToUpper(normalPokemon.Name[0]) + normalPokemon.Name.Substring(1);
                         var sprites = JsonSerializer.Deserialize<SpriteCollection>(content);
@@ -147,14 +146,14 @@ namespace Pokemon.Infrastructure.Repositories
             
         }
 
-        public async Task<List<PokemonModel>> GetPokemonModelsAsync()
+        public async Task<List<RequestPokeonModel>> GetPokemonModelsAsync()
         {
             HttpResponseMessage responsemsg = await _client.GetAsync(_client.BaseAddress+ "pokemon?limit=151&offset=0");
             if (responsemsg.IsSuccessStatusCode)
             {
-                var pokeJson = await responsemsg.Content.ReadFromJsonAsync<PokemonListRequestModel>();
+                var pokeJson = await responsemsg.Content.ReadFromJsonAsync<RequestPokemonListModel>();
                 var pokemonPlural = pokeJson.Result.ToList();
-                List<PokemonModel> result = new List<PokemonModel>();
+                List<RequestPokeonModel> result = new List<RequestPokeonModel>();
                 foreach (var pokemon in pokemonPlural)
                 {
                     pokemon.Name = char.ToUpper(pokemon.Name[0]) + pokemon.Name.Substring(1);
@@ -168,7 +167,7 @@ namespace Pokemon.Infrastructure.Repositories
             }
         }
 
-        public async Task<TypeModel> GetTypeModelAsync(string name)
+        public async Task<RequestTypeModel> GetTypeModelAsync(string name)
         {
             var localFileCheck = await _jsonStorage.GetTypeFolder(name);
             if (localFileCheck !=null && File.Exists(localFileCheck))

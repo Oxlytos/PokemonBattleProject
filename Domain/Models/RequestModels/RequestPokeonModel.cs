@@ -5,9 +5,11 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-namespace Domain.Models.Models
+using Domain.Models.Models;
+
+namespace Domain.Models.RequestModels
 {
-    public class PokemonModel
+    public class RequestPokeonModel
     {
         // Root myDeserializedClass = JsonSerializer.Deserialize<Root>(myJsonResponse);
         //Basic request for a pokemon dosen't include things like all move data, types, descriptors etc
@@ -15,7 +17,7 @@ namespace Domain.Models.Models
         //Retrieve abilities by creating a APIResourceConnection
         //Name = "Overgrow" Url = "//"
         [JsonPropertyName("id")]
-        public int PokedexId { get; set; }
+        public int Id { get; set; }
 
         [JsonPropertyName("name")]
         public string? Name { get; set; }
@@ -33,7 +35,7 @@ namespace Domain.Models.Models
         public TypeRequest[] Types { get; set; }
 
         [JsonPropertyName("learned_moves")]
-        public MoveRequestModel[] LearnedMoves { get; set; } = Array.Empty<MoveRequestModel>();
+        public RequestMoveModel[] LearnedMoves { get; set; } = Array.Empty<RequestMoveModel>();
 
         public MoveRequestCollection Moves { get; set; }
 
@@ -53,7 +55,7 @@ namespace Domain.Models.Models
 
         public AbilityModel Ability { get; set; }
 
-        public List<TypeModel> Type { get; set; }
+        public List<RequestTypeModel> Type { get; set; }
 
        
         public string SpritePath { get; set; }
@@ -79,7 +81,7 @@ namespace Domain.Models.Models
             Speed = await speedTask;
         }
        
-        SpriteModel GetSprite()
+        RequestSpriteModel GetSprite()
         {
             return null;
         }

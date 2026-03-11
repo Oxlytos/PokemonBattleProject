@@ -6,8 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Domain.Models;
 using Domain.Models.Models;
+using Domain.Models.RequestModels;
 using Pokemon.Infrastructure.Interfaces;
 using Pokemon.Services.Interfaces;
 using Pokemon.Shared.Extensions;
@@ -66,8 +66,8 @@ namespace PokemonBattle.ViewModels
             }
         }
 
-        private ObservableCollection<MoveRequestModel>? _currentMoves;
-        public ObservableCollection<MoveRequestModel>? CurrentMoves
+        private ObservableCollection<RequestMoveModel>? _currentMoves;
+        public ObservableCollection<RequestMoveModel>? CurrentMoves
         {
             get
             {
@@ -81,8 +81,8 @@ namespace PokemonBattle.ViewModels
             }
         }
 
-        private ObservableCollection<MoveRequestModel> _aMoves;
-        public ObservableCollection<MoveRequestModel>? AvailableMoves
+        private ObservableCollection<RequestMoveModel> _aMoves;
+        public ObservableCollection<RequestMoveModel>? AvailableMoves
         {
             get
             {
@@ -95,8 +95,8 @@ namespace PokemonBattle.ViewModels
 
             }
         }
-        private MoveRequestModel _currentMove;
-        public MoveRequestModel CurrentMove
+        private RequestMoveModel _currentMove;
+        public RequestMoveModel CurrentMove
         {
             get
             {
@@ -178,8 +178,8 @@ namespace PokemonBattle.ViewModels
         }
         private async Task RefreshCurrentMoves()
         {
-            var currentMoves = SelectedPokemonModel.Pokemon.LearnedMoves ?? new MoveRequestModel[4];
-            CurrentMoves = new ObservableCollection<MoveRequestModel>(currentMoves);
+            var currentMoves = SelectedPokemonModel.Pokemon.LearnedMoves ?? new RequestMoveModel[4];
+            CurrentMoves = new ObservableCollection<RequestMoveModel>(currentMoves);
         }
 
         public async Task GetPokemonRequestModelMoves()
@@ -188,21 +188,21 @@ namespace PokemonBattle.ViewModels
             {
                 var pokemonData = await _fetchService.GetPokemonSingularAsync(SelectedPokemonModel.Name);
 
-                var currentMoves = pokemonData.LearnedMoves ?? new MoveRequestModel[4];
+                var currentMoves = pokemonData.LearnedMoves ?? new RequestMoveModel[4];
                 foreach(var move in currentMoves)
                 {
                     move.Move.Name = move.Move.Name.Capitalize();
                 }
-                CurrentMoves = new ObservableCollection<MoveRequestModel>(currentMoves);
+                CurrentMoves = new ObservableCollection<RequestMoveModel>(currentMoves);
                 
 
-                var movesList = pokemonData.Moves?.Moves ?? new MoveRequestModel[1];
+                var movesList = pokemonData.Moves?.Moves ?? new RequestMoveModel[1];
                 foreach(var move in movesList)
                 {
                     move.Move.Name = move.Move.Name.Capitalize();
                 }
                 
-                AvailableMoves = new ObservableCollection<MoveRequestModel>(movesList);
+                AvailableMoves = new ObservableCollection<RequestMoveModel>(movesList);
             }
         }
         protected void OnPropertyChanged(string propertyName)

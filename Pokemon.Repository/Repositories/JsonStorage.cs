@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Domain.Models.Models;
+using Domain.Models.RequestModels;
 using Pokemon.Repository.Interfaces;
 using Pokemon.Repository.Repositories;
 using PokemonBattle.Interfaces;
@@ -28,22 +28,22 @@ namespace Pokemon.Repository.Repositories
             Directory.CreateDirectory(Path.Combine(_dataFolderPath, "pokemon"));
             _client = new HttpClient();
         }
-        public async Task SaveTeamAsync(List<PokemonModel> team)
+        public async Task SaveTeamAsync(List<RequestPokeonModel> team)
         {
             var json = JsonSerializer.Serialize(team, new JsonSerializerOptions { WriteIndented = true });
             var filePath = Path.Combine(_dataFolderPath, "team.json");
             await File.WriteAllTextAsync(filePath, json);
         }
-        public async Task<List<PokemonModel>> LoadTeamAsync()
+        public async Task<List<RequestPokeonModel>> LoadTeamAsync()
         {
             var filePath = Path.Combine(_dataFolderPath, "team.json");
             if (!File.Exists(filePath))
             {
                 //tomt på något sätt?
-                return new List<PokemonModel>();
+                return new List<RequestPokeonModel>();
             }
             var json = await File.ReadAllTextAsync(filePath);
-            var team = JsonSerializer.Deserialize<List<PokemonModel>>(json) ?? new List<PokemonModel>();
+            var team = JsonSerializer.Deserialize<List<RequestPokeonModel>>(json) ?? new List<RequestPokeonModel>();
             return team;
         }
         public string GetDataFolder(string folderName)
@@ -60,18 +60,14 @@ namespace Pokemon.Repository.Repositories
             var move = Path.Combine(_dataFolderPath, "moves", moveName + ".json");
             if (!File.Exists(move))
             {
-                //Ladda ner
             }
             return move;
         }
         public async Task<string> GetTypeFolder(string typeName)
         {
-            var type = Path.Combine(_dataFolderPath, "types", typeName + ".json");
-            if (!File.Exists(type))
-            {
-                //Ladda ner
-            }
-            return type;
+            var folder = Path.Combine(_dataFolderPath, "types", typeName);
+            Directory.CreateDirectory(folder);
+            return folder;
         }
         public string? GetPokemon(string pokemonName)
         {
@@ -120,8 +116,9 @@ namespace Pokemon.Repository.Repositories
             {
                 return;
             }
+            var filepath = await GetTypeFolder(typeName);
 
-            var movePath = Path.Combine(_dataFolderPath, "types", typeName + ".json");
+            var movePath = Path.Combine(filepath, jsonData);
             await File.WriteAllTextAsync(movePath, jsonData);
         }
 

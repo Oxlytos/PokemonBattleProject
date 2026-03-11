@@ -5,13 +5,13 @@ using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Domain.Models.Models;
+using Domain.Models.RequestModels;
 using Pokemon.Infrastructure.Interfaces;
 
 namespace Pokemon.Infrastructure.State
 {
     public class ApplicationState:IApplicationState
     {
-        public ObservableCollection<PokemonModel> TeamPokemon { get; } = new();
+        public ObservableCollection<RequestPokeonModel> TeamPokemon { get; } = new();
     }
 }

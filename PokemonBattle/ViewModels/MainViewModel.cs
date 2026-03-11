@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Domain.Models.Models;
+using Domain.Models.RequestModels;
 using Pokemon.Services.Interfaces;
 
 namespace PokemonBattle.ViewModels
@@ -20,8 +20,8 @@ namespace PokemonBattle.ViewModels
 
         private readonly IPokemonFetchService _fetchService;
         private readonly IImageService _imageService;
-        public ObservableCollection<PokemonModel> Pokemon { get; set; } = new ObservableCollection<PokemonModel>();
-        public ObservableCollection<PokemonModel> TeamPokemon { get; set; } = new ObservableCollection<PokemonModel>();
+        public ObservableCollection<RequestPokeonModel> Pokemon { get; set; } = new ObservableCollection<RequestPokeonModel>();
+        public ObservableCollection<RequestPokeonModel> TeamPokemon { get; set; } = new ObservableCollection<RequestPokeonModel>();
 
         //Commands
         public ICommand AddToTeamCommand { get; }
@@ -51,9 +51,9 @@ namespace PokemonBattle.ViewModels
             }
         }
 
-        private PokemonModel _selectedPokemon;
+        private RequestPokeonModel _selectedPokemon;
 
-        public PokemonModel SelectedPokemon
+        public RequestPokeonModel SelectedPokemon
         {
             get
             {
@@ -82,7 +82,7 @@ namespace PokemonBattle.ViewModels
             }
         }
 
-        public async Task LoadSprite(PokemonModel pokemonModel)
+        public async Task LoadSprite(RequestPokeonModel pokemonModel)
         {
             if(Pokemon == null)
             {

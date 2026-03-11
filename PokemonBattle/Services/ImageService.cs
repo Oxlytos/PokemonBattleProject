@@ -3,11 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Domain.Models.Models;
 using Pokemon.Services.Interfaces;
 using Microsoft.VisualBasic;
 using System.IO;
 using System.Net.NetworkInformation;
+using Domain.Models.RequestModels;
+using System.Text.Json;
+using Pokemon.Repository.Interfaces;
+using System.Reflection.Metadata;
+using System.Xml.Linq;
 
 namespace PokemonBattle.Services
 {
@@ -16,7 +20,8 @@ namespace PokemonBattle.Services
         private readonly string _baseFolderPath;
         private readonly string _typeFolderPath;
         private readonly HttpClient _client;
-        public ImageService()
+        private readonly string _baseUrl = "https://pokeapi.co/api/v2/";
+        public ImageService(IJsonStorage storage)
         {
             //MAui storage och inte visual basic storage
             _baseFolderPath = Path.Combine(Microsoft.Maui.Storage.FileSystem.AppDataDirectory, "PokemonSprites");
@@ -24,6 +29,7 @@ namespace PokemonBattle.Services
             Directory.CreateDirectory(_baseFolderPath);
             Directory.CreateDirectory(_typeFolderPath);
             _client = new HttpClient();
+            _client.BaseAddress = new Uri(_baseUrl);
         }
 
         //hämta mapp genom att gå till pokemon sprites + t.ex. magmar
@@ -34,7 +40,7 @@ namespace PokemonBattle.Services
             {
                 Directory.CreateDirectory(folder);
             }
-           
+
             return folder;
         }
         public string GetTypeFolder(string name)
@@ -56,7 +62,7 @@ namespace PokemonBattle.Services
         {
             throw new NotImplementedException();
         }
-        public async Task SaveImage(string name, SpriteModel spriteModel)
+        public async Task SaveImage(string name, RequestSpriteModel spriteModel)
         {
             //är de viktiga spritesen null?
             if (spriteModel?.GameVersions?.Gen3Sprites?.FireRedLeafGreenSprites == null)
@@ -75,7 +81,7 @@ namespace PokemonBattle.Services
                 {"back_default.png", frlg.BackDefault },
                 {"back_shiny.png", frlg.BackShiny },
             };
-            foreach(var key in spriteData)
+            foreach (var key in spriteData)
             {
                 //tom sträng
 
@@ -91,7 +97,7 @@ namespace PokemonBattle.Services
                 //Kolla om map finns, på key.key som är front_defaul t.ex.
                 var folder = Path.GetDirectoryName(filePath);
 
-               
+
 
                 //finns inte ens mappen
                 if (!Directory.Exists(folder))
@@ -103,18 +109,18 @@ namespace PokemonBattle.Services
                 //Vi behöver ladda ner om X fil inte finns, eller om det är tomt
                 bool needToDownloadAgain = !File.Exists(filePath) || new FileInfo(filePath).Length == 0;
 
-                if(!needToDownloadAgain)
+                if (!needToDownloadAgain)
                 {
                     continue;
                 }
-               
+
                 if (needToDownloadAgain)
                 {
                     using var stream = await _client.GetStreamAsync(key.Value);
                     using var fileSteam = File.Create(filePath);
                     await stream.CopyToAsync(fileSteam);
                 }
-               
+
             }
         }
 
@@ -133,10 +139,10 @@ namespace PokemonBattle.Services
             string[] spriteFileNames = { "front_default.png", "front_shiny.png", "back_default.png", "back_shiny.png" };
 
             //Loopa igenom och kolla att det finns en väg till dem
-            foreach(var sprite in spriteFileNames)
+            foreach (var sprite in spriteFileNames)
             {
                 string existingPath = Path.Combine(folder, sprite);
-                if(!File.Exists(existingPath) ||new FileInfo(existingPath).Length == 0)
+                if (!File.Exists(existingPath) || new FileInfo(existingPath).Length == 0)
                 {
                     return false;
                 }
@@ -148,11 +154,62 @@ namespace PokemonBattle.Services
             var folder = GetTypeFolder(name);
             return Path.Combine(folder, name+".png");
         }
-        public Task<TypeSpriteCollection> GetTypeSprite(string name)
+        public async Task<string[]> GetTypeSprite(string[] typeNames)
         {
-            return null;
+            if (typeNames.Length==0|| typeNames == null)
+            {
+                return Array.Empty<string>();
+            }
+            //lagra vägarna till filerna här
+            var paths = new List<string>();
+            foreach(var type in typeNames)
+            {
+                if (string.IsNullOrEmpty(type))
+                {
+                    continue;
+                }
+                var thisLocalFile = Path.Combine(_typeFolderPath, type, $"{type}.png");
 
+                if (!File.Exists(thisLocalFile))
+                {
+                    try
+                    {
+
+
+                        string request = "type/" + type;
+                        HttpResponseMessage msg = await _client.GetAsync(request);
+                        if (!msg.IsSuccessStatusCode)
+                        {
+                            return Array.Empty<string>();
+                        }
+                        else
+                        {
+                            var content = await msg.Content.ReadAsStringAsync();
+
+                            var typedata = JsonSerializer.Deserialize<RequestTypeModel>(content);
+
+                            if (typedata == null)
+                            {
+                                return Array.Empty<string>();
+                            }
+                            await SaveTypeSprite(type, typedata.Sprites);
+                            //Retunera 1 fil, en array av filer (2) eller inget
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        return null;
+                    }
+                }
+                if (File.Exists(thisLocalFile))
+                {
+                    paths.Add(thisLocalFile);
+                }
+                
+            }
+            return paths.ToArray();
         }
+
 
         public async Task SaveTypeSprite(string name, TypeSpriteCollection spriteModel)
         {
@@ -163,15 +220,16 @@ namespace PokemonBattle.Services
 
             var spriteUrl = spriteModel.TypeCollections.FireRedLeafGreenTypeIconSprite.TypeIconUrl;
 
+            if (string.IsNullOrEmpty(spriteUrl))
+            {
+                return;
+            }
+
 
             //Kolla om map finns, på key.key som är front_defaul t.ex.
             var folder = Path.Combine(_typeFolderPath,name);
-            //finns inte ens mappen
-            if (!Directory.Exists(folder))
-            {
-                //skapa mappen
-                Directory.CreateDirectory(folder);
-            }
+            //skapa mappen
+            Directory.CreateDirectory(folder);
             var filePath = Path.Combine(folder, $"{name}.png");
             using var stream = await _client.GetStreamAsync(spriteUrl);
             using var fileSteam = File.Create(filePath);
@@ -179,5 +237,44 @@ namespace PokemonBattle.Services
 
         }
 
+        public async Task<string> GetPokemonSpriteAsyncPNG(string name, string version = "front_default")
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                return null;
+            }
+            var file = Path.Combine(_baseFolderPath,name, version+".png");
+            if (File.Exists(file)&&AreAllSpritesStored(name))
+            {
+                return file;
+              
+            }
+           
+            try
+            {
+                string request = "pokemon/" + name;
+                HttpResponseMessage msg = await _client.GetAsync(request);
+                if (msg == null)
+                {
+                    return null;
+                }
+                var content = await msg.Content.ReadAsStringAsync();
+                var sprites = JsonSerializer.Deserialize<RequestSpriteModel>(content);
+                if (sprites != null)
+                {
+                    await SaveImage(name, sprites);
+
+                }
+
+                return File.Exists(file) ? file : null;
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return null;
+            }
+
+        }
     }
 }

@@ -6,8 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Domain.Models;
-using Domain.Models.Models;
+using Domain.Models.RequestModels;
 using Microsoft.Maui.Controls;
 using Pokemon.Infrastructure.Interfaces;
 using Pokemon.Infrastructure.Services;
@@ -27,11 +26,11 @@ namespace PokemonBattle.ViewModels
         private ITypeService _typeService;
         private IMauiStorageDirectoryHelper _mauiStorageDirectoryHelper;
         private IJsonStorage _jsonStorage;
-        public ObservableCollection<PokemonModel> AllPokemon { get; }
-        public ObservableCollection<PokemonModel> TeamPokemon => _teamPokemonService.TeamPokemon;
+        public ObservableCollection<RequestPokeonModel> AllPokemon { get; }
+        public ObservableCollection<RequestPokeonModel> TeamPokemon => _teamPokemonService.TeamPokemon;
         public ObservableCollection<ListPokemonDisplayModel> DisplayTeamPokemon { get;  } = new();
-        private ObservableCollection<MoveRequestModel> _moves;
-        public ObservableCollection<MoveRequestModel>? BasicMovesModels
+        private ObservableCollection<RequestMoveModel> _moves;
+        public ObservableCollection<RequestMoveModel>? BasicMovesModels
         {
             get
             {
@@ -77,8 +76,8 @@ namespace PokemonBattle.ViewModels
         {
             get { return _pokemonName; }
         }
-        private PokemonModel _teamPokemonModelSelected;
-        public PokemonModel TeamPokemonModelSelected
+        private RequestPokeonModel _teamPokemonModelSelected;
+        public RequestPokeonModel TeamPokemonModelSelected
         {
             get { return _teamPokemonModelSelected; }
             set
@@ -87,8 +86,8 @@ namespace PokemonBattle.ViewModels
                 OnPropertyChanged(nameof(TeamPokemonModelSelected));
             }
         }
-        private PokemonModel _selectedPokemonModel;
-        public PokemonModel SelectedPokemonModel
+        private RequestPokeonModel _selectedPokemonModel;
+        public RequestPokeonModel SelectedPokemonModel
         {
             get { return _selectedPokemonModel; }
             set
@@ -120,7 +119,7 @@ namespace PokemonBattle.ViewModels
             _typeService = typeService;
             _jsonStorage = jsonStorage;
 
-            AllPokemon = new ObservableCollection<PokemonModel>();
+            AllPokemon = new ObservableCollection<RequestPokeonModel>();
             GetPokemonCommand = new Command(async () => await LoadPokemonAsync());
             AddToTeamCommand = new Command(async () => await AddToTeam(), () => SelectedPokemonModel != null);
             RemoveFromTeamCommand = new Command<ListPokemonDisplayModel>(async (poke) => await RemoveFromTeam(poke));
@@ -134,8 +133,15 @@ namespace PokemonBattle.ViewModels
             DisplayTeamPokemon.Clear();
             foreach (var pokemin in TeamPokemon)
             {
+                var sprit = await _imageService.GetPokemonSpriteAsyncPNG(pokemin.Name);
                 var spritePath = await _imageService.GetSpritePath(pokemin.Name, "front_default.png");
-               
+                if (!_imageService.AreAllSpritesStored(pokemin.Name))
+                {
+
+                    var fullPokemonInfo = await _fetchService.GetPokemonSingularAsync(pokemin.Name);
+                    await _imageService.SaveImage(pokemin.Name, fullPokemonInfo.Sprites.SpriteModel);
+
+                }
                 pokemin.SpritePath = spritePath;
                 Console.WriteLine(pokemin.SpritePath);
                 OnPropertyChanged(nameof(Pokemon));
@@ -143,7 +149,7 @@ namespace PokemonBattle.ViewModels
             }
         }
 
-        private async Task SaveTeam(List<PokemonModel> pokemonTeam)
+        private async Task SaveTeam(List<RequestPokeonModel> pokemonTeam)
         {
            
             await _jsonStorage.SaveTeamAsync(pokemonTeam);
@@ -168,8 +174,8 @@ namespace PokemonBattle.ViewModels
         {
             if(SelectedPokemonModel != null)
             {
-                var movesList = SelectedPokemonModel.Moves?.Moves ?? new MoveRequestModel[1];
-                BasicMovesModels = new ObservableCollection<MoveRequestModel>(movesList);
+                var movesList = SelectedPokemonModel.Moves?.Moves ?? new RequestMoveModel[1];
+                BasicMovesModels = new ObservableCollection<RequestMoveModel>(movesList);
 
             }
         }
@@ -213,11 +219,14 @@ namespace PokemonBattle.ViewModels
 
             //vägen dit (om den finns)
             var path = await _imageService.GetSpritePath(SelectedPokemonModel.Name, "front_default.png");
-            var fullPokemonInfo = await _fetchService.GetPokemonSingularAsync(_pokemonName);
-            SelectedPokemonModel.Moves = fullPokemonInfo.Moves;
-            if (fullPokemonInfo?.Sprites != null && !_imageService.AreAllSpritesStored(_pokemonName))
+
+            //finns inte
+            if (!_imageService.AreAllSpritesStored(_pokemonName))
             {
+
+                var fullPokemonInfo = await _fetchService.GetPokemonSingularAsync(_pokemonName);
                 await _imageService.SaveImage(_pokemonName, fullPokemonInfo.Sprites.SpriteModel);
+
             }
 
             if (File.Exists(path))
@@ -230,40 +239,16 @@ namespace PokemonBattle.ViewModels
         {
             if (listItem == null) return;
 
-            var pokemonName = listItem.Name;
-            var fullPokemonInfo = await _fetchService.GetPokemonSingularAsync(pokemonName);
+            //data
+            var pokemon = await _fetchService.GetPokemonSingularAsync(listItem.Name);
+            Console.WriteLine(pokemon);
+            //sprite png
+            listItem.SpritePath = await _imageService.GetPokemonSpriteAsyncPNG(pokemon.Name);
+            Console.WriteLine(listItem.SpritePath);
+            //namn
+            var typeNames = pokemon.Types.Select(t=>t.Types.Name).ToArray();
 
-            SelectedPokemonModel.Moves = fullPokemonInfo.Moves;
-            var spritePath = await _imageService.GetSpritePath(pokemonName, "front_default.png");
-
-
-            var typeList = fullPokemonInfo.Types.Select(t => t.Types.Name).ToList();
-            var typeSpriteList = new List<string>();
-
-            foreach (var type in typeList)
-            {
-                var fullTypeInfo = await _typeService.GetTypeData(type);
-
-                await _imageService.SaveTypeSprite(type, fullTypeInfo.Sprites);
-
-                var path = await _imageService.GetTypeSpriteFolder(type);
-                typeSpriteList.Add(path);
-            }
-
-            listItem.SpriteTypePaths = typeSpriteList.ToArray();
-            if (fullPokemonInfo?.Sprites != null && !_imageService.AreAllSpritesStored(pokemonName))
-            {
-                await _imageService.SaveImage(pokemonName, fullPokemonInfo.Sprites.SpriteModel);
-            }
-
-            if (File.Exists(spritePath))
-            {
-                //Actual sprite som vin bindar till
-                listItem.SpritePath = spritePath;
-
-                PokemonImage = ImageSource.FromFile(spritePath);
-            }
-
+            listItem.SpriteTypePaths = (await _imageService.GetTypeSprite(typeNames));
 
         }
         public async Task AddToTeam()

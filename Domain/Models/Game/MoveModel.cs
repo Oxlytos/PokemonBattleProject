@@ -4,8 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Domain.Models.Models;
+using Domain.Models.RequestModels;
 
-namespace Domain.Models.Models
+namespace Domain.Models.Game
 {
     public class MoveModel
     {

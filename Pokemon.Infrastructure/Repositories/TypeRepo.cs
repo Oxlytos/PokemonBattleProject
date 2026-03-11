@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Domain.Models.Models;
+using Domain.Models.RequestModels;
 using Pokemon.Infrastructure.Interfaces;
+using Pokemon.Repository.Interfaces;
 
 namespace Pokemon.Infrastructure.Repositories
 {
@@ -13,14 +14,27 @@ namespace Pokemon.Infrastructure.Repositories
     {
         private readonly HttpClient _client;
         private string baseUrl = "https://pokeapi.co/api/v2/";
+        private IJsonStorage _storage;
 
-        public TypeRepo(HttpClient client)
+        public TypeRepo(HttpClient client, IJsonStorage storage)
         {
             _client = client;
             _client.BaseAddress = new Uri(baseUrl);
+            _storage = storage;
         }
-        public async Task<TypeModel> GetTypeData(string name)
+        public async Task<RequestTypeModel> DeseralizeTypeInfo(string content)
         {
+            var typedata =  JsonSerializer.Deserialize<RequestTypeModel>(content);
+            return typedata;
+        }
+        public async Task<RequestTypeModel> GetTypeData(string name)
+        {
+            var localFileCheck = await _storage.GetTypeFolder(name);
+            if(localFileCheck!=null && File.Exists(localFileCheck))
+            {
+                var data = await DeseralizeTypeInfo(localFileCheck);
+                return data;
+            }
             string request = "type/" + name;
 
             HttpResponseMessage msg = await _client.GetAsync(request);
@@ -29,18 +43,17 @@ namespace Pokemon.Infrastructure.Repositories
             {
                 var content = await msg.Content.ReadAsStringAsync();
 
-                var typedata = JsonSerializer.Deserialize<TypeModel>(content);
-                Console.WriteLine(typedata);
-
+                var typedata = await DeseralizeTypeInfo(content);
+                await SaveTypeData(typedata);
                 return typedata;
 
             }
-
             return null;
         }
 
         public async Task<string> GetTypeSprite(string name)
         {
+
             string request = "type/" + name;
 
             HttpResponseMessage msg = await _client.GetAsync(request);
@@ -49,7 +62,7 @@ namespace Pokemon.Infrastructure.Repositories
             {
                 var content = await msg.Content.ReadAsStringAsync();
 
-                var typedata = JsonSerializer.Deserialize<TypeModel>(content);
+                var typedata = JsonSerializer.Deserialize<RequestTypeModel>(content);
 
                 string typeUrl = typedata.Sprites.TypeCollections.FireRedLeafGreenTypeIconSprite.TypeIconUrl;
                 Console.WriteLine(typeUrl);
@@ -59,9 +72,9 @@ namespace Pokemon.Infrastructure.Repositories
             return null;
         }
 
-        public Task SaveTypeData(string name)
+        public async Task SaveTypeData(RequestTypeModel requestType)
         {
-            throw new NotImplementedException();
+            await _storage.SaveTypeData(requestType.Name, requestType.ToString());
         }
     }
 }

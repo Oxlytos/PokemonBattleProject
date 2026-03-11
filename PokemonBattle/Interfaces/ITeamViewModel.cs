@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Domain.Models.Models;
+using Domain.Models.RequestModels;
 using PokemonBattle.ListModel;
 
 namespace PokemonBattle.Interfaces
@@ -15,7 +15,7 @@ namespace PokemonBattle.Interfaces
     public interface ITeamViewModel
     {
         ICommand AddToTeamCommand { get; }
-        ObservableCollection<PokemonModel> AllPokemon { get; }
+        ObservableCollection<RequestPokeonModel> AllPokemon { get; }
         ObservableCollection<ListPokemonDisplayModel> DisplayTeamPokemon { get; }
         ICommand GetPokemonCommand { get; }
         ICommand GoToHomeMenuCommand { get; }
@@ -23,8 +23,8 @@ namespace PokemonBattle.Interfaces
         ImageSource PokemonImage { get; set; }
         string PokemonName { get; }
         ICommand RemoveFromTeamCommand { get; }
-        PokemonModel SelectedPokemonModel { get; set; }
-        ObservableCollection<PokemonModel> TeamPokemon { get; }
+        RequestPokeonModel SelectedPokemonModel { get; set; }
+        ObservableCollection<RequestPokeonModel> TeamPokemon { get; }
 
         event PropertyChangedEventHandler? PropertyChanged;
 

@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Domain.Models.Models;
+using Domain.Models.Game;
+using Domain.Models.RequestModels;
 
 namespace Pokemon.Infrastructure.Interfaces
 {
     public interface IPokemonFetchRepository
     {
-        public Task<List<PokemonModel>> GetPokemonModelsAsync();
-        public Task<PokemonModel> GetPokemonModelModelAsync(string name);
-        public Task<TypeModel> GetTypeModelAsync(string name);
+        public Task<List<RequestPokeonModel>> GetPokemonModelsAsync();
+        public Task<RequestPokeonModel> GetPokemonModelModelAsync(string name);
+        public Task<RequestTypeModel> GetTypeModelAsync(string name);
         public Task<MoveModel> GetMoveModelAsync(string name);
     }
 }

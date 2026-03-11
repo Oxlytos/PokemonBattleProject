@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Domain.Models.Models;
+using Domain.Models.Game;
+using Domain.Models.RequestModels;
 using Pokemon.Infrastructure.Interfaces;
 using Pokemon.Repository.Interfaces;
 using Pokemon.Repository.Repositories;
@@ -29,17 +30,17 @@ namespace Pokemon.Services.Services
             return await _repository.GetMoveModelAsync(name);
         }
 
-        public async Task<List<PokemonModel>> GetPokemonAsync()
+        public async Task<List<RequestPokeonModel>> GetPokemonAsync()
         {
             return await _repository.GetPokemonModelsAsync();
         }
 
-        public async Task<PokemonModel> GetPokemonSingularAsync(string name)
+        public async Task<RequestPokeonModel> GetPokemonSingularAsync(string name)
         {
             return await _repository.GetPokemonModelModelAsync(name);
         }
 
-        public async Task<TypeModel> GetTypeModelAsync(string name)
+        public async Task<RequestTypeModel> GetTypeModelAsync(string name)
         {
             return await _repository.GetTypeModelAsync(name);
         }

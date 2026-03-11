@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Domain.Models.Models;
+using Domain.Models.RequestModels;
 
 namespace PokemonBattle.ListModel
 {
@@ -15,10 +15,10 @@ namespace PokemonBattle.ListModel
         public event PropertyChangedEventHandler? PropertyChanged;
 
         //Orginella pokemonen
-        public PokemonModel Pokemon { get; }
+        public RequestPokeonModel Pokemon { get; }
     
         
-        public ListPokemonDisplayModel(PokemonModel pokemon)
+        public ListPokemonDisplayModel(RequestPokeonModel pokemon)
         {
             Pokemon = pokemon;
             SpritePath = pokemon.SpritePath;

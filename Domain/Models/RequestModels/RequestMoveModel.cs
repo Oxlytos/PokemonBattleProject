@@ -6,14 +6,14 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Domain.Models.Models;
 
-namespace Domain.Models
+namespace Domain.Models.RequestModels
 {
     public class MoveRequestCollection
     {
         [JsonPropertyName("moves")]
-        public MoveRequestModel[] Moves { get; set; }
+        public RequestMoveModel[] Moves { get; set; }
     }
-    public class MoveRequestModel
+    public class RequestMoveModel
     {
         [JsonPropertyName("move")]
         public Move Move {  get; set; }

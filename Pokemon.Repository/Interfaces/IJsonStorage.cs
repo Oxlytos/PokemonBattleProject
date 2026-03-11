@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Domain.Models.Models;
+using Domain.Models.RequestModels;
 
 namespace Pokemon.Repository.Interfaces
 {
@@ -13,10 +13,10 @@ namespace Pokemon.Repository.Interfaces
             string? GetMove(string moveName);
             string? GetPokemon(string pokemonName);
             Task<string> GetTypeFolder(string typeName);
-            Task<List<PokemonModel>> LoadTeamAsync();
+            Task<List<RequestPokeonModel>> LoadTeamAsync();
             Task SaveMoveData(string moveName, string jsonData);
             Task SavePokemonData(string pokemonName, string jsonData);
-            Task SaveTeamAsync(List<PokemonModel> team);
+            Task SaveTeamAsync(List<RequestPokeonModel> team);
             Task SaveTypeData(string typeName, string jsonData);
         }
 }

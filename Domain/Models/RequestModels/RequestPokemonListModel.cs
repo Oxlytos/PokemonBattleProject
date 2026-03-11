@@ -5,11 +5,11 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Domain.Models.Models
+namespace Domain.Models.RequestModels
 {
-    public class PokemonListRequestModel
+    public class RequestPokemonListModel
     {
         [JsonPropertyName("results")]
-        public PokemonModel[]? Result { get; set; }
+        public RequestPokeonModel[]? Result { get; set; }
     }
 }

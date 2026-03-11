@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Domain.Models.Models
+namespace Domain.Models.RequestModels
 {
   
     public class TypeRequest
@@ -14,7 +14,7 @@ namespace Domain.Models.Models
         public int SlotNumber { get; set; }
 
         [JsonPropertyName("type")]
-        public TypeModel Types { get; set; }
+        public RequestTypeModel Types { get; set; }
     }
     public class TypeData
     {
@@ -47,7 +47,7 @@ namespace Domain.Models.Models
         public TypeData[] TypesResisting {  get; set; }
 
     }
-    public class TypeModel
+    public class RequestTypeModel
     {
 
         [JsonPropertyName("name")]

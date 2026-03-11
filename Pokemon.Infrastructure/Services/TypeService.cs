@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Domain.Models.Models;
+using Domain.Models.RequestModels;
 using Pokemon.Infrastructure.Interfaces;
 
 namespace Pokemon.Infrastructure.Services
@@ -15,7 +15,7 @@ namespace Pokemon.Infrastructure.Services
         {
             _repo = typeRepo;
         }
-        public async Task<TypeModel> GetTypeData(string spriteName)
+        public async Task<RequestTypeModel> GetTypeData(string spriteName)
         {
             return await _repo.GetTypeData(spriteName);
         }

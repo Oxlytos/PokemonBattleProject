@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using Domain.Models.Models;
+using Domain.Models.RequestModels;
 
-namespace Domain.Models
+namespace Domain.Models.Game
 {
     public class PartyPokemonModel
     {
@@ -19,7 +19,7 @@ namespace Domain.Models
         public List<MoveModel> Moves { get; set; }
 
         [JsonPropertyName("types")]
-        public List<TypeModel> Types { get; set; }
+        public List<RequestTypeModel> Types { get; set; }
 
         [JsonPropertyName("stats")]
         public StatModel Stats { get; set; }
