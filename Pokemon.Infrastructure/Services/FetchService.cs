@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Domain.Models.Base;
 using Domain.Models.Game;
 using Domain.Models.RequestModels;
 using Pokemon.Infrastructure.Interfaces;
@@ -22,7 +23,12 @@ namespace Pokemon.Services.Services
             _repository = pokemonFetchRepository;
         }
 
-        public async Task<MoveModel> GetMoveModelAsync(string name)
+        public async Task<BasePokemon> GetBasePokemonAsync(string name)
+        {
+            return await _repository.GetBasePokemonAsync(name);
+        }
+
+        public async Task<RequestMoveModel> GetMoveModelAsync(string name)
         {
             return await _repository.GetMoveModelAsync(name);
         }
@@ -35,6 +41,16 @@ namespace Pokemon.Services.Services
         public async Task<RequestPokeonModel> GetPokemonSingularAsync(string name)
         {
             return await _repository.GetPokemonModelModelAsync(name);
+        }
+
+        public async Task<MoveModel> GetSerialisedMoveModelAsync(string name)
+        {
+            return await _repository.GetSerialisedMoveModelAsync(name);
+        }
+
+        public async Task<TypeModel> GetSerialisedTypeModelAsync(string name)
+        {
+            return await _repository.GetSerialisedTypeModelAsync(name);
         }
 
         public async Task<RequestTypeModel> GetTypeModelAsync(string name)

@@ -1,20 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
-using Domain.Models.Base;
 using Domain.Models.Game;
 using Domain.Models.RequestModels;
-using Microsoft.Maui.Controls;
+using Pokemon.AppServices.Factories;
 using Pokemon.Infrastructure.Interfaces;
-using Pokemon.Infrastructure.Services;
 using Pokemon.Repository.Interfaces;
 using Pokemon.Services.Interfaces;
-using Pokemon.Shared.Extensions;
+using PokemonBattle.Facades;
 using PokemonBattle.Interfaces;
 using PokemonBattle.ListModel;
 
@@ -22,14 +15,10 @@ namespace PokemonBattle.ViewModels
 {
     public class TeamViewModel : ITeamViewModel, INotifyPropertyChanged
     {
-        private IPokemonFetchService _fetchService;
-        private IImageService _imageService;
-        private ITeamPokemonService _teamPokemonService;
-        private ITypeService _typeService;
-        private IMauiStorageDirectoryHelper _mauiStorageDirectoryHelper;
-        private IJsonStorage _jsonStorage;
+
+        private UIFacade _uiFacade;
+        private readonly ListPokemonDisplayModelFactory _displayModelFactory;
         public ObservableCollection<RequestPokeonModel> AllPokemon { get; }
-        public ObservableCollection<RequestPokeonModel> TeamPokemon => _teamPokemonService.TeamPokemon;
         public ObservableCollection<ListPokemonDisplayModel> DisplayTeamPokemon { get;  } = new();
         private ObservableCollection<RequestMoveModel> _moves;
         public ObservableCollection<RequestMoveModel>? BasicMovesModels
@@ -104,68 +93,45 @@ namespace PokemonBattle.ViewModels
                 _ = LoadPokemonSpriteAsync();
             }
         }
-        public TeamViewModel(
-            IPokemonFetchService pokemonFetchService,
-            IImageService imageService,
-            ITeamPokemonService teamPokemonService,
-            ITypeService typeService,
-            IMauiStorageDirectoryHelper mauiStorageDirectoryHelper,
-            IJsonStorage jsonStorage
+        public TeamViewModel
+            (
+            ListPokemonDisplayModelFactory displayModelFactory,
+            UIFacade uIFacade
             )
         {
-            //SelectedPokemonModel = null;
-            _mauiStorageDirectoryHelper = mauiStorageDirectoryHelper;
-            _fetchService = pokemonFetchService;
-            _imageService = imageService;
-            _teamPokemonService = teamPokemonService;
-            _typeService = typeService;
-            _jsonStorage = jsonStorage;
-
+         
+            _uiFacade = uIFacade;
+            _displayModelFactory = displayModelFactory;
             AllPokemon = new ObservableCollection<RequestPokeonModel>();
             GetPokemonCommand = new Command(async () => await LoadPokemonAsync());
             AddToTeamCommand = new Command(async () => await AddToTeam(), () => SelectedPokemonModel != null);
             RemoveFromTeamCommand = new Command<ListPokemonDisplayModel>(async (poke) => await RemoveFromTeam(poke));
             GoToMoveAssignerPageCommand = new Command<ListPokemonDisplayModel>(async (poke) => await GoToMoveAssignerPage(poke));
-            SaveTeamCommand = new Command(async() => await SaveTeam(_teamPokemonService.TeamPokemon.ToList()));
+            SaveTeamCommand = new Command(async() => await SaveTeam());
             LoadTeamCommand = new Command(async () => await LoadTeamAsync());
             GetMovesCommand = new Command(async () => await GetPokemonRequestModelMoves());
         }
         public async Task RebuildTeamDisplay()
         {
             DisplayTeamPokemon.Clear();
-            foreach (var pokemin in TeamPokemon)
+            var pokemon = await _uiFacade.GetPokemonTeamAsync();
+            foreach (var pokemin in pokemon)
             {
-                var datapoke = await _fetchService.GetPokemonSingularAsync(pokemin.Name);
-                var sprit = await _imageService.GetPokemonSpriteAsyncPNG(pokemin.Name);
-                var typeNames = datapoke.Types.Select(t => t.Types.Name).ToArray();
-
-                var display = new ListPokemonDisplayModel(datapoke);
-                display.SpritePath = sprit;
-                display.SpriteTypePaths = await _imageService.GetTypeSprite(typeNames);
-                display.Nickname = pokemin.Nickname;
+                var display = await _displayModelFactory.Create(pokemin);
                 OnPropertyChanged(nameof(Pokemon));
                 DisplayTeamPokemon.Add(display);
             }
         }
 
-        private async Task SaveTeam(List<PartyPokemonModel> pokemonTeam)
+        private async Task SaveTeam()
         {
-           
-            await _jsonStorage.SaveTeamAsync(pokemonTeam);
+            Microsoft.Maui.Controls.Application.Current?.MainPage?.Unfocus();
+            await _uiFacade.SaveTeam();
         }
         public async Task LoadTeamAsync()
         {
-            var team = await _jsonStorage.LoadTeamAsync();
-            if(team!= null)
-            {
-                _teamPokemonService.TeamPokemon.Clear();
-                foreach (var pokemon in team)
-                {
-                    _teamPokemonService.TeamPokemon.Add(pokemon);
-                }
-            }
+            await _uiFacade.LoadTeamAsync();
             await RebuildTeamDisplay();
-
         }
 
         public async Task GetPokemonRequestModelMoves()
@@ -183,8 +149,14 @@ namespace PokemonBattle.ViewModels
             {
                 var moveView = App.Current.Handler.MauiContext.Services.GetService<MoveViewModel>();
 
-                moveView.SelectedPokemonModel = listmodel;
-                PokemonImage = await _imageService.GetPokemonSpriteAsyncPNG(listmodel.Name);
+                var partyMember = await _uiFacade.GetPartyPokemon(listmodel, DisplayTeamPokemon);
+                if (partyMember == null)
+                {
+                    return;
+                }
+
+                moveView.ActualPokemon = partyMember;
+                PokemonImage = await _uiFacade.LoadPokemonSpritePathAsync(listmodel.Name);
                 moveView.PokemonImage = PokemonImage;
                 var page = new MoveAssignerPage(moveView);
                 await Shell.Current.Navigation.PushAsync(page);
@@ -197,89 +169,58 @@ namespace PokemonBattle.ViewModels
         }
         public async Task RemoveFromTeam(ListPokemonDisplayModel listpokmeon)
         {
+
             if (listpokmeon == null)
             {
                 return;
             }
-
-            if (DisplayTeamPokemon.Contains(listpokmeon))
+            var toRemove = await _uiFacade.RemoveFromPartyAndUITeam(listpokmeon, DisplayTeamPokemon);
+            if (toRemove == null)
             {
-                var index = DisplayTeamPokemon.IndexOf(listpokmeon);
-                DisplayTeamPokemon.RemoveAt(index);
-                var thisPokemon = _teamPokemonService.TeamPokemon[index];
-                await _teamPokemonService.RemoveFromTeam(thisPokemon);
+                return ;
             }
+            DisplayTeamPokemon.RemoveAt(toRemove.Value);
+            
         }
         public async Task LoadPokemonSpriteAsync()
         {
             //har vi tryckt på en pokemon i listan, annars returnera
             if (SelectedPokemonModel == null) return;
 
-            //vägen dit (om den finns)
-            var path = await _imageService.GetSpritePath(SelectedPokemonModel.Name, "front_default.png");
+            var path = await _uiFacade.LoadPokemonSpritePathAsync(SelectedPokemonModel.Name);
 
-            //finns inte
-            if (!_imageService.AreAllSpritesStored(_pokemonName))
-            {
-
-                var fullPokemonInfo = await _fetchService.GetPokemonSingularAsync(_pokemonName);
-                await _imageService.SaveImage(_pokemonName, fullPokemonInfo.Sprites.SpriteModel);
-
-            }
-
-            if (File.Exists(path))
-            {
-                PokemonImage = ImageSource.FromFile(path);
-            }
+            PokemonImage = ImageSource.FromFile(path);
+           
 
         }
         public async Task LoadSpriteForPokemonListItemAsync(ListPokemonDisplayModel listItem)
         {
             if (listItem == null) return;
 
-            //data
-            var pokemon = await _fetchService.GetPokemonSingularAsync(listItem.Name);
-            Console.WriteLine(pokemon);
-            //sprite png
-            listItem.SpritePath = await _imageService.GetPokemonSpriteAsyncPNG(pokemon.Name);
-            Console.WriteLine(listItem.SpritePath);
-            //namn
-            var typeNames = pokemon.Types.Select(t=>t.Types.Name).ToArray();
-
-            listItem.SpriteTypePaths = (await _imageService.GetTypeSprite(typeNames));
+            listItem.SpriteTypePaths = await _uiFacade.LoadTypeSpritePaths(listItem.Name);
 
         }
         public async Task AddToTeam()
         {
+            //lägg inte till null
             if (_selectedPokemonModel == null)
             {
                 return;
             }
-            if (!await _teamPokemonService.CanWeAddToTeam())
-            {
-                return;
-            }
 
-            //konstructor eller metod för konverterng, som bara borde vara en deseralise av request
-            var partyPokemon = new PartyPokemonModel();
-            await _teamPokemonService.AddToTeam(partyPokemon);
+            var partyPokemon = await _uiFacade.AddToPartyTeam(_selectedPokemonModel);
 
-            var displayTeamMember = new ListPokemonDisplayModel(_selectedPokemonModel);
-            if (DisplayTeamPokemon.Count >= TeamPokemon.Count)
-            {
+            var uiMember = await _displayModelFactory.Create(partyPokemon);
 
-            }
-            else
-            {
-                DisplayTeamPokemon.Add(displayTeamMember);
-                await LoadSpriteForPokemonListItemAsync(displayTeamMember);
-            }
+            await LoadSpriteForPokemonListItemAsync(uiMember);
+            DisplayTeamPokemon.Add(uiMember);
 
             SelectedPokemonModel = null;
+          
         }
         public async Task LoadPokemonAsync()
         {
-            var pokemon = await _fetchService.GetPokemonAsync();
+            var pokemon = await _uiFacade.GetAllPokemonAsync();
             AllPokemon.Clear();
             foreach (var item in pokemon)
             {

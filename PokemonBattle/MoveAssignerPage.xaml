@@ -97,7 +97,7 @@
           Grid.Column="3"
             BackgroundColor="DimGray"
           VerticalOptions="Start"
-          WidthRequest="300"
+          WidthRequest="600"
           HorizontalOptions="Center"
           ItemsSource="{Binding CurrentMoves}"
           x:Name="CurrentMoves"

@@ -24,7 +24,6 @@ namespace PokemonBattle.Interfaces
         string PokemonName { get; }
         ICommand RemoveFromTeamCommand { get; }
         RequestPokeonModel SelectedPokemonModel { get; set; }
-        ObservableCollection<RequestPokeonModel> TeamPokemon { get; }
 
         event PropertyChangedEventHandler? PropertyChanged;
 

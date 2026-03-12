@@ -18,12 +18,24 @@ namespace Domain.Models.RequestModels
         [JsonPropertyName("move")]
         public Move Move {  get; set; }
 
+        [JsonPropertyName("power")]
         public int? Power { get; set; }
+
+        [JsonPropertyName("type")]
+        public MoveType MoveTypeInfo { get; set; }
 
         public string? TypeName { get; set; }
 
         public string DisplayInfo => $"{Move.Name} | {TypeName} | {Power}";
         
+    }
+    public class MoveType
+    {
+        [JsonPropertyName("name")]
+        public string? Name { get; set; }
+        [JsonPropertyName("url")]
+        public string? Url { get; set; }
+
     }
     public class Move
     {

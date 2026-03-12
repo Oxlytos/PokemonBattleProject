@@ -12,6 +12,7 @@ using Domain.Models.RequestModels;
 using Pokemon.Infrastructure.Interfaces;
 using Pokemon.Services.Interfaces;
 using Pokemon.Shared.Extensions;
+using PokemonBattle.Facades;
 using PokemonBattle.Interfaces;
 using PokemonBattle.ListModel;
 
@@ -20,6 +21,7 @@ namespace PokemonBattle.ViewModels
     public class MoveViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
+        private readonly UIFacade _uiFacade;
 
         private IPokemonFetchService _fetchService;
         private IImageService _imageService;
@@ -60,29 +62,31 @@ namespace PokemonBattle.ViewModels
             }
             set
             {
+                if(_actualPokemon == value)
+                {
+                    return;
+                }
                 _actualPokemon = value;
-                SelectedPokemonModel = new ListPokemonDisplayModel()
+                SelectedPokemonModel = _actualPokemon != null ? new ListPokemonDisplayModel(_actualPokemon) : null;
                 OnPropertyChanged(nameof(ActualPokemon));
+                RenderCurrentMoves();
             }
         }
         private ListPokemonDisplayModel _selectedPokemonModel;
         public ListPokemonDisplayModel SelectedPokemonModel
         {
-            get { return _selectedPokemonModel; }
-            set
+            get => _selectedPokemonModel;
+            private set
             {
                 _selectedPokemonModel = value;
                 _pokemonName = value?.Name;
                 OnPropertyChanged(nameof(SelectedPokemonModel));
-                OnPropertyChanged(nameof(PokemonName));
-
-                //Command load image?
-                //_ = LoadPokemonSpriteAsync();
             }
         }
 
-        private ObservableCollection<RequestMoveModel>? _currentMoves;
-        public ObservableCollection<RequestMoveModel>? CurrentMoves
+        //Enbart listor för display
+        private ObservableCollection<ListMoveDisplayModel>? _currentMoves;
+        public ObservableCollection<ListMoveDisplayModel>? CurrentMoves
         {
             get
             {
@@ -92,7 +96,7 @@ namespace PokemonBattle.ViewModels
             {
                 _currentMoves = value;
                 OnPropertyChanged(nameof(CurrentMoves));
-               
+
             }
         }
 
@@ -121,7 +125,7 @@ namespace PokemonBattle.ViewModels
             {
                 _currentMove = value;
                 OnPropertyChanged(nameof(CurrentMove));
-                ((Command)AddMoveCommand).ChangeCanExecute(); 
+                ((Command)AddMoveCommand).ChangeCanExecute();
             }
         }
         public MoveViewModel(
@@ -130,26 +134,55 @@ namespace PokemonBattle.ViewModels
             ITeamPokemonService teamPokemonService,
             ITypeService typeService,
             IMauiStorageDirectoryHelper mauiStorageDirectoryHelper,
-            IMoveService moveService
+            IMoveService moveService,
+            UIFacade uIFacade
             )
         {
+            _uiFacade = uIFacade;
             _mauiStorageDirectoryHelper = mauiStorageDirectoryHelper;
             _fetchService = pokemonFetchService;
             _imageService = imageService;
             _teamPokemonService = teamPokemonService;
             _typeService = typeService;
             _moveService = moveService;
-
+            
             GetMovesCommand = new Command(async () => await GetPokemonRequestModelMoves());
             AddMoveCommand = new Command(async () => await AddMoveToPokemon(), () => CurrentMove != null);
-             GetCorrectImage();
+            GetCorrectImage();
+        }
+
+        private async void RenderCurrentMoves()
+        {
+            
+            if (ActualPokemon != null)
+            {
+                var moves = ActualPokemon.Moves;
+                if (moves == null)
+                {
+                    return;
+                }
+                List<ListMoveDisplayModel> listMoves = new List<ListMoveDisplayModel>();
+                foreach ( var move in moves )
+                {
+                    ListMoveDisplayModel newMove = new ListMoveDisplayModel(move);
+                    var typeInfo = await _fetchService.GetMoveModelAsync(newMove.Name);
+                    Console.WriteLine(typeInfo);
+                    newMove.TypeName = typeInfo.MoveTypeInfo.Name;
+                    listMoves.Add(newMove);
+                }
+                var anyMoves = SelectedPokemonModel?.DisplayMoves ?? Array.Empty<ListMoveDisplayModel>();
+
+                CurrentMoves = new ObservableCollection<ListMoveDisplayModel>(listMoves);
+                Console.WriteLine(CurrentMoves);
+                OnPropertyChanged(nameof(CurrentMoves));
+            }
         }
 
         private void GetCorrectImage()
         {
-            if(SelectedPokemonModel != null)
+            if (SelectedPokemonModel != null)
             {
-                var path = _imageService.GetSpritePath(SelectedPokemonModel.Name, "front_default.png");
+                var path = _imageService.GetPokemonSpriteAsyncPNG(SelectedPokemonModel.Name);
 
             }
 
@@ -157,10 +190,29 @@ namespace PokemonBattle.ViewModels
 
         private async Task AddMoveToPokemon()
         {
-            var moves = await _moveService.AddMove(SelectedPokemonModel.Pokemon, CurrentMove);
-            
-            //räkna från högsta tal, neråt, -1 för det är array logik
-            for(int i = CurrentMoves.Count-1; i >= 0; i--)
+            if (_actualPokemon == null)
+            {
+                return;
+            }
+            if(CurrentMove == null)
+            {
+                return;
+            }
+            //Lägga till move till display list item
+            //Och även den riktiga datamodellen
+            //Eller rättare sagt, först party, sen den andra
+            var moveToAdd = await _uiFacade.AddMoveAsync(CurrentMove, _actualPokemon);
+            if (moveToAdd == null)
+            {
+                return ;
+            }
+            CurrentMoves.Add(moveToAdd);
+            SelectedPokemonModel.DisplayMoves = CurrentMoves.ToArray();
+            var moves = SelectedPokemonModel.DisplayMoves;
+            Console.WriteLine(moves);
+
+            //Se till att moves stämmar överenns
+            for (int i = CurrentMoves.Count - 1; i >= 0; i--)
             {
                 //Är inte de synkade med index och move
                 if (!moves.Contains(CurrentMoves[i]))
@@ -171,53 +223,56 @@ namespace PokemonBattle.ViewModels
 
             }
             //Kolla alla nuvarande lerarned moves
-            foreach(var move in moves)
+            foreach (var move in moves)
             {
                 //Om inte UI moves har object moves
                 if (!CurrentMoves.Contains(move))
                 {
-                    //Spara bara move till senare
-                    var moveData = await _fetchService.GetMoveModelAsync(move.Move.Name);
-                    Console.WriteLine(moveData);
-                    //Lägg till
-                    move.Power = moveData.Power != null ? (int?)moveData.Power : null;
-                    move.TypeName =  "To be addressed";
                     CurrentMoves.Add(move);
                 }
             }
             //Fungerar som länk/pointer till riktiga moves?
-            SelectedPokemonModel.Pokemon.LearnedMoves = CurrentMoves.ToArray();
-            _teamPokemonService.UpdateTeamMember(SelectedPokemonModel.Pokemon);
-            //await RefreshCurrentMoves();
+            SelectedPokemonModel.DisplayMoves = CurrentMoves.ToArray();
+            _teamPokemonService.UpdateTeamMember(ActualPokemon);
+            RenderCurrentMoves();
         }
-        private async Task RefreshCurrentMoves()
-        {
-            var currentMoves = SelectedPokemonModel.Pokemon.LearnedMoves ?? new RequestMoveModel[4];
-            CurrentMoves = new ObservableCollection<RequestMoveModel>(currentMoves);
-        }
-
+      
         public async Task GetPokemonRequestModelMoves()
         {
-            if (SelectedPokemonModel != null)
+            if (SelectedPokemonModel == null)
             {
-                var pokemonData = await _fetchService.GetPokemonSingularAsync(SelectedPokemonModel.Name);
-
-                var currentMoves = pokemonData.LearnedMoves ?? new RequestMoveModel[4];
-                foreach(var move in currentMoves)
-                {
-                    move.Move.Name = move.Move.Name.Capitalize();
-                }
-                CurrentMoves = new ObservableCollection<RequestMoveModel>(currentMoves);
-                
-
-                var movesList = pokemonData.Moves?.Moves ?? new RequestMoveModel[1];
-                foreach(var move in movesList)
-                {
-                    move.Move.Name = move.Move.Name.Capitalize();
-                }
-                
-                AvailableMoves = new ObservableCollection<RequestMoveModel>(movesList);
+                return;
             }
+            //request modellen
+            var pokemonData = await _fetchService.GetPokemonSingularAsync(SelectedPokemonModel.Name);
+
+            //ritkiga moves som blir display sen
+            List<MoveModel> moves = new List<MoveModel>();
+
+            //request
+            var currentMoves = pokemonData.LearnedMoves ?? new RequestMoveModel[4];
+            foreach (var move in currentMoves)
+            {
+                move.Move.Name = move.Move.Name.Capitalize();
+                var actualMove = await _fetchService.GetSerialisedMoveModelAsync(move.Move.Name);
+                moves.Add(actualMove);
+            }
+
+           
+            foreach (var move in moves)
+            {
+                var listMove = new ListMoveDisplayModel(move);
+                CurrentMoves.Add(listMove);
+            }
+
+
+            var movesList = pokemonData.Moves?.Moves ?? new RequestMoveModel[1];
+            foreach (var move in movesList)
+            {
+                move.Move.Name = move.Move.Name.Capitalize();
+            }
+
+            AvailableMoves = new ObservableCollection<RequestMoveModel>(movesList);
         }
         protected void OnPropertyChanged(string propertyName)
         {

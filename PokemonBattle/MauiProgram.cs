@@ -1,16 +1,16 @@
 ﻿using Microsoft.Extensions.Logging;
 using Pokemon.Infrastructure.Interfaces;
 using Pokemon.Infrastructure.Repositories;
-using Pokemon.Infrastructure.State;
 using Pokemon.Services.Interfaces;
 using Pokemon.Services.Services;
 using PokemonBattle.Interfaces;
 using PokemonBattle.ViewModels;
-using Microsoft.Extensions.DependencyInjection;
 using Pokemon.Infrastructure.Services;
 using PokemonBattle.Services;
 using Pokemon.Repository.Repositories;
 using Pokemon.Repository.Interfaces;
+using Pokemon.AppServices.Factories;
+using PokemonBattle.Facades;
 
 namespace PokemonBattle
 {
@@ -77,10 +77,13 @@ namespace PokemonBattle
             builder.Services.AddSingleton<IPokemonFetchService, FetchService>();
             builder.Services.AddSingleton<IPokemonFetchRepository, PokemonFetchRepository>();
 
-            builder.Services.AddSingleton<IMauiStorageDirectoryHelper, MauiStorageDirectoryHelperService>();
-
             builder.Services.AddSingleton<ITypeService, TypeService>();
             builder.Services.AddSingleton<ITypeRepo, TypeRepo>();
+            builder.Services.AddSingleton<ListPokemonDisplayModelFactory>();
+
+            builder.Services.AddTransient<UIFacade>();
+            builder.Services.AddSingleton<IMauiStorageDirectoryHelper, MauiStorageDirectoryHelperService>();
+           
 
             
 

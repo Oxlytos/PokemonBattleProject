@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Domain.Models.Game;
 using Domain.Models.RequestModels;
 
 namespace PokemonBattle.ListModel
@@ -13,18 +14,16 @@ namespace PokemonBattle.ListModel
         //Dummare model bara för listviews, ska inte ha någon annan data associerad, förutom sprite o namn
         //När ändras, uppdatera
         public event PropertyChangedEventHandler? PropertyChanged;
-
-        //Orginella pokemonen
-        public RequestPokeonModel Pokemon { get; }
-        public ListPokemonDisplayModel(RequestPokeonModel pokemon)
+        public ListPokemonDisplayModel(PartyPokemonModel partyPokemonModel)
         {
-            Pokemon = pokemon;
-            SpritePath = pokemon.SpritePath;
-
+            PartyPoke = partyPokemonModel;
         }
 
-        private string _types;
-        public string Types
+        //Orginella pokemonen
+        public PartyPokemonModel PartyPoke { get; set; }
+
+        private string[] _types;
+        public string[] Types
         {
             get
             {
@@ -67,20 +66,32 @@ namespace PokemonBattle.ListModel
                 }
             }
         }
-        public string Name => Pokemon.Name;
+        public string Name => PartyPoke.Name;
         public string? Nickname
         {
-            get=>Pokemon.Nickname;
+            get=> PartyPoke.Nickname;
             set
             {
-                if(Pokemon.Nickname != value)
+                if(PartyPoke.Nickname != value)
                 {
-                    Pokemon.Nickname = value;
+                    PartyPoke.Nickname = value;
                     OnPropertyChanged(nameof(Nickname));
                 }
             }
         }
-        
+        private ListMoveDisplayModel[] _displayMoves;
+        public ListMoveDisplayModel[] DisplayMoves
+        {
+            get
+            {
+                return _displayMoves;
+            }
+            set
+            {
+                _displayMoves = value;
+                OnPropertyChanged(nameof(DisplayMoves));
+            }
+        }
         private string[] _typePaths;
         public string[] SpriteTypePaths
         {

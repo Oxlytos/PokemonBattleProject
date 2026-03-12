@@ -1,0 +1,54 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Domain.Models.Game;
+using Domain.Models.RequestModels;
+
+namespace PokemonBattle.ListModel
+{
+    public class ListMoveDisplayModel : INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public string? Name { get; set; }
+
+        public string? Description { get; set; }
+
+        public float? Power {  get; set; }
+
+        public float? Accuracy { get; set; }
+        public int? PP { get; set; }
+
+        public string? TypeName { get; set; }
+        public string? TypeIconPath { get; set; }
+
+        public string? DisplayInfo => $"{Name} | {TypeName} | {Power} | {Accuracy} | {PP} ";
+
+        private ImageSource _typeIconSource;
+        public ImageSource TypeIconSource
+        {
+            get { return _typeIconSource; }
+            set
+            {
+                _typeIconSource = value;
+                OnPropertyChanged(nameof(TypeIconSource));
+                
+            }
+        }
+        void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        public ListMoveDisplayModel(MoveModel move)
+        {
+            Name = move.Name;
+            Power = move.Power;
+            Accuracy = move.Accuracy;
+            PP = move.Pp;
+            TypeName=move.Type.Name;
+        }
+    }
+}

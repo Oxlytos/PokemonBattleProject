@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pokemon.Infrastructure", ".
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pokemon.Shared", "..\Pokemon.Shared\Pokemon.Shared.csproj", "{36B5BCD9-7FEA-46FA-851D-26E5022580CE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PokemonBattle.Application", "..\PokemonBattle.Application\PokemonBattle.Application.csproj", "{40D27ED4-AACE-433D-BE44-2AE7AC2738FF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pokemon.AppServices", "..\PokemonBattle.Application\Pokemon.AppServices.csproj", "{40D27ED4-AACE-433D-BE44-2AE7AC2738FF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

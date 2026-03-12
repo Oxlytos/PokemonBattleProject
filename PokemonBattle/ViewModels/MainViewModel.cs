@@ -15,9 +15,6 @@ namespace PokemonBattle.ViewModels
     {
         public ICommand GoToTeamBuilderPageCommand { get; }
 
-
-
-
         private readonly IPokemonFetchService _fetchService;
         private readonly IImageService _imageService;
         public ObservableCollection<RequestPokeonModel> Pokemon { get; set; } = new ObservableCollection<RequestPokeonModel>();

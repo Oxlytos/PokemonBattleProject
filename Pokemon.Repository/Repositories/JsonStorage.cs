@@ -25,6 +25,10 @@ namespace Pokemon.Repository.Repositories
         }
         public async Task SaveTeamAsync(List<PartyPokemonModel> team)
         {
+            foreach (var item in team)
+            {
+                Console.WriteLine(item.Nickname);
+            }
             var json = JsonSerializer.Serialize(team, new JsonSerializerOptions { WriteIndented = true });
             var filePath = Path.Combine(_dataFolderPath, "team.json");
             await File.WriteAllTextAsync(filePath, json);
@@ -61,7 +65,7 @@ namespace Pokemon.Repository.Repositories
         public async Task<string> GetTypeFolder(string typeName)
         {
             var folder = Path.Combine(_dataFolderPath, "types", typeName);
-            Directory.CreateDirectory(folder);
+            //Directory.CreateDirectory(folder);
             return folder;
         }
         public string? GetPokemon(string pokemonName)
@@ -103,6 +107,7 @@ namespace Pokemon.Repository.Repositories
         }
         public async Task SaveTypeData(string typeName, string jsonData)
         {
+            Console.WriteLine(typeName);
             if (string.IsNullOrEmpty(typeName))
             {
                 return;
@@ -111,10 +116,9 @@ namespace Pokemon.Repository.Repositories
             {
                 return;
             }
-            var filepath = await GetTypeFolder(typeName);
-
-            var movePath = Path.Combine(filepath, jsonData);
-            await File.WriteAllTextAsync(movePath, jsonData);
+            var typePath = Path.Combine(_dataFolderPath, "types", typeName + ".json");
+            Console.WriteLine(typePath);
+            await File.WriteAllTextAsync(typePath, jsonData);
         }
 
     }

@@ -1,6 +1,8 @@
-﻿namespace PokemonBattle
+﻿using Microsoft.Maui;
+using Microsoft.Maui.Controls;
+namespace PokemonBattle
 {
-    public partial class App : Application
+    public partial class App : Microsoft.Maui.Controls.Application
     {
         public App()
         {

@@ -186,13 +186,13 @@ namespace PokemonBattle.Services
                         {
                             var content = await msg.Content.ReadAsStringAsync();
 
-                            var typedata = JsonSerializer.Deserialize<TypeRequest>(content);
-
+                            var typedata = JsonSerializer.Deserialize<RequestTypeModel>(content);
+                            Console.WriteLine(typedata);
                             if (typedata == null)
                             {
                                 return Array.Empty<string>();
                             }
-                            await SaveTypeSprite(type, typedata.Types.Sprites);
+                            await SaveTypeSprite(type, typedata.Sprites);
                             //Retunera 1 fil, en array av filer (2) eller inget
                         }
                     }
