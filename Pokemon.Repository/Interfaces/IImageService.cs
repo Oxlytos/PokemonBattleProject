@@ -14,6 +14,7 @@ namespace Pokemon.Services.Interfaces
         public Task<string> GetTypeSpriteFolder(string name);
         public Task SaveTypeSprite (string name, TypeSpriteCollection spriteModel);
         Task<string> GetPokemonSpriteAsyncPNG(string name, string version = "front_default");
+        Task<string> GetPokemonBackSpriteAsyncPNG(string name, string version = "back_default");
         string GetSprite(string name, string spriteFileName ="front_default");
         string GetFolder(string name);
         public Task<string> GetSpritePath(string pokemonName, string spriteFileName);

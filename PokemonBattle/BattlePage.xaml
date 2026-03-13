@@ -13,12 +13,165 @@
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Label Grid.Row="0" Grid.Column="0" Text="Battle"></Label>
+        <!-- Horizontal grid lines -->
+        <BoxView Grid.Row="0" Grid.ColumnSpan="5" HeightRequest="1" BackgroundColor="Red"/>
+        <BoxView Grid.Row="1" Grid.ColumnSpan="5" HeightRequest="1" BackgroundColor="Red"/>
+        <BoxView Grid.Row="2" Grid.ColumnSpan="5" HeightRequest="1" BackgroundColor="Red"/>
+        <BoxView Grid.Row="3" Grid.ColumnSpan="5" HeightRequest="1" BackgroundColor="Red"/>
+        <BoxView Grid.Row="4" Grid.ColumnSpan="5" HeightRequest="1" BackgroundColor="Red"/>
+        <!-- Extra bottom line -->
+        <BoxView Grid.Row="4" Grid.ColumnSpan="5" HeightRequest="1" BackgroundColor="Red" VerticalOptions="End"/>
+
+        <!-- Vertical grid lines -->
+        <BoxView Grid.Column="0" Grid.RowSpan="5" WidthRequest="1" BackgroundColor="Blue"/>
+        <BoxView Grid.Column="1" Grid.RowSpan="5" WidthRequest="1" BackgroundColor="Blue"/>
+        <BoxView Grid.Column="2" Grid.RowSpan="5" WidthRequest="1" BackgroundColor="Blue"/>
+        <BoxView Grid.Column="3" Grid.RowSpan="5" WidthRequest="1" BackgroundColor="Blue"/>
+        <BoxView Grid.Column="4" Grid.RowSpan="5" WidthRequest="1" BackgroundColor="Blue"/>
+        <!-- Extra right line -->
+        <BoxView Grid.Column="4" Grid.RowSpan="5" WidthRequest="1" BackgroundColor="Blue" HorizontalOptions="End"/>
+
+
+
+
+        <Grid
+               Grid.Row="1"
+               Grid.Column="3"
+               Grid.ColumnSpan="3"
+                Grid.RowSpan="1"
+               MinimumWidthRequest="500">
+            <Border
+                Padding="10"
+                BackgroundColor="AliceBlue"
+                WidthRequest="300"
+                MinimumHeightRequest="100"
+                VerticalOptions="Center"
+                HorizontalOptions="Center"
+                Margin="0,-300,0,0"
+                >
+                <VerticalStackLayout>
+                    <Label
+                        Text="health"
+                        TextTransform="Uppercase"
+                        TextColor="Black"
+                        />
+                    <Label
+                        Text="{Binding CurrentPlayerPartyPokemon.Nickname}"
+                        TextColor="Black"/>
+                    <Label
+                        Text="{Binding CurrentPlayerPartyPokemon.Level}"
+                        TextColor="Black"/>
+                </VerticalStackLayout>
+            </Border>
+            <Image
+                    VerticalOptions="Center"
+                WidthRequest="300"
+                HeightRequest="300"
+                Aspect="AspectFit"
+                       Margin="0, 10, 0, 0"
+                Source="{Binding OpponentPokemon}"
+                />
+           
+        </Grid>
+
+        <!-- PlayerPokeon-->
+        <Grid
+        Grid.Row="4"
+        Grid.Column="0"
+        Grid.ColumnSpan="6"
+        VerticalOptions="Fill"
+        MinimumWidthRequest="500"
+            >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+                <Image
+                    TranslationY="-300"
+                    Grid.Column="0"
+                    Grid.Row="0"
+                    Grid.RowSpan="2"
+                 VerticalOptions="Start"
+                    HorizontalOptions="Center"
+                 WidthRequest="400"
+                 HeightRequest="400"
+                 Aspect="AspectFit"
+                Source="{Binding PlayerPokemonImage}"
+                    />
+            <CollectionView
+                        Grid.Column="0"
+                        Grid.Row="1"
+                    ItemsSource="{Binding CurrentPlayerPokemonMoves}"
+                    ItemSizingStrategy="MeasureAllItems"
+                        VerticalOptions="Fill"
+                        HorizontalOptions="Fill"
+                        >
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="2"/>
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <!--Irreterand sätt att gå upp i hiearkin från knapp till viewmodel/binding context för att nå command-->
+                        <Button
+                        Text="{Binding}"
+                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ClickMoveCommand}"                            
+                            CommandParameter="{Binding}"
+                        TextTransform="Uppercase"
+                        BackgroundColor="Beige"
+                        CornerRadius="0"
+                        BorderColor="Orange"
+                            HeightRequest="120"
+                            VerticalOptions="FillAndExpand"
+                            HorizontalOptions="FillAndExpand"
+                        />
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+                    </CollectionView>
+            <Border
+                StrokeThickness="15"
+                Stroke="AliceBlue"
+                Grid.Column="1"
+                  Padding="15" 
+                BackgroundColor="Bisque"
+                HeightRequest="300"
+                HorizontalOptions="Fill"
+                VerticalOptions="Center">
+                <VerticalStackLayout 
+                    Spacing="10"
+                    HorizontalOptions="Fill"
+                    
+                    >
+                    <Label 
+                        Text="Health"
+                        TextTransform="Uppercase"
+                        TextColor="Black"
+                        />
+                    <Label 
+                     Text="{Binding CurrentPlayerPartyPokemon.Nickname}"
+                     TextColor="Black"
+                     /> 
+                    <Label 
+                        
+                        Text="{Binding CurrentPlayerPartyPokemon.Level}"
+                        TextTransform="Uppercase"
+                        TextColor="Black"/>
+                    <Button
+                        CornerRadius="0"
+                        Text="Party"/>
+                    <Button
+                        CornerRadius="0"
+                        Text="Forfeit"></Button>
+                </VerticalStackLayout>
+            </Border>
+
+        </Grid>
+
     </Grid>
 </ContentPage>

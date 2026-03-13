@@ -276,5 +276,44 @@ namespace PokemonBattle.Services
             }
 
         }
+        public async Task<string> GetPokemonBackSpriteAsyncPNG(string name, string version = "back_default")
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                return null;
+            }
+            var file = Path.Combine(_baseFolderPath, name, version + ".png");
+            if (File.Exists(file) && AreAllSpritesStored(name))
+            {
+                return file;
+
+            }
+
+            try
+            {
+                string request = "pokemon/" + name;
+                HttpResponseMessage msg = await _client.GetAsync(request);
+                if (msg == null)
+                {
+                    return null;
+                }
+                var content = await msg.Content.ReadAsStringAsync();
+                var sprites = JsonSerializer.Deserialize<RequestSpriteModel>(content);
+                if (sprites != null)
+                {
+                    await SaveImage(name, sprites);
+
+                }
+
+                return File.Exists(file) ? file : null;
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return null;
+            }
+
+        }
     }
 }

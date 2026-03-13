@@ -151,31 +151,42 @@ namespace PokemonBattle.ViewModels
             GetCorrectImage();
         }
 
-        private async void RenderCurrentMoves()
+        private async Task RenderCurrentMoves()
         {
-            
-            if (ActualPokemon != null)
+            if (ActualPokemon == null)
             {
-                var moves = ActualPokemon.Moves;
-                if (moves == null)
-                {
-                    return;
-                }
-                List<ListMoveDisplayModel> listMoves = new List<ListMoveDisplayModel>();
-                foreach ( var move in moves )
-                {
-                    ListMoveDisplayModel newMove = new ListMoveDisplayModel(move);
-                    var typeInfo = await _fetchService.GetMoveModelAsync(newMove.Name);
-                    Console.WriteLine(typeInfo);
-                    newMove.TypeName = typeInfo.MoveTypeInfo.Name;
-                    listMoves.Add(newMove);
-                }
-                var anyMoves = SelectedPokemonModel?.DisplayMoves ?? Array.Empty<ListMoveDisplayModel>();
-
-                CurrentMoves = new ObservableCollection<ListMoveDisplayModel>(listMoves);
-                Console.WriteLine(CurrentMoves);
-                OnPropertyChanged(nameof(CurrentMoves));
+                return;
             }
+            var moves = ActualPokemon.Moves;
+            if (moves == null)
+            {
+                return;
+            }
+            List<ListMoveDisplayModel> listMoves = new List<ListMoveDisplayModel>();
+            foreach (var move in moves)
+            {
+                ListMoveDisplayModel newMove = new ListMoveDisplayModel(move);
+                if (!string.IsNullOrEmpty(newMove.Name))
+                {
+                    var typeInfo = await _fetchService.GetMoveModelAsync(newMove.Name);
+                    newMove.TypeName = typeInfo.MoveTypeInfo.Name.Capitalize();
+                    newMove.Name=newMove.Name.Capitalize();
+                }
+                listMoves.Add(newMove);
+            }
+
+            CurrentMoves = new ObservableCollection<ListMoveDisplayModel>(listMoves);
+            foreach (var move in CurrentMoves)
+            {
+                move.Name = move.Name.Capitalize();
+                Console.WriteLine(move.Name);
+            }
+            foreach (var move in CurrentMoves)
+            {
+                Console.WriteLine(move.Name);
+            }
+            Console.WriteLine(CurrentMoves);
+            OnPropertyChanged(nameof(CurrentMoves));
         }
 
         private void GetCorrectImage()
@@ -258,20 +269,13 @@ namespace PokemonBattle.ViewModels
                 moves.Add(actualMove);
             }
 
-           
-            foreach (var move in moves)
-            {
-                var listMove = new ListMoveDisplayModel(move);
-                CurrentMoves.Add(listMove);
-            }
-
 
             var movesList = pokemonData.Moves?.Moves ?? new RequestMoveModel[1];
             foreach (var move in movesList)
             {
                 move.Move.Name = move.Move.Name.Capitalize();
             }
-
+          
             AvailableMoves = new ObservableCollection<RequestMoveModel>(movesList);
         }
         protected void OnPropertyChanged(string propertyName)

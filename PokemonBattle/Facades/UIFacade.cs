@@ -26,6 +26,7 @@ namespace PokemonBattle.Facades
         private IMauiStorageDirectoryHelper _mauiStorageDirectoryHelper;
         private IJsonStorage _jsonStorage;
         private IMoveService _moveService;
+        private IBattleService _battleService;
         private readonly ListPokemonDisplayModelFactory _displayModelFactory;
 
         public UIFacade(
@@ -36,8 +37,10 @@ namespace PokemonBattle.Facades
             IMauiStorageDirectoryHelper mauiStorageDirectoryHelper,
             IJsonStorage jsonStorage,
             IMoveService moveService,
+            //IBattleService battleService,
             ListPokemonDisplayModelFactory displayModelFactory)
         {
+            //_battleService = battleService;
             _moveService = moveService;
             _fetchService = pokemonFetchService;
             _imageService = imageService;
@@ -142,7 +145,7 @@ namespace PokemonBattle.Facades
             Console.WriteLine(newMember.Nickname);
             var partyPokemon = PartyPokemonFactory.Create(newMember);
 
-            var displayPokemon = await _displayModelFactory.Create(partyPokemon);
+            var displayPokemon = await _displayModelFactory.CreateFrontFacingSprite(partyPokemon);
             Console.WriteLine(displayPokemon.Nickname);
             return displayPokemon;
 
@@ -184,6 +187,15 @@ namespace PokemonBattle.Facades
 
             return move;
 
+        }
+        public async Task<bool> CanUserGoToBattlePage()
+        {
+            if(_teamPokemonService.TeamPokemon.Count == 0)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

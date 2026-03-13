@@ -63,16 +63,18 @@ namespace PokemonBattle
              */
             builder.Services.AddSingleton<IJsonStorage, JsonStorage>();
             builder.Services.AddSingleton<ITeamViewModel, TeamViewModel>();
-            builder.Services.AddTransient<IPokemonListViewModel, PokemonListViewModel>();
+            //builder.Services.AddTransient<IPokemonListViewModel, PokemonListViewModel>();
+           
 
             builder.Services.AddTransient<MoveViewModel>();
+            builder.Services.AddTransient<BattleViewModel>();   
             builder.Services.AddTransient<MoveAssignerPage>();
             builder.Services.AddTransient<IMoveService, MoveService>();
 
             builder.Services.AddTransient<IImageService, ImageService>();
             builder.Services.AddSingleton<ITeamPokemonService, TeamPokemonService>();
             builder.Services.AddSingleton(new HttpClient());
-
+            builder.Services.AddSingleton<IBattleService, BattleService>();
 
             builder.Services.AddSingleton<IPokemonFetchService, FetchService>();
             builder.Services.AddSingleton<IPokemonFetchRepository, PokemonFetchRepository>();

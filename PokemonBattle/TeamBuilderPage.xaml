@@ -59,10 +59,12 @@
                 />
             <Button 
               Text="BattleButton" 
-              Clicked="OnClickBattleButton"   
               WidthRequest="150"
               VerticalOptions="Center"
-              HorizontalOptions="Center"/>
+              HorizontalOptions="Center"
+              Command="{Binding GoToBattlePageCommand}"
+                
+                />
             <Button
               WidthRequest="150"
               VerticalOptions="Center"

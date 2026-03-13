@@ -15,7 +15,7 @@ public partial class TeamBuilderPage : ContentPage
 
     private async void OnClickBattleButton(object sender, EventArgs e)
     {
-        await Shell.Current.Navigation.PushAsync(new BattlePage());
+        //await Shell.Current.Navigation.PushAsync(new BattlePage());
     }
 
     private void OnClickGetPokemonAsyncButton(object sender, EventArgs e)

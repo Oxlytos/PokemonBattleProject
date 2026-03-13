@@ -19,7 +19,7 @@ namespace Pokemon.AppServices.Factories
         {
             _imageService = imageService;
         }
-        public async Task<ListPokemonDisplayModel> Create(PartyPokemonModel model)
+        public async Task<ListPokemonDisplayModel> CreateFrontFacingSprite(PartyPokemonModel model)
         {
             var listPoke = new ListPokemonDisplayModel(model);
             listPoke.Types = model.Types.ToArray();
@@ -27,6 +27,14 @@ namespace Pokemon.AppServices.Factories
             listPoke.SpriteTypePaths = await _imageService.GetTypeSprite(listPoke.Types);
             return listPoke;
 
+        }
+        public async Task<ListPokemonDisplayModel> CreateBackFacingSprite(PartyPokemonModel model)
+        {
+            var listPoke = new ListPokemonDisplayModel(model);
+            listPoke.Types = model.Types.ToArray();
+            listPoke.SpritePath = await _imageService.GetPokemonBackSpriteAsyncPNG(listPoke.Name);
+            listPoke.SpriteTypePaths = await _imageService.GetTypeSprite(listPoke.Types);
+            return listPoke;
         }
     }
 }

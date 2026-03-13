@@ -43,6 +43,7 @@ namespace PokemonBattle.ViewModels
 
         public ICommand SaveTeamCommand { get; }
         public ICommand LoadTeamCommand { get; }
+        public ICommand GoToBattlePageCommand { get; }
 
         private ImageSource _pokemonImage;
         public ImageSource PokemonImage
@@ -110,6 +111,7 @@ namespace PokemonBattle.ViewModels
             SaveTeamCommand = new Command(async() => await SaveTeam());
             LoadTeamCommand = new Command(async () => await LoadTeamAsync());
             GetMovesCommand = new Command(async () => await GetPokemonRequestModelMoves());
+            GoToBattlePageCommand = new Command(async () => await GoToBattlePage());
         }
         public async Task RebuildTeamDisplay()
         {
@@ -117,7 +119,7 @@ namespace PokemonBattle.ViewModels
             var pokemon = await _uiFacade.GetPokemonTeamAsync();
             foreach (var pokemin in pokemon)
             {
-                var display = await _displayModelFactory.Create(pokemin);
+                var display = await _displayModelFactory.CreateFrontFacingSprite(pokemin);
                 OnPropertyChanged(nameof(Pokemon));
                 DisplayTeamPokemon.Add(display);
             }
@@ -165,7 +167,13 @@ namespace PokemonBattle.ViewModels
         }
         public async Task GoToBattlePage()
         {
-            await Shell.Current.Navigation.PopToRootAsync();
+            if (!await _uiFacade.CanUserGoToBattlePage())
+            {
+                return ;
+            }
+            var battleView = App.Current.Handler.MauiContext.Services.GetService<BattleViewModel>();
+            var page = new BattlePage(battleView);
+            await Shell.Current.Navigation.PushAsync(page);
         }
         public async Task RemoveFromTeam(ListPokemonDisplayModel listpokmeon)
         {
@@ -210,7 +218,7 @@ namespace PokemonBattle.ViewModels
 
             var partyPokemon = await _uiFacade.AddToPartyTeam(_selectedPokemonModel);
 
-            var uiMember = await _displayModelFactory.Create(partyPokemon);
+            var uiMember = await _displayModelFactory.CreateFrontFacingSprite(partyPokemon);
 
             await LoadSpriteForPokemonListItemAsync(uiMember);
             DisplayTeamPokemon.Add(uiMember);

@@ -97,16 +97,34 @@
           Grid.Column="3"
             BackgroundColor="DimGray"
           VerticalOptions="Start"
-          WidthRequest="600"
+            MinimumWidthRequest="400"
           HorizontalOptions="Center"
           ItemsSource="{Binding CurrentMoves}"
           x:Name="CurrentMoves"
           SelectionMode="Single">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <StackLayout Padding="5" >
-                        <Label Text="{Binding DisplayInfo}" FontSize="18"/>
-                    </StackLayout>
+                        <HorizontalStackLayout
+                            Spacing="25"
+                            VerticalOptions="Center"
+                            HorizontalOptions="Fill"
+                            >
+                            <Button
+                                VerticalOptions="Center"
+                             Text="Remove"
+                                TextColor="Wheat"
+                                TextTransform="Uppercase"
+                                Background="Crimson"
+                             CornerRadius="0"
+                             />
+                            <Label 
+                                Text="{Binding DisplayInfo}" 
+                                FontSize="18"
+                                VerticalTextAlignment="Center"
+                                HorizontalTextAlignment="Center"
+                                
+                                />
+                        </HorizontalStackLayout>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
@@ -126,7 +144,7 @@
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <StackLayout Padding="5" >
-                        <Label Text="{Binding Move.Name}" FontSize="18"/>
+                        <Label Text="{Binding Move.Name}" FontSize="18" HorizontalTextAlignment="Start"/>
                     </StackLayout>
                 </DataTemplate>
             </CollectionView.ItemTemplate>

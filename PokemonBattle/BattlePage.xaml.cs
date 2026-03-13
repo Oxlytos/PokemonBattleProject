@@ -5,9 +5,9 @@ namespace PokemonBattle;
 
 public partial class BattlePage : ContentPage
 {
-	private MainViewModel _mainViewModel;
-	public BattlePage()
+	public BattlePage(BattleViewModel vm)
 	{
 		InitializeComponent();
+		BindingContext = vm;
 	}
 }

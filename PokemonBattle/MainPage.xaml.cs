@@ -21,7 +21,7 @@ namespace PokemonBattle
 
         private async void OnClickBattleButton(object sender, EventArgs e)
         {
-            await Shell.Current.Navigation.PushAsync(new BattlePage());
+            //await Shell.Current.Navigation.PushAsync(new BattlePage());
         }
     }
 
