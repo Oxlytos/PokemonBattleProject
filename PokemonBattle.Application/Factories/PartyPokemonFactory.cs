@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Domain.Factories;
 using Domain.Models.Game;
 using Domain.Models.RequestModels;
 using Pokemon.AppServices.Mappers;
@@ -21,6 +22,10 @@ public static class PartyPokemonFactory
         //Map stats
         partyPoke.Stats=StatMapper.MapStats(request);
 
+        var calc = StatCalculatorFactory.GetCalculator();
+        partyPoke.Stats = calc.CalculateEffectiveStats(partyPoke.Stats);
+        Console.WriteLine(partyPoke.Stats.BaseSpecialDefense);
+        Console.WriteLine(partyPoke.Stats.SpecialDefense);
         //Map type
         partyPoke.Types = TypeMapper.MapTypes(request);
 

@@ -31,6 +31,7 @@ namespace PokemonBattle.ViewModels
         private IMoveService _moveService;
         public ICommand GetMovesCommand { get; }
         public ICommand AddMoveCommand { get; }
+        public ICommand RemoveMoveCommand { get; }
 
         private ImageSource _pokemonImage;
         public ImageSource PokemonImage
@@ -148,7 +149,26 @@ namespace PokemonBattle.ViewModels
             
             GetMovesCommand = new Command(async () => await GetPokemonRequestModelMoves());
             AddMoveCommand = new Command(async () => await AddMoveToPokemon(), () => CurrentMove != null);
+            RemoveMoveCommand = new Command<ListMoveDisplayModel>(async(move) => await RemoveMoveFromPokemon(move));
             GetCorrectImage();
+        }
+
+        private async Task RemoveMoveFromPokemon(ListMoveDisplayModel move)
+        {
+            if(move == null) return;
+            if(string.IsNullOrEmpty(move.Name)) return;
+            if(ActualPokemon==null) return;
+            if (!ActualPokemon.Moves.Any()) return;
+            Console.WriteLine("Removing move");
+
+            var thisMove = CurrentMoves.FirstOrDefault(x=>x.Name.ToLower() == move.Name.ToLower());
+            CurrentMoves.Remove(thisMove);
+
+            var thisMoveModel = _actualPokemon.Moves.FirstOrDefault(x => x.Name.ToLower() == move.Name.ToLower());
+            _actualPokemon.Moves.Remove(thisMoveModel);
+            _teamPokemonService.UpdateTeamMember(_actualPokemon);
+            await RenderCurrentMoves();
+
         }
 
         private async Task RenderCurrentMoves()
@@ -219,33 +239,8 @@ namespace PokemonBattle.ViewModels
             }
             CurrentMoves.Add(moveToAdd);
             SelectedPokemonModel.DisplayMoves = CurrentMoves.ToArray();
-            var moves = SelectedPokemonModel.DisplayMoves;
-            Console.WriteLine(moves);
+            await RenderCurrentMoves();
 
-            //Se till att moves stämmar överenns
-            for (int i = CurrentMoves.Count - 1; i >= 0; i--)
-            {
-                //Är inte de synkade med index och move
-                if (!moves.Contains(CurrentMoves[i]))
-                {
-                    //ta bort
-                    CurrentMoves.RemoveAt(i);
-                }
-
-            }
-            //Kolla alla nuvarande lerarned moves
-            foreach (var move in moves)
-            {
-                //Om inte UI moves har object moves
-                if (!CurrentMoves.Contains(move))
-                {
-                    CurrentMoves.Add(move);
-                }
-            }
-            //Fungerar som länk/pointer till riktiga moves?
-            SelectedPokemonModel.DisplayMoves = CurrentMoves.ToArray();
-            _teamPokemonService.UpdateTeamMember(ActualPokemon);
-            RenderCurrentMoves();
         }
       
         public async Task GetPokemonRequestModelMoves()

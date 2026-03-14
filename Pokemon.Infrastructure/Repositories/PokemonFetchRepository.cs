@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Domain.Models.Base;
 using Domain.Models.Game;
 using Domain.Models.RequestModels;
+using Pokemon.Infrastructure.Factories;
 using Pokemon.Infrastructure.Interfaces;
 using Pokemon.Repository.Interfaces;
 using Pokemon.Repository.Repositories;
@@ -19,12 +20,14 @@ namespace Pokemon.Infrastructure.Repositories
     {
         private readonly HttpClient _client;
         private readonly IJsonStorage _jsonStorage;
+        private readonly ITypeDataLoader _typeDataLoader;
         private string baseUrl = "https://pokeapi.co/api/v2/";
-        public PokemonFetchRepository(HttpClient client, IJsonStorage jsonStorage)
+        public PokemonFetchRepository(HttpClient client, IJsonStorage jsonStorage, ITypeDataLoader typeDataLoader)
         {
             _client = client;
             _client.BaseAddress = new Uri(baseUrl);
             _jsonStorage = jsonStorage;
+            _typeDataLoader = typeDataLoader;
         }
 
         public async Task<RequestPokeonModel> DeserializePokemonModel(string jsonResponse)
@@ -50,8 +53,9 @@ namespace Pokemon.Infrastructure.Repositories
             move.Move = moveInfo;
 
             var moveType = JsonSerializer.Deserialize<RequestTypeModel>(jsonResponse);
-            Console.WriteLine(moveType);
-            Console.WriteLine(move);
+            //var typemodel = TypeModelFactory.Create(moveType);
+            //Console.WriteLine(typemodel);
+            //await _typeDataLoader.AddTypeModel(typemodel);
             return move;
         }
 
@@ -60,6 +64,9 @@ namespace Pokemon.Infrastructure.Repositories
         public async Task<RequestTypeModel> DeserializeTypeModel(string jsonResponse)
         {
             var typeJson = JsonSerializer.Deserialize<RequestTypeModel>(jsonResponse);
+            var typemodel = TypeModelFactory.Create(typeJson);
+            Console.WriteLine(typemodel);
+            await _typeDataLoader.AddTypeModel(typemodel);
             return typeJson;
         }
 
@@ -137,7 +144,11 @@ namespace Pokemon.Infrastructure.Repositories
                     normalPokemon.Sprites = sprites;
                     var pokemonMoves = JsonSerializer.Deserialize<MoveRequestCollection>(content);
                     normalPokemon.Moves = pokemonMoves;
-                    Console.WriteLine(normalPokemon.Sprites);
+                    Console.WriteLine(normalPokemon);
+
+                    var typeTsks = normalPokemon.Types.Select(e=>GetTypeModelAsync(e.Types.Name)).ToList();
+                    await Task.WhenAll(typeTsks);
+
                     await _jsonStorage.SavePokemonData(name, content);
                     return normalPokemon;
 
@@ -152,6 +163,7 @@ namespace Pokemon.Infrastructure.Repositories
             {
                 Console.WriteLine(ex.Message);
             }
+                
             Console.WriteLine("Nothing happended?");
             return null;
 
@@ -180,7 +192,7 @@ namespace Pokemon.Infrastructure.Repositories
 
         public async Task<RequestTypeModel> GetTypeModelAsync(string name)
         {
-            var localFileCheck = await _jsonStorage.GetTypeFolder(name);
+            var localFileCheck = Path.Combine(await _jsonStorage.GetTypeFolder(name), name + ".json");
             if (localFileCheck != null && File.Exists(localFileCheck))
             {
                 return await DeserializeTypeModel(localFileCheck);
@@ -197,8 +209,11 @@ namespace Pokemon.Infrastructure.Repositories
                 {
                     string content = await msg.Content.ReadAsStringAsync();
                     var typeJson = await DeserializeTypeModel(content);
-
+                    //await _typeDataLoader.add
                     await _jsonStorage.SaveTypeData(name, content);
+                    var typemodel = TypeModelFactory.Create(typeJson);
+                    Console.WriteLine(typemodel);
+                    await _typeDataLoader.AddTypeModel(typemodel);
                     return typeJson;
                 }
             }

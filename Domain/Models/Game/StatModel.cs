@@ -2,8 +2,29 @@
 
 namespace Domain.Models.Game
 {
-    public class StatModel  
+    public class StatModel
     {
+        [JsonPropertyName("b_health")]
+        public int BaseHealth { get; set; }
+
+        [JsonPropertyName("b_attack")]
+        public int BaseAttack { get; set; }
+
+        [JsonPropertyName("b_defense")]
+        public int BaseDefense { get; set; }
+
+        [JsonPropertyName("b_sattack")]
+        public int BaseSpecialAttack { get; set; }
+
+        [JsonPropertyName("b_sdefense")]
+        public int BaseSpecialDefense { get; set; }
+
+        [JsonPropertyName("b_speed")]
+        public int BaseSpeed { get; set; }
+        /// <summary>
+        /// /////////////
+        /// </summary>
+
         [JsonPropertyName("health")]
         public int Health { get; set; }
 
@@ -21,6 +42,9 @@ namespace Domain.Models.Game
 
         [JsonPropertyName("speed")]
         public int Speed { get; set; }
+
+
+
 
 
         [JsonPropertyName("health_evs")]

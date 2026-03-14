@@ -11,6 +11,10 @@ using Pokemon.Repository.Repositories;
 using Pokemon.Repository.Interfaces;
 using Pokemon.AppServices.Factories;
 using PokemonBattle.Facades;
+using Domain.Interface;
+using Domain.Calculator;
+using Domain.Services;
+using System.Threading.Tasks;
 
 namespace PokemonBattle
 {
@@ -82,16 +86,31 @@ namespace PokemonBattle
             builder.Services.AddSingleton<ITypeService, TypeService>();
             builder.Services.AddSingleton<ITypeRepo, TypeRepo>();
             builder.Services.AddSingleton<ListPokemonDisplayModelFactory>();
+            builder.Services.AddSingleton<IStatCalculator, GenerationThreeStatCalculator>();
 
             builder.Services.AddTransient<UIFacade>();
-            builder.Services.AddSingleton<IMauiStorageDirectoryHelper, MauiStorageDirectoryHelperService>();
-           
 
+            builder.Services.AddSingleton<TypeDataService>();
+            builder.Services.AddSingleton<ITypeDataLoader, TypeDataLoader>();
+            builder.Services.AddSingleton<IMauiStorageDirectoryHelper, MauiStorageDirectoryHelperService>();
+
+
+            //Ladda loadern tidigt här från JSON om det finns data
+            //var typeLoader = builder.Services.BuildServiceProvider().GetRequiredService<TypeDataLoader>();
+            //_= typeLoader.LoadTypesFromJsonFolderAsync();
             
 
             builder.Services.AddTransient<MainPage>();
             builder.Services.AddTransient<MainViewModel>();
-            return builder.Build();
+
+            var app = builder.Build();
+            Task.Run(async() =>
+            {
+                var loader = app.Services.GetRequiredService<TypeDataLoader>();
+                await loader.LoadTypesFromJsonFolderAsync();
+            });
+            return app;
+            //return builder.Build();
         }
     }
 }

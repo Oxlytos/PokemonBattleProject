@@ -168,9 +168,15 @@ namespace PokemonBattle.Facades
         {
 
             var canWe = await _moveService.CanWeAddAMove(pokemon);
+            //kolla om det finns 4 moves redan
             if (!canWe)
             {
                 return null;    
+            }
+            //inte samma move 4 gånger
+            if (pokemon.Moves.Any(e=>e.Name.ToLower()==currentMove.Move.Name.ToLower()))
+            {
+                return null;
             }
 
             var requestMove = await _fetchService.GetMoveModelAsync(currentMove.Move.Name);

@@ -15,12 +15,12 @@ namespace Pokemon.AppServices.Mappers
             StatModel model = new StatModel();
             request.SetBaseStatTotals();
             Console.WriteLine(request);
-            model.Health = request.Health.Value;
-            model.Attack = request.Attack.Value;
-            model.Defense = request.Defense.Value;
-            model.SpecialAttack = request.SpecialAttack.Value;
-            model.SpecialDefense = request.SpecialDefense.Value;
-            model.Speed = request.Speed.Value;
+            model.BaseHealth = request.Health.Value;
+            model.BaseAttack = request.Attack.Value;
+            model.BaseDefense = request.Defense.Value;
+            model.BaseSpecialAttack = request.SpecialAttack.Value;
+            model.BaseSpecialDefense = request.SpecialDefense.Value;
+            model.BaseSpeed = request.Speed.Value;
             return model;
         }
     }

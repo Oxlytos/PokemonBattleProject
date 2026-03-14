@@ -115,6 +115,8 @@
                                 TextColor="Wheat"
                                 TextTransform="Uppercase"
                                 Background="Crimson"
+                                Command="{Binding BindingContext.RemoveMoveCommand, Source={x:Reference CurrentMoves}}"
+                                CommandParameter="{Binding .}"
                              CornerRadius="0"
                              />
                             <Label 
