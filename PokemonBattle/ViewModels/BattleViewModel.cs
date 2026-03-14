@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Domain.Models.Game;
 using Domain.Models.RequestModels;
+using Domain.Services;
 using Pokemon.AppServices.Factories;
 using Pokemon.Infrastructure.Interfaces;
 using Pokemon.Infrastructure.Services;
@@ -21,9 +22,11 @@ namespace PokemonBattle.ViewModels
     {
         public event PropertyChangedEventHandler? PropertyChanged;
         private IBattleService _battleService;
+        private TypeDataService _typeDataService;
 
 
         private UIFacade _uiFacade;
+        private BattleFacade _battleFacade;
         private readonly ListPokemonDisplayModelFactory _displayModelFactory;
         public ObservableCollection<RequestPokeonModel> AllPokemon { get; }
         public ObservableCollection<ListPokemonDisplayModel> DisplayPlayerParty { get; } = new();
@@ -117,14 +120,18 @@ namespace PokemonBattle.ViewModels
             public string Name { get; set; }
             public ICommand ClickMoveCommand { get; set; }
         }
-        public BattleViewModel(UIFacade uIFacade, ListPokemonDisplayModelFactory displayModelFactory, IBattleService battleService)
+        public BattleViewModel(UIFacade uIFacade, ListPokemonDisplayModelFactory displayModelFactory, IBattleService battleService, TypeDataService typeDataService, BattleFacade battlefacade)
         {
+           _typeDataService = typeDataService;
             _uiFacade = uIFacade;
+            _battleFacade = battlefacade;
             _battleService = battleService;
             _displayModelFactory = displayModelFactory;
             _=RebuildTeamDisplay();
             _ = LoadGraphics();
             ClickMoveCommand = new Command<string>(async (moveName) => await OnClickMoveCommand(moveName));
+
+            battlefacade.StartMatch();
             //DisplayTeamPokemon = new ObservableCollection<ListPokemonDisplayModel> _uiFacade.GetPokemonTeamAsync();
         }
 
@@ -136,7 +143,7 @@ namespace PokemonBattle.ViewModels
         private async Task OnClickMoveCommand(string moveName)
         {
             Console.WriteLine($"Clicked move {moveName}");
-            throw new NotImplementedException();
+            await _battleFacade.NewTurn(moveName);
         }
 
         public async Task RebuildTeamDisplay()

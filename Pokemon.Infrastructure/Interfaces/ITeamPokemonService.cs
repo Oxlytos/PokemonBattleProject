@@ -15,7 +15,7 @@ namespace Pokemon.Infrastructure.Interfaces
         public Task AddToTeam(PartyPokemonModel pokemon);
         public Task RemoveFromTeam(PartyPokemonModel pokemon);
         public void UpdateTeamMember(PartyPokemonModel pokemon);
-
         public Task<bool> CanWeAddToTeam();
+        public Task<PartyPokemonModel> GetFirstPartyPokemon();
     }
 }

@@ -91,6 +91,7 @@ namespace PokemonBattle
             builder.Services.AddTransient<UIFacade>();
 
             builder.Services.AddSingleton<TypeDataService>();
+            builder.Services.AddSingleton<DamageCalculator>();
             builder.Services.AddSingleton<ITypeDataLoader, TypeDataLoader>();
             builder.Services.AddSingleton<IMauiStorageDirectoryHelper, MauiStorageDirectoryHelperService>();
 

@@ -39,6 +39,15 @@ namespace Pokemon.Infrastructure.Services
             return true;
         }
 
+        public async Task<PartyPokemonModel> GetFirstPartyPokemon()
+        {
+            if (!TeamPokemon.Any())
+            {
+                return null;
+            }
+            return TeamPokemon.First();
+        }
+
         public async Task RemoveFromTeam(PartyPokemonModel pokemon)
         {
             if(TeamPokemon.Count > 0)
