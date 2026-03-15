@@ -15,6 +15,9 @@ using Domain.Interface;
 using Domain.Calculator;
 using Domain.Services;
 using System.Threading.Tasks;
+using Pokemon.Infrastructure.Factories;
+using Pokemon.Infrastructure.Interfaces.AI;
+using Pokemon.Infrastructure.Services.AI;
 
 namespace PokemonBattle
 {
@@ -86,9 +89,15 @@ namespace PokemonBattle
             builder.Services.AddSingleton<ITypeService, TypeService>();
             builder.Services.AddSingleton<ITypeRepo, TypeRepo>();
             builder.Services.AddSingleton<ListPokemonDisplayModelFactory>();
+            builder.Services.AddSingleton<ITypeModelFactory, TypeModelFactory>();
             builder.Services.AddSingleton<IStatCalculator, GenerationThreeStatCalculator>();
+            builder.Services.AddSingleton<IAIService, AIService>();
+            builder.Services.AddSingleton<IAiTeamService, AiTeamService>();
+
 
             builder.Services.AddTransient<UIFacade>();
+            builder.Services.AddTransient<BattleFacade>();
+
 
             builder.Services.AddSingleton<TypeDataService>();
             builder.Services.AddSingleton<DamageCalculator>();
@@ -105,11 +114,8 @@ namespace PokemonBattle
             builder.Services.AddTransient<MainViewModel>();
 
             var app = builder.Build();
-            Task.Run(async() =>
-            {
-                var loader = app.Services.GetRequiredService<TypeDataLoader>();
-                await loader.LoadTypesFromJsonFolderAsync();
-            });
+            var loader = app.Services.GetRequiredService<ITypeDataLoader>();
+             loader.LoadTypesFromJsonFolderAsync().GetAwaiter().GetResult();
             return app;
             //return builder.Build();
         }

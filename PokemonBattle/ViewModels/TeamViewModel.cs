@@ -45,6 +45,8 @@ namespace PokemonBattle.ViewModels
         public ICommand LoadTeamCommand { get; }
         public ICommand GoToBattlePageCommand { get; }
 
+        public ICommand SaveTeamForAiCommand { get; }
+
         private ImageSource _pokemonImage;
         public ImageSource PokemonImage
         {
@@ -61,6 +63,7 @@ namespace PokemonBattle.ViewModels
                 }
             }
         }
+       
 
         public event PropertyChangedEventHandler? PropertyChanged;
         private string _pokemonName { get; set; }
@@ -112,7 +115,14 @@ namespace PokemonBattle.ViewModels
             LoadTeamCommand = new Command(async () => await LoadTeamAsync());
             GetMovesCommand = new Command(async () => await GetPokemonRequestModelMoves());
             GoToBattlePageCommand = new Command(async () => await GoToBattlePage());
+            SaveTeamForAiCommand = new Command(async () => await SaveTeamForAi());
         }
+
+        private async Task SaveTeamForAi()
+        {
+            await _uiFacade.SaveTeamForAI();
+        }
+
         public async Task RebuildTeamDisplay()
         {
             DisplayTeamPokemon.Clear();
@@ -158,7 +168,7 @@ namespace PokemonBattle.ViewModels
                 }
 
                 moveView.ActualPokemon = partyMember;
-                PokemonImage = await _uiFacade.LoadPokemonSpritePathAsync(listmodel.Name);
+                PokemonImage = await _uiFacade.LoadPokemonFrontSpritePathAsync(listmodel.Name);
                 moveView.PokemonImage = PokemonImage;
                 var page = new MoveAssignerPage(moveView);
                 await Shell.Current.Navigation.PushAsync(page);
@@ -195,7 +205,7 @@ namespace PokemonBattle.ViewModels
             //har vi tryckt på en pokemon i listan, annars returnera
             if (SelectedPokemonModel == null) return;
 
-            var path = await _uiFacade.LoadPokemonSpritePathAsync(SelectedPokemonModel.Name);
+            var path = await _uiFacade.LoadPokemonFrontSpritePathAsync(SelectedPokemonModel.Name);
 
             PokemonImage = ImageSource.FromFile(path);
            

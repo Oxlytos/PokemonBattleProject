@@ -25,6 +25,7 @@ namespace Domain.Services
         }
         public TypeModel GetTypeModel(string name)
         {
+            Console.WriteLine(name);
             if (_typeDataDic.ContainsKey(name))
             {
                 return _typeDataDic[name];
@@ -35,18 +36,30 @@ namespace Domain.Services
             }
         }
 
+        public Dictionary<string, TypeModel> GetAllTypeData()
+        {
+            return _typeDataDic;
+        }
+
         public double GetTypeAttackMultiplier(string attackTypeName, string defenderTypeName, string? defenderOtherTypeName)
         {
             var attacktType = GetTypeModel(attackTypeName);
             var firstDefenderType = GetTypeModel(defenderTypeName);
-
+            Console.WriteLine(firstDefenderType);
             //Om defender har en andra typ, ta med den, annars inte
-            TypeModel? secondDefenderType = defenderOtherTypeName != null ? GetTypeModel(defenderTypeName) : null;
-
+            TypeModel? secondDefenderType = defenderOtherTypeName != null ? GetTypeModel(defenderOtherTypeName) : null;
+            Console.WriteLine(secondDefenderType);
             double multiplier = 1;
+            //defender är immun
+            //Poison attack på Steel => immun
+            if (attacktType.Immunities?.Any(x => x.ToLower() == defenderTypeName.ToLower()) ?? false)
+            {
+                return  0;
+            }
+
             //OM attackens effektivtet är emot defendertyps första typ, bra multiplier läggs till
             //Eld mot gräs t.ex.
-            if(attacktType.Effectivnesses?.Any(x=>x.ToLower()==defenderTypeName.ToLower()) ?? false)
+            if (attacktType.Effectivnesses?.Any(x=>x.ToLower()==defenderTypeName.ToLower()) ?? false)
             {
                 multiplier *= 2;
             }
@@ -58,13 +71,7 @@ namespace Domain.Services
                 multiplier *= 0.5;
             }
 
-            //defender är immun
-            //Poison attack på Steel => immun
-            if(attacktType.Immunities?.Any(x=>x.ToLower()==defenderTypeName.ToLower())  ?? false)
-            {
-                multiplier = 0;
-            }
-
+           
             //Andra typen om den inte är null
             if(secondDefenderType != null)
             {
@@ -84,9 +91,10 @@ namespace Domain.Services
                 //Poison attack på Steel => immun
                 if (attacktType.Immunities?.Any(x => x.ToLower() == secondDefenderType.Name.ToLower()) ?? false)
                 {
-                    multiplier = 0;
+                    return 0;
                 }
             }
+            Console.WriteLine(multiplier);
             return multiplier;
         }
     }

@@ -12,6 +12,7 @@ using Domain.Models.RequestModels;
 using Domain.Services;
 using Pokemon.AppServices.Factories;
 using Pokemon.Infrastructure.Interfaces;
+using Pokemon.Infrastructure.Models;
 using Pokemon.Infrastructure.Services;
 using PokemonBattle.Facades;
 using PokemonBattle.ListModel;
@@ -23,8 +24,6 @@ namespace PokemonBattle.ViewModels
         public event PropertyChangedEventHandler? PropertyChanged;
         private IBattleService _battleService;
         private TypeDataService _typeDataService;
-
-
         private UIFacade _uiFacade;
         private BattleFacade _battleFacade;
         private readonly ListPokemonDisplayModelFactory _displayModelFactory;
@@ -95,8 +94,8 @@ namespace PokemonBattle.ViewModels
                 }
             }
         }
-        private PartyPokemonModel _currentPlayerPartyPokemon;
-        public PartyPokemonModel CurrentPlayerPartyPokemon
+        private BattlePokemonModel _currentPlayerPartyPokemon;
+        public BattlePokemonModel CurrentPlayerPartyPokemon
         {
             get { return _currentPlayerPartyPokemon; }
             set
@@ -105,9 +104,34 @@ namespace PokemonBattle.ViewModels
                 {
                     _currentPlayerPartyPokemon = value;
                     OnPropertyChanged(nameof(CurrentPlayerPartyPokemon));
+                   _= GetPokemonImage(_currentPlayerPartyPokemon);
                 }
             }
         }
+        private BattlePokemonModel _currentAiPokemon;
+        public BattlePokemonModel CurrentAiPokemon
+        {
+            get { return _currentAiPokemon; }
+            set
+            {
+                if ( _currentAiPokemon != value)
+                {
+                    _currentAiPokemon = value;
+                    OnPropertyChanged(nameof(CurrentAiPokemon));
+                    _=GetOpponentPokemonImage(_currentAiPokemon);
+                }
+            }
+        }
+        private async Task GetOpponentPokemonImage(BattlePokemonModel pokemon)
+        {
+            OpponentPokemon=  await _uiFacade.LoadPokemonFrontSpritePathAsync(pokemon.PartyPokemon.Name);
+        }
+
+        private async Task GetPokemonImage(BattlePokemonModel pokemon)
+        {
+            PlayerPokemonImage = await _uiFacade.LoadPokemonBackSpritePathAsync(pokemon.PartyPokemon.Name);
+        }
+
         public ICommand ClickMoveCommand { get; }
         public ICommand PlayerAction { get; }
 
@@ -127,12 +151,25 @@ namespace PokemonBattle.ViewModels
             _battleFacade = battlefacade;
             _battleService = battleService;
             _displayModelFactory = displayModelFactory;
-            _=RebuildTeamDisplay();
+          
             _ = LoadGraphics();
             ClickMoveCommand = new Command<string>(async (moveName) => await OnClickMoveCommand(moveName));
 
-            battlefacade.StartMatch();
+            StartMatch();
             //DisplayTeamPokemon = new ObservableCollection<ListPokemonDisplayModel> _uiFacade.GetPokemonTeamAsync();
+        }
+
+        private async Task StartMatch()
+        {
+            var turnResult = await _battleFacade.StartMatch();
+
+            if (turnResult == null)
+            {
+                throw new Exception("Something fucked up");
+            }
+            CurrentPlayerPartyPokemon = turnResult.PlayerCurrentPokemon;
+            CurrentAiPokemon = turnResult.AiCurrentPokemon;
+            await RebuildTeamDisplay();
         }
 
         //Härifrån, battleservice/Facade för att hantera skada fiende
@@ -143,15 +180,17 @@ namespace PokemonBattle.ViewModels
         private async Task OnClickMoveCommand(string moveName)
         {
             Console.WriteLine($"Clicked move {moveName}");
-            await _battleFacade.NewTurn(moveName);
+            var turnResult = await _battleFacade.NewTurn(moveName);
+
+            CurrentPlayerPartyPokemon = turnResult.PlayerCurrentPokemon;
+            CurrentAiPokemon = turnResult.AiCurrentPokemon;
         }
 
         public async Task RebuildTeamDisplay()
         {
             DisplayPlayerParty.Clear();
-            await _battleService.LoadPartyPokemon();
-            CurrentPlayerPartyPokemon = await _battleService.GetFirstPartyPokemon();
-            var curMoves = CurrentPlayerPartyPokemon.Moves.Select(e => e.Name);
+            var battlemon = _battleFacade.CurrentPlayerPokemon;
+            var curMoves = CurrentPlayerPartyPokemon.PartyPokemon.Moves.Select(e => e.Name);
 
             CurrentPlayerPokemonMoves = new ObservableCollection<string>(curMoves);
             Console.WriteLine(CurrentPlayerPokemonMoves);
@@ -168,13 +207,12 @@ namespace PokemonBattle.ViewModels
 
             PlayerPokemonImage = ImageSource.FromFile(imageSource.SpritePath);
             List<string> opponent = new List<string>();
-            foreach(var pokemin in pokemon)
+            foreach (var pokemin in pokemon)
             {
                 var display = await _displayModelFactory.CreateFrontFacingSprite(pokemin);
                 opponent.Add(display.SpritePath);
             }
             Console.WriteLine(PlayerPokemonImage);
-            OpponentPokemon = ImageSource.FromFile(opponent.FirstOrDefault());
         }
         public async Task LoadGraphics()
         {

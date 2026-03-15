@@ -6,7 +6,6 @@ namespace Domain.Models.Game
     {
         public PartyPokemonModel()
         {
-            
         }
         [JsonPropertyName("id")]
         public int Id { get; set; }
@@ -27,15 +26,8 @@ namespace Domain.Models.Game
         [JsonPropertyName("level")]
         public int Level { get; set; } = 50;
 
-        public void TakeDamage(int damage)
-        {
-            Stats.Health-=damage;
-            if (Stats.Health <= 0)
-            {
-                Stats.Health = 0;
-                //KO'D
-            }
-        }
+
+        
 
 
     }

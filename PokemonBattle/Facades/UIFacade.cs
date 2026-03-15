@@ -8,6 +8,8 @@ using Domain.Models.Game;
 using Domain.Models.RequestModels;
 using Pokemon.AppServices.Factories;
 using Pokemon.Infrastructure.Interfaces;
+using Pokemon.Infrastructure.Interfaces.AI;
+using Pokemon.Infrastructure.Models;
 using Pokemon.Infrastructure.Services;
 using Pokemon.Repository.Interfaces;
 using Pokemon.Services.Interfaces;
@@ -27,6 +29,7 @@ namespace PokemonBattle.Facades
         private IJsonStorage _jsonStorage;
         private IMoveService _moveService;
         private IBattleService _battleService;
+        private IAiTeamService _aiTeamService;
         private readonly ListPokemonDisplayModelFactory _displayModelFactory;
 
         public UIFacade(
@@ -37,9 +40,11 @@ namespace PokemonBattle.Facades
             IMauiStorageDirectoryHelper mauiStorageDirectoryHelper,
             IJsonStorage jsonStorage,
             IMoveService moveService,
+            IAiTeamService aiTeamService,
             //IBattleService battleService,
             ListPokemonDisplayModelFactory displayModelFactory)
         {
+            _aiTeamService = aiTeamService;
             //_battleService = battleService;
             _moveService = moveService;
             _fetchService = pokemonFetchService;
@@ -105,15 +110,52 @@ namespace PokemonBattle.Facades
             }
 
         }
+        public async Task SaveTeamForAI()
+        {
+            var aiTeam = _teamPokemonService.TeamPokemon.ToList();
+            if (aiTeam == null && aiTeam.Count == 0)
+            {
+                return;
+            }
+
+
+            AiTeam aisNewTeam = new AiTeam
+            {
+                Name = DateTime.Now.ToString(),
+                AiPokemon = aiTeam
+            };
+
+
+            if (aisNewTeam != null && aisNewTeam.AiPokemon.Count > 0)
+            {
+                await _aiTeamService.SaveTeam(aisNewTeam);
+
+            }
+        }
         public async Task SaveTeam()
         {
             
             await _jsonStorage.SaveTeamAsync(_teamPokemonService.TeamPokemon.ToList());
         }
-        public async Task<string?> LoadPokemonSpritePathAsync(string name)
+        public async Task<string?> LoadPokemonFrontSpritePathAsync(string name)
         {
             //vägen dit (om den finns)
-            var path = await _imageService.GetSpritePath(name, "front_default.png");
+            var path = await _imageService.GetPokemonSpriteAsyncPNG(name);
+
+            //finns inte
+            if (!_imageService.AreAllSpritesStored(name))
+            {
+
+                var fullPokemonInfo = await _fetchService.GetPokemonSingularAsync(name);
+                await _imageService.SaveImage(name, fullPokemonInfo.Sprites.SpriteModel);
+
+            }
+            return path;
+        }
+        public async Task<string?> LoadPokemonBackSpritePathAsync(string name)
+        {
+            //vägen dit (om den finns)
+            var path = await _imageService.GetPokemonBackSpriteAsyncPNG(name);
 
             //finns inte
             if (!_imageService.AreAllSpritesStored(name))

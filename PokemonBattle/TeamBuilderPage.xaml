@@ -88,7 +88,13 @@
         HorizontalOptions="Center"
         Text="Save team"
                     Command="{Binding SaveTeamCommand}"/>
-            </HorizontalStackLayout>
+            <Button
+            WidthRequest="150"
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            Text="Save team for ai"
+            Command="{Binding SaveTeamForAiCommand}"/>
+        </HorizontalStackLayout>
             
         <Label 
      Grid.Row="1"

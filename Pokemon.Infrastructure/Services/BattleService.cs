@@ -32,6 +32,7 @@ namespace Pokemon.Infrastructure.Services
             playerPartyPokemon = await _jsonStorage.LoadTeamAsync();
         }
 
+
         public Task PlayerMove()
         {
             throw new NotImplementedException();

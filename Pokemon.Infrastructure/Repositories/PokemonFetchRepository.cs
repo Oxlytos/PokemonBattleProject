@@ -21,13 +21,15 @@ namespace Pokemon.Infrastructure.Repositories
         private readonly HttpClient _client;
         private readonly IJsonStorage _jsonStorage;
         private readonly ITypeDataLoader _typeDataLoader;
+        private readonly ITypeModelFactory _typeModelFactory;
         private string baseUrl = "https://pokeapi.co/api/v2/";
-        public PokemonFetchRepository(HttpClient client, IJsonStorage jsonStorage, ITypeDataLoader typeDataLoader)
+        public PokemonFetchRepository(HttpClient client, IJsonStorage jsonStorage, ITypeDataLoader typeDataLoader, ITypeModelFactory typeModelFactory)
         {
             _client = client;
             _client.BaseAddress = new Uri(baseUrl);
             _jsonStorage = jsonStorage;
             _typeDataLoader = typeDataLoader;
+            _typeModelFactory = typeModelFactory;
         }
 
         public async Task<RequestPokeonModel> DeserializePokemonModel(string jsonResponse)
@@ -64,7 +66,7 @@ namespace Pokemon.Infrastructure.Repositories
         public async Task<RequestTypeModel> DeserializeTypeModel(string jsonResponse)
         {
             var typeJson = JsonSerializer.Deserialize<RequestTypeModel>(jsonResponse);
-            var typemodel = TypeModelFactory.Create(typeJson);
+            var typemodel = _typeModelFactory.Create(typeJson);
             Console.WriteLine(typemodel);
             await _typeDataLoader.AddTypeModel(typemodel);
             return typeJson;
@@ -211,7 +213,7 @@ namespace Pokemon.Infrastructure.Repositories
                     var typeJson = await DeserializeTypeModel(content);
                     //await _typeDataLoader.add
                     await _jsonStorage.SaveTypeData(name, content);
-                    var typemodel = TypeModelFactory.Create(typeJson);
+                    var typemodel = _typeModelFactory.Create(typeJson);
                     Console.WriteLine(typemodel);
                     await _typeDataLoader.AddTypeModel(typemodel);
                     return typeJson;

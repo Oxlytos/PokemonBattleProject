@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 using Domain.Models.Game;
 using Domain.Models.RequestModels;
 using Pokemon.Infrastructure.Mappers;
+using Pokemon.Repository.Interfaces;
 
 namespace Pokemon.Infrastructure.Factories
 {
-    public static class TypeModelFactory
+    public class TypeModelFactory:ITypeModelFactory
     {
-        public static TypeModel Create(RequestTypeModel apiType)
+        public TypeModel Create(RequestTypeModel apiType)
         {
             //skapa objekt
             TypeModel model = new TypeModel();

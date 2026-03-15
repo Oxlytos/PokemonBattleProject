@@ -58,15 +58,15 @@
                 >
                 <VerticalStackLayout>
                     <Label
-                        Text="health"
+                        Text="{Binding CurrentAiPokemon.DisplayHealth}"
                         TextTransform="Uppercase"
                         TextColor="Black"
                         />
                     <Label
-                        Text="{Binding CurrentPlayerPartyPokemon.Nickname}"
+                        Text="{Binding CurrentAiPokemon.PartyPokemon.Nickname}"
                         TextColor="Black"/>
                     <Label
-                        Text="{Binding CurrentPlayerPartyPokemon.Level}"
+                        Text="{Binding CurrentAiPokemon.PartyPokemon.Level}"
                         TextColor="Black"/>
                 </VerticalStackLayout>
             </Border>
@@ -149,17 +149,17 @@
                     
                     >
                     <Label 
-                        Text="Health"
+                        Text="{Binding CurrentPlayerPartyPokemon.DisplayHealth}"
                         TextTransform="Uppercase"
                         TextColor="Black"
                         />
                     <Label 
-                     Text="{Binding CurrentPlayerPartyPokemon.Nickname}"
+                     Text="{Binding CurrentPlayerPartyPokemon.PartyPokemon.Nickname}"
                      TextColor="Black"
                      /> 
                     <Label 
                         
-                        Text="{Binding CurrentPlayerPartyPokemon.Level}"
+                        Text="{Binding CurrentPlayerPartyPokemon.PartyPokemon.Level}"
                         TextTransform="Uppercase"
                         TextColor="Black"/>
                     <Button
