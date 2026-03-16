@@ -46,10 +46,7 @@ namespace Pokemon.Infrastructure.Models
 
         public void TakeDamage(int damage)
         {
-            if (IsFainted)
-            {
-                return;
-            }
+           
             CurrentHealth -= damage;
             if (CurrentHealth <= 0)
             {

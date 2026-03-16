@@ -43,58 +43,54 @@ namespace Domain.Services
 
         public double GetTypeAttackMultiplier(string attackTypeName, string defenderTypeName, string? defenderOtherTypeName)
         {
-            var attacktType = GetTypeModel(attackTypeName);
+            var attackType = GetTypeModel(attackTypeName);
             var firstDefenderType = GetTypeModel(defenderTypeName);
-            Console.WriteLine(firstDefenderType);
-            //Om defender har en andra typ, ta med den, annars inte
             TypeModel? secondDefenderType = defenderOtherTypeName != null ? GetTypeModel(defenderOtherTypeName) : null;
-            Console.WriteLine(secondDefenderType);
+
             double multiplier = 1;
-            //defender är immun
-            //Poison attack på Steel => immun
-            if (attacktType.Immunities?.Any(x => x.ToLower() == defenderTypeName.ToLower()) ?? false)
+
+            // Check immunities for both types first
+            if (firstDefenderType.Immunities?.Any(x => x.Trim().ToLower() == attackType.Name.Trim().ToLower()) ?? false)
             {
-                return  0;
+                return 0;
             }
-
-            //OM attackens effektivtet är emot defendertyps första typ, bra multiplier läggs till
-            //Eld mot gräs t.ex.
-            if (attacktType.Effectivnesses?.Any(x=>x.ToLower()==defenderTypeName.ToLower()) ?? false)
+            if (secondDefenderType != null)
             {
-                multiplier *= 2;
-            }
-
-            //Hälften så effektiv här
-            //Eld mot vatten
-            if(attacktType.Resistances?.Any(x=>x.ToLower() == defenderTypeName.ToLower()) ?? false)
-            {
-                multiplier *= 0.5;
-            }
-
-           
-            //Andra typen om den inte är null
-            if(secondDefenderType != null)
-            {
-                if (attacktType.Effectivnesses?.Any(x => x.ToLower() == secondDefenderType.Name.ToLower()) ?? false)
-                {
-                    multiplier *= 2;
-                }
-
-                //Hälften så effektiv här
-                //Eld mot vatten
-                if (attacktType.Resistances?.Any(x => x.ToLower() == secondDefenderType.Name.ToLower()) ?? false)
-                {
-                    multiplier *= 0.5;
-                }
-
-                //defender är immun
-                //Poison attack på Steel => immun
-                if (attacktType.Immunities?.Any(x => x.ToLower() == secondDefenderType.Name.ToLower()) ?? false)
+                if (secondDefenderType.Immunities?.Any(x => x.Trim().ToLower() == attackType.Name.Trim().ToLower()) ?? false)
                 {
                     return 0;
                 }
+                   
+            } 
+            // First type effectiveness
+            if (attackType.Effectivnesses?.Any(x => x.Trim().ToLower() == firstDefenderType.Name.Trim().ToLower()) ?? false)
+            {
+                multiplier *= 2;
             }
-            Console.WriteLine(multiplier);
+                
+
+            if (attackType.Resistances?.Any(x => x.Trim().ToLower() == firstDefenderType.Name.Trim().ToLower()) ?? false)
+            {
+                multiplier *= 0.5;
+            }
+  
+
+            // Second type effectiveness
+            if (secondDefenderType != null)
+            {
+                if (attackType.Effectivnesses?.Any(x => x.Trim().ToLower() == secondDefenderType.Name.Trim().ToLower()) ?? false)
+                {
+                    multiplier *= 2;
+                }
+                  
+
+                if (attackType.Resistances?.Any(x => x.Trim().ToLower() == secondDefenderType.Name.Trim().ToLower()) ?? false)
+                {
+                    multiplier *= 0.5;
+                }
+                
+            }
+
             return multiplier;
         }
     }

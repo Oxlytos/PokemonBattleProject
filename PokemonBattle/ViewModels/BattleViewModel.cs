@@ -36,7 +36,12 @@ namespace PokemonBattle.ViewModels
             get => _currentPlayerPokemonMoves;
             set
             {
-                _currentPlayerPokemonMoves = value;
+                 var padded = new ObservableCollection<string>(value ?? new ObservableCollection<string>());
+                while (padded.Count < 4) 
+                {
+                    padded.Add("-");
+                }
+                _currentPlayerPokemonMoves = padded;
                 OnPropertyChanged(nameof(CurrentPlayerPokemonMoves));
             }
         }
@@ -139,6 +144,25 @@ namespace PokemonBattle.ViewModels
         public ICommand IncreaseTurn { get; }
         public ICommand InflictDamage { get; }
         public ICommand TakeDamage { get; }
+
+        public ICommand SwitchPokemonCommand { get; }
+
+        public bool IsSwitching { get; set; }
+
+        private string _statusMessage;
+        public string StatusMessage
+        {
+            get { return _statusMessage; }
+            set
+            {
+                if ( _statusMessage != value )
+                {
+                    _statusMessage = value;
+                    OnPropertyChanged(nameof(StatusMessage));
+                }
+            }
+        }
+        
         public class MoveItem
         {
             public string Name { get; set; }
@@ -154,9 +178,41 @@ namespace PokemonBattle.ViewModels
           
             _ = LoadGraphics();
             ClickMoveCommand = new Command<string>(async (moveName) => await OnClickMoveCommand(moveName));
+            SwitchPokemonCommand = new Command<ListPokemonDisplayModel>(async (listpokemon) => await OnClickSwitchPokemon(listpokemon));
+
+            _battleFacade.OnPlayerMustSwitch += HandlePlayerMustSwitch;
 
             StartMatch();
             //DisplayTeamPokemon = new ObservableCollection<ListPokemonDisplayModel> _uiFacade.GetPokemonTeamAsync();
+        }
+
+        private void HandlePlayerMustSwitch()
+        {
+            StatusMessage = "Your pokemon fainted! Choose a another one to keep battling!";
+            IsSwitching = true;
+        }
+
+        //battle facade härifrån, se till att switch händer före move
+        private async Task OnClickSwitchPokemon(ListPokemonDisplayModel listpokemon)
+        {
+            if(!IsSwitching) return;
+            if (listpokemon == null)
+            {
+                return;
+            }
+
+            int index = DisplayPlayerParty.IndexOf(listpokemon);
+            var changedPokemon = await _battleFacade.ChangeCurrentPokemon( index);
+            if (changedPokemon != CurrentPlayerPartyPokemon)
+            {
+                CurrentPlayerPartyPokemon = changedPokemon;
+                await RebuildTeamDisplay();
+            }
+
+            IsSwitching = false;
+            StatusMessage = "";
+            RebuildTeamDisplay();
+            //await OnClickMoveCommand("");
         }
 
         private async Task StartMatch()
@@ -179,40 +235,63 @@ namespace PokemonBattle.ViewModels
         //Crazy
         private async Task OnClickMoveCommand(string moveName)
         {
-            Console.WriteLine($"Clicked move {moveName}");
+            if (IsSwitching)
+            {
+                return;
+            }
             var turnResult = await _battleFacade.NewTurn(moveName);
 
             CurrentPlayerPartyPokemon = turnResult.PlayerCurrentPokemon;
             CurrentAiPokemon = turnResult.AiCurrentPokemon;
+
+            await PrintBattleInfo(turnResult.BattleActionMessages);
+            if (turnResult.PlayerCurrentPokemon.IsFainted)
+            {
+                StatusMessage = "Your pokemon fainted! Choose a another one to keep battling!";
+                IsSwitching = true;
+                return;
+            }
+            if (turnResult.AiCurrentPokemon.IsFainted)
+            {
+               
+                StatusMessage = "AI is changing pokemon....";
+                var newPokemon = await _battleFacade.AIChoosesNewPokemon();
+                CurrentAiPokemon = newPokemon;
+                await RebuildTeamDisplay();
+            }
+           
+            
+        }
+
+        private async Task PrintBattleInfo(List<string> battleActionMessages)
+        {
+            foreach (var message in battleActionMessages)
+            {
+                StatusMessage = message;
+                await Task.Delay(2000); 
+            }
+            StatusMessage = "";
         }
 
         public async Task RebuildTeamDisplay()
         {
             DisplayPlayerParty.Clear();
-            var battlemon = _battleFacade.CurrentPlayerPokemon;
             var curMoves = CurrentPlayerPartyPokemon.PartyPokemon.Moves.Select(e => e.Name);
 
             CurrentPlayerPokemonMoves = new ObservableCollection<string>(curMoves);
-            Console.WriteLine(CurrentPlayerPokemonMoves);
 
-            var pokemon = await _uiFacade.GetPokemonTeamAsync();
+            var pokemon = _battleFacade.PlayerTeam.ToList();
             foreach (var pokemin in pokemon)
             {
-                var display = await _displayModelFactory.CreateBackFacingSprite(pokemin);
+                var display = await _displayModelFactory.CreateFrontFacingSprite(pokemin.PartyPokemon);
                 OnPropertyChanged(nameof(Pokemon));
                 DisplayPlayerParty.Add(display);
             }
-            var imageSource = DisplayPlayerParty.FirstOrDefault();
 
+            var currentPokemonBackFacing = await _displayModelFactory.CreateBackFacingSprite(CurrentPlayerPartyPokemon.PartyPokemon);
 
-            PlayerPokemonImage = ImageSource.FromFile(imageSource.SpritePath);
-            List<string> opponent = new List<string>();
-            foreach (var pokemin in pokemon)
-            {
-                var display = await _displayModelFactory.CreateFrontFacingSprite(pokemin);
-                opponent.Add(display.SpritePath);
-            }
-            Console.WriteLine(PlayerPokemonImage);
+            PlayerPokemonImage = ImageSource.FromFile(currentPokemonBackFacing.SpritePath);
+            
         }
         public async Task LoadGraphics()
         {

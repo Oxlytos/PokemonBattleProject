@@ -35,10 +35,10 @@ namespace Pokemon.Infrastructure.Services.AI
                 Console.WriteLine(moveData);
                 move.Type.Name = moveData.MoveTypeInfo.Name;
                 //gör kalk, hitta det som ger högst int
-                int damage = _damageCalculator.CalculatDamage(aiPokemon.PartyPokemon, player.PartyPokemon, move);
-                if(damage > bestPossibleDamage)
+                var damage = _damageCalculator.CalculatDamage(aiPokemon.PartyPokemon, player.PartyPokemon, move);
+                if(damage.damage > bestPossibleDamage)
                 {
-                    bestPossibleDamage = damage;
+                    bestPossibleDamage = damage.damage;
                     bestMove = move;
                 }
             }

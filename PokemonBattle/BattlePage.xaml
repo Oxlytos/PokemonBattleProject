@@ -7,10 +7,10 @@
     <Grid Margin="25" ColumnSpacing="10" >
         <Grid.RowDefinitions>
             <RowDefinition Height="1*" />
+            <RowDefinition Height="2*" />
             <RowDefinition Height="1*" />
             <RowDefinition Height="1*" />
-            <RowDefinition Height="1*" />
-            <RowDefinition Height="1*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*" />
@@ -19,7 +19,11 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Label Grid.Row="0" Grid.Column="0" Text="Battle"></Label>
+        <Label 
+            Grid.Row="3"
+            Grid.Column="2"
+            Text="{Binding StatusMessage}"
+            FontSize="28"/>
         <!-- Horizontal grid lines -->
         <BoxView Grid.Row="0" Grid.ColumnSpan="5" HeightRequest="1" BackgroundColor="Red"/>
         <BoxView Grid.Row="1" Grid.ColumnSpan="5" HeightRequest="1" BackgroundColor="Red"/>
@@ -57,6 +61,7 @@
                 Margin="0,-300,0,0"
                 >
                 <VerticalStackLayout>
+                   
                     <Label
                         Text="{Binding CurrentAiPokemon.DisplayHealth}"
                         TextTransform="Uppercase"
@@ -86,31 +91,35 @@
         Grid.Row="4"
         Grid.Column="0"
         Grid.ColumnSpan="6"
-        VerticalOptions="Fill"
+        VerticalOptions="FillAndExpand"
         MinimumWidthRequest="500"
             >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="3*"/>
                 <ColumnDefinition Width="1*"/>
+                
             </Grid.ColumnDefinitions>
-                <Image
-                    TranslationY="-300"
-                    Grid.Column="0"
-                    Grid.Row="0"
-                    Grid.RowSpan="2"
-                 VerticalOptions="Start"
-                    HorizontalOptions="Center"
-                 WidthRequest="400"
-                 HeightRequest="400"
-                 Aspect="AspectFit"
-                Source="{Binding PlayerPokemonImage}"
-                    />
-            <CollectionView
-                        Grid.Column="0"
-                        Grid.Row="1"
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/> <!-- -->
+                <RowDefinition Height="Auto"/> <!--Pokemon sprite here-->
+            </Grid.RowDefinitions>
+            <Image
+             Grid.Column="0"
+             Grid.Row="0"
+             TranslationY="100"
+              WidthRequest="400"
+              HeightRequest="400"
+              VerticalOptions="End"
+              HorizontalOptions="Center"
+              Source="{Binding PlayerPokemonImage}"
+             />
+
+
+            <Grid Grid.Column="0" Grid.Row="1" HeightRequest="260">
+                <CollectionView
                     ItemsSource="{Binding CurrentPlayerPokemonMoves}"
                     ItemSizingStrategy="MeasureAllItems"
-                        VerticalOptions="Fill"
+                        VerticalOptions="Start"
                         HorizontalOptions="Fill"
                         >
                 <CollectionView.ItemsLayout>
@@ -118,36 +127,67 @@
                 </CollectionView.ItemsLayout>
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
+                            <Grid BackgroundColor="Red" Margin="2">
                         <!--Irreterand sätt att gå upp i hiearkin från knapp till viewmodel/binding context för att nå command-->
                         <Button
                         Text="{Binding}"
-                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ClickMoveCommand}"                            
-                            CommandParameter="{Binding}"
+                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ClickMoveCommand}"                            
+                        CommandParameter="{Binding}"
                         TextTransform="Uppercase"
                         BackgroundColor="Beige"
                         CornerRadius="0"
                         BorderColor="Orange"
-                            HeightRequest="120"
-                            VerticalOptions="FillAndExpand"
-                            HorizontalOptions="FillAndExpand"
+                        HeightRequest="120"
+                        VerticalOptions="FillAndExpand"
+                        HorizontalOptions="FillAndExpand"
                         />
-                    </DataTemplate>
+                            </Grid>
+                        </DataTemplate>
                 </CollectionView.ItemTemplate>
                     </CollectionView>
+                </Grid>
+            <CollectionView
+                Grid.Column="1"
+                x:Name="PlayerTeamCollection"
+                Grid.Row="1"
+                ItemsSource="{Binding DisplayPlayerParty}"
+                VerticalOptions="Center"
+                     TranslationY="-140"
+                HorizontalOptions="Center">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Horizontal"/>
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Image
+                       Source="{Binding SpriteImage}"
+                       HeightRequest="96"
+                       WidthRequest="96">
+                            <Image.GestureRecognizers>
+                            <TapGestureRecognizer
+    NumberOfTapsRequired="2"
+    Command="{Binding Source={x:Reference PlayerTeamCollection}, Path=BindingContext.SwitchPokemonCommand}"
+    CommandParameter="{Binding .}"
+    >
+                            </TapGestureRecognizer>
+                            </Image.GestureRecognizers>
+                        </Image>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
             <Border
-                StrokeThickness="15"
                 Stroke="AliceBlue"
                 Grid.Column="1"
+                Grid.Row="2"
                   Padding="15" 
                 BackgroundColor="Bisque"
-                HeightRequest="300"
                 HorizontalOptions="Fill"
                 VerticalOptions="Center">
                 <VerticalStackLayout 
                     Spacing="10"
                     HorizontalOptions="Fill"
-                    
                     >
+                   
                     <Label 
                         Text="{Binding CurrentPlayerPartyPokemon.DisplayHealth}"
                         TextTransform="Uppercase"
@@ -170,8 +210,7 @@
                         Text="Forfeit"></Button>
                 </VerticalStackLayout>
             </Border>
-
+            
         </Grid>
-
     </Grid>
 </ContentPage>

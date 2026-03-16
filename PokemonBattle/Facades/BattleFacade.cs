@@ -11,6 +11,7 @@ using Pokemon.Infrastructure.Interfaces;
 using Pokemon.Infrastructure.Interfaces.AI;
 using Pokemon.Infrastructure.Models;
 using Pokemon.Repository.Interfaces;
+using PokemonBattle.ListModel;
 
 namespace PokemonBattle.Facades
 {
@@ -31,6 +32,7 @@ namespace PokemonBattle.Facades
         public BattlePokemonModel CurrentPlayerPokemon { get; set; }
         public BattlePokemonModel CurrentAIPokemon { get; set; }
 
+        public event Action? OnPlayerMustSwitch;
         public BattleFacade
             (
             IJsonStorage jsonStorage,
@@ -80,9 +82,34 @@ namespace PokemonBattle.Facades
 
             return result;
         }
-        public async Task<TurnResult> NewTurn(string playerMove)
+        public async Task<BattlePokemonModel> ChangeCurrentPokemon(int playerPokemon)
+        {
+            if(playerPokemon < 0 || playerPokemon >= PlayerTeam.Count)
+            {
+                throw new ArgumentOutOfRangeException("Index was out of bounds of player team");
+            }
+            var thisTeamMember = PlayerTeam[playerPokemon];
+
+            CurrentPlayerPokemon = thisTeamMember;
+            return CurrentPlayerPokemon;
+
+        }
+        public async Task<TurnResult> NewTurn(string? playerMove)
         {
             TurnResult turnResult = new TurnResult();
+            if (string.IsNullOrEmpty(playerMove))
+            {
+                //Player has hopefully switched pokemon
+                //Jump to Ai part
+                var aiMovesFirst = await _aIService.AIChoosesMove(CurrentPlayerPokemon, CurrentAIPokemon);
+                await ExecuteMove(CurrentAIPokemon, aiMovesFirst, turnResult);
+                turnResult.PlayerCurrentPokemon = CurrentPlayerPokemon;
+                turnResult.AiCurrentPokemon = CurrentAIPokemon;
+                turnResult.PlayerParty = PlayerTeam;
+                turnResult.AiParty = AiTeam;
+
+                return turnResult;
+            }
             //Kolla vilket move det är i CurrentPlayerMove
             var move = CurrentPlayerPokemon.Moves.FirstOrDefault(x=>x.Name == playerMove);
 
@@ -91,6 +118,11 @@ namespace PokemonBattle.Facades
             move.Type = actualMoveType;
             //
             var damage = _damageCalculator.CalculatDamage(CurrentPlayerPokemon.PartyPokemon, CurrentAIPokemon.PartyPokemon, move);
+
+
+            string aiFirstType = CurrentAIPokemon.PartyPokemon.Types.First();
+            string aiSecondType = CurrentAIPokemon.PartyPokemon.Types.Last();
+
 
 
 
@@ -102,31 +134,15 @@ namespace PokemonBattle.Facades
                 opponentSecoundType = null;
             }
 
-            Console.WriteLine(moveWithType);
-            Console.WriteLine(opponentFirstType);
-            Console.WriteLine(opponentSecoundType);
-
-            var damageMultiplier = _typeDataService.GetTypeAttackMultiplier(moveWithType.MoveTypeInfo.Name, opponentFirstType, opponentSecoundType);
-
-            if (damageMultiplier == 0)
-            {
-                damage = 0;
-            }
-
-            var effectiveDamage = damageMultiplier*damage;
-
-            damage = (int)effectiveDamage;
-
-            if(damage > 0)
-            {
-               
-            }
 
             ///////////////////
             ///AI del här senare
 
             MoveModel aiMove = new MoveModel();
-            aiMove = await _aIService.AIChoosesMove(CurrentPlayerPokemon, CurrentAIPokemon);
+            if (!CurrentAIPokemon.IsFainted)
+            {
+                aiMove = await _aIService.AIChoosesMove(CurrentPlayerPokemon, CurrentAIPokemon);
+            }
             ////////////
             ///Avgör vem som går först
             ///
@@ -136,27 +152,51 @@ namespace PokemonBattle.Facades
             //Är player först
             if (moveOrder.first == CurrentPlayerPokemon)
             {
-                await ExecuteMove(moveOrder.first, move);
+                await ExecuteMove(moveOrder.first, move, turnResult);
             }
 
             //Är AI först
             else if (moveOrder.first == CurrentAIPokemon)
             {
-                await ExecuteMove(moveOrder.first, aiMove);
+                await ExecuteMove(moveOrder.first, aiMove, turnResult);
+            }
+
+            if (CurrentPlayerPokemon.IsFainted)
+            {
+                turnResult.PlayerFainted = true;
+
+                OnPlayerMustSwitch?.Invoke();
+
+
+                turnResult.PlayerCurrentPokemon = CurrentPlayerPokemon;
+                turnResult.AiCurrentPokemon = CurrentAIPokemon;
+                turnResult.PlayerParty = PlayerTeam;
+                turnResult.AiParty = AiTeam;
+                return turnResult;
+            }
+
+            if (CurrentAIPokemon.IsFainted)
+            {
+                turnResult.AiFainted = true;
+                turnResult.PlayerCurrentPokemon = CurrentPlayerPokemon;
+                turnResult.AiCurrentPokemon = CurrentAIPokemon;
+                turnResult.PlayerParty = PlayerTeam;
+                turnResult.AiParty = AiTeam;
+                return turnResult;
             }
 
             //Är fiende vid liv
-            if (moveOrder.secound.PartyPokemon.Stats.Health != 0)
+            if (moveOrder.secound.IsFainted==false)
             {
                 //Är spelare vid liv
                 if (moveOrder.secound == CurrentPlayerPokemon)
                 {
-                    await ExecuteMove(moveOrder.secound, move);
+                    await ExecuteMove(moveOrder.secound, move, turnResult);
                 }
                 //Är Ai vid liv
                 else if (moveOrder.secound == CurrentAIPokemon)
                 {
-                    await ExecuteMove(moveOrder.secound, aiMove);
+                    await ExecuteMove(moveOrder.secound, aiMove, turnResult);
                 }
             }
             turnResult.PlayerCurrentPokemon = CurrentPlayerPokemon;
@@ -167,27 +207,51 @@ namespace PokemonBattle.Facades
             return turnResult;
           
         }
-        private async Task ExecuteMove(BattlePokemonModel attacker, MoveModel move)
+        private async Task ExecuteMove(BattlePokemonModel attacker, MoveModel move, TurnResult result)
         {
             //Vem blir slagen
-            BattlePokemonModel defender = null;
-            if (attacker == CurrentPlayerPokemon)
+            BattlePokemonModel defender = attacker == CurrentPlayerPokemon ? CurrentAIPokemon : CurrentPlayerPokemon;
+            if (defender.IsFainted)
             {
-                defender = CurrentAIPokemon;
+                return;
             }
-            else if (attacker == CurrentAIPokemon)
-            {
-                defender = CurrentPlayerPokemon;
-            }
-
+            result.BattleActionMessages.Add($"{attacker.PartyPokemon.Nickname} used {move.Name}!");
             //Räkna hur mycket
-            int damage = _damageCalculator.CalculatDamage(attacker.PartyPokemon, defender.PartyPokemon, move);
+            var damage = _damageCalculator.CalculatDamage(attacker.PartyPokemon, defender.PartyPokemon, move);
 
-            defender.TakeDamage(damage);
+            string effectivenssStatus = GetEffectivnessStatus(damage.multiplier);
+            if (!string.IsNullOrEmpty(effectivenssStatus))
+            {
+                result.BattleActionMessages.Add(effectivenssStatus);
+            }
+
+            result.BattleActionMessages.Add($"{defender.PartyPokemon.Nickname} took {damage} damage!");
+
+            defender.TakeDamage(damage.damage);
+            if (defender.IsFainted)
+            {
+                result.BattleActionMessages.Add($"{defender.PartyPokemon.Nickname} fainted!");
+            }
 
             await Task.CompletedTask;
         }
 
+        private string GetEffectivnessStatus(int damageMultiplier)
+        {
+            if(damageMultiplier == 0)
+            {
+                return "Had no effect...";
+            }
+            if (damageMultiplier < 1)
+            {
+                return "It was not very effective!";
+            }
+            if(damageMultiplier > 1)
+            {
+                return "It was super effective!";
+            }
+            return "";
+        }
         private (BattlePokemonModel first, BattlePokemonModel secound) WhoPeformesActionFirst(MoveModel move, MoveModel aiMove)
         {
             if (move.Priority > aiMove.Priority)
@@ -222,6 +286,26 @@ namespace PokemonBattle.Facades
             {
                 return (CurrentPlayerPokemon, CurrentAIPokemon);
             }
+        }
+
+        public async Task<BattlePokemonModel> AIChoosesNewPokemon()
+        {
+             await Task.Delay(1000);
+            int currentAiPokemonIndex = AiTeam.IndexOf(CurrentAIPokemon);
+
+            for(int i = 0; i<AiTeam.Count; i++)
+            {
+                var aiPokemon = AiTeam[i];
+                if (!aiPokemon.IsFainted)
+                {
+                    CurrentAIPokemon = aiPokemon;
+                    return CurrentAIPokemon;
+                }
+            }
+            //Well nu har AI inge pokemon kvar
+            throw new Exception("AI has no more usable pokemon left! Player wins?!");
+            return null;
+
         }
     }
 }

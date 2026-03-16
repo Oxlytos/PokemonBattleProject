@@ -15,7 +15,7 @@ namespace Domain.Calculator
         {
             _typeDataService = typeDataService;
         }
-        public int CalculatDamage(PartyPokemonModel attacker, PartyPokemonModel defender, MoveModel move)
+        public (int damage, int multiplier) CalculatDamage(PartyPokemonModel attacker, PartyPokemonModel defender, MoveModel move)
         {
 
             var firstDefenderType = defender.Types.FirstOrDefault();
@@ -26,19 +26,18 @@ namespace Domain.Calculator
                 secoundDefenderType = null;
             }
 
-
             Console.WriteLine(move.Type.Name);
             double damageMultiploer = _typeDataService.GetTypeAttackMultiplier(move.Type.Name, firstDefenderType, secoundDefenderType);
-
 
             int attackStat = attacker.Stats.Attack;
             int defenseStat = defender.Stats.Defense;
             int power = (int)move.Power;
 
-            double baseDamage = ((attackStat/defenseStat) * power);
+            double baseDamage = (((double)attackStat/(double)defenseStat) * power);
             baseDamage*=damageMultiploer;
 
-            return (int)Math.Round(baseDamage);
+            return(((int)(baseDamage)), (int)(damageMultiploer));
+
         }
     }
 }
