@@ -5,7 +5,6 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using Domain.Models.Models;
 
 namespace Domain.Models.RequestModels
 {
@@ -52,8 +51,6 @@ namespace Domain.Models.RequestModels
         public int? SpecialDefense { get; set; }
 
         public int? Speed { get; set; }
-
-        public AbilityModel Ability { get; set; }
 
         public List<RequestTypeModel> Type { get; set; }
 

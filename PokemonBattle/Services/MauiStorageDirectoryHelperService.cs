@@ -11,7 +11,8 @@ namespace PokemonBattle.Services
     {
         public string GetDirectory()
         {
-            //ge bara referens till vart
+            //ge bara referens till vart MAUI har sina filer
+            //Går väl och hårdkorda, fast det verkar lite onödigt
             return FileSystem.AppDataDirectory;
         }
     }

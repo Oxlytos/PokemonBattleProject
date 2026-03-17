@@ -68,54 +68,55 @@ namespace PokemonBattle
              Singleton tjänster är alltid desamma. En ny instans skapas bara en gång.
 
              */
+            //Väldigt viktiga JSON service & storage först så det inte skapar problem senare
             builder.Services.AddSingleton<IJsonStorage, JsonStorage>();
-            builder.Services.AddSingleton<ITeamViewModel, TeamViewModel>();
-            //builder.Services.AddTransient<IPokemonListViewModel, PokemonListViewModel>();
-           
+
+            builder.Services.AddTransient<MainPage>();
 
             builder.Services.AddTransient<MoveViewModel>();
             builder.Services.AddTransient<BattleViewModel>();   
             builder.Services.AddTransient<MoveAssignerPage>();
-            builder.Services.AddTransient<IMoveService, MoveService>();
+            builder.Services.AddTransient<MainViewModel>();
+            builder.Services.AddSingleton<ITeamViewModel, TeamViewModel>();
 
+            //Se till att instansiera en HTTP client som kan användas alla services
+            builder.Services.AddSingleton(new HttpClient());
+
+            //Services
+            builder.Services.AddTransient<IMoveService, MoveService>();
             builder.Services.AddTransient<IImageService, ImageService>();
             builder.Services.AddSingleton<ITeamPokemonService, TeamPokemonService>();
-            builder.Services.AddSingleton(new HttpClient());
             builder.Services.AddSingleton<IBattleService, BattleService>();
-
             builder.Services.AddSingleton<IPokemonFetchService, FetchService>();
             builder.Services.AddSingleton<IPokemonFetchRepository, PokemonFetchRepository>();
-
             builder.Services.AddSingleton<ITypeService, TypeService>();
             builder.Services.AddSingleton<ITypeRepo, TypeRepo>();
-            builder.Services.AddSingleton<ListPokemonDisplayModelFactory>();
             builder.Services.AddSingleton<ITypeModelFactory, TypeModelFactory>();
             builder.Services.AddSingleton<IStatCalculator, GenerationThreeStatCalculator>();
             builder.Services.AddSingleton<IAIService, AIService>();
             builder.Services.AddSingleton<IAiTeamService, AiTeamService>();
-
-
-            builder.Services.AddTransient<UIFacade>();
-            builder.Services.AddTransient<BattleFacade>();
-
-
             builder.Services.AddSingleton<TypeDataService>();
             builder.Services.AddSingleton<DamageCalculator>();
             builder.Services.AddSingleton<ITypeDataLoader, TypeDataLoader>();
             builder.Services.AddSingleton<IMauiStorageDirectoryHelper, MauiStorageDirectoryHelperService>();
 
 
-            //Ladda loadern tidigt här från JSON om det finns data
-            //var typeLoader = builder.Services.BuildServiceProvider().GetRequiredService<TypeDataLoader>();
-            //_= typeLoader.LoadTypesFromJsonFolderAsync();
-            
+            //Facader vi gömmer våra services bakom
+            builder.Services.AddTransient<UIFacade>();
+            builder.Services.AddTransient<MoveFacade>();
+            builder.Services.AddTransient<BattleFacade>();
 
-            builder.Services.AddTransient<MainPage>();
-            builder.Services.AddTransient<MainViewModel>();
 
+            //Special case att där det behövs en display factory så finns det tillgängligt
+            builder.Services.AddSingleton<ListPokemonDisplayModelFactory>();
+
+
+
+
+            //Ladda datan för alla typer i förväg (om vi har något)
             var app = builder.Build();
             var loader = app.Services.GetRequiredService<ITypeDataLoader>();
-             loader.LoadTypesFromJsonFolderAsync().GetAwaiter().GetResult();
+            loader.LoadTypesFromJsonFolderAsync().GetAwaiter().GetResult();
             return app;
             //return builder.Build();
         }

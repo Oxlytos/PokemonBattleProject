@@ -24,11 +24,8 @@ namespace PokemonBattle.Facades
         private IPokemonFetchService _fetchService;
         private IImageService _imageService;
         private ITeamPokemonService _teamPokemonService;
-        private ITypeService _typeService;
-        private IMauiStorageDirectoryHelper _mauiStorageDirectoryHelper;
         private IJsonStorage _jsonStorage;
         private IMoveService _moveService;
-        private IBattleService _battleService;
         private IAiTeamService _aiTeamService;
         private readonly ListPokemonDisplayModelFactory _displayModelFactory;
 
@@ -50,7 +47,6 @@ namespace PokemonBattle.Facades
             _fetchService = pokemonFetchService;
             _imageService = imageService;
             _teamPokemonService = teamPokemonService;
-            _typeService = typeService;
             _jsonStorage = jsonStorage;
             _displayModelFactory = displayModelFactory;
 

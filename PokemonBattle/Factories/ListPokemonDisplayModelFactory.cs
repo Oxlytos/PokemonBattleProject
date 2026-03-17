@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Domain.Models.Game;
 using Pokemon.Services.Interfaces;
 using PokemonBattle.ListModel;
-using PokemonBattle.Mapper;
 using PokemonBattle.Services;
 
 namespace Pokemon.AppServices.Factories

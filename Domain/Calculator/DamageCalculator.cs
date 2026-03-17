@@ -15,7 +15,7 @@ namespace Domain.Calculator
         {
             _typeDataService = typeDataService;
         }
-        public (int damage, int multiplier) CalculatDamage(PartyPokemonModel attacker, PartyPokemonModel defender, MoveModel move)
+        public (int damage, double multiplier) CalculatDamage(PartyPokemonModel attacker, PartyPokemonModel defender, MoveModel move)
         {
 
             var firstDefenderType = defender.Types.FirstOrDefault();
@@ -36,7 +36,13 @@ namespace Domain.Calculator
             double baseDamage = (((double)attackStat/(double)defenseStat) * power);
             baseDamage*=damageMultiploer;
 
-            return(((int)(baseDamage)), (int)(damageMultiploer));
+            //STAB damage, om en eld pokemon använder en elda ttack får den en damage bonus
+            if (attacker.Types.Contains(move.Type.Name))
+            {
+                baseDamage *= 1.15;
+            }
+
+            return(((int)(baseDamage)), (double)(damageMultiploer));
 
         }
     }

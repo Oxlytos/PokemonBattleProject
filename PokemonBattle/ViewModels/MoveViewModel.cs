@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Domain.Models.Game;
-using Domain.Models.Models;
 using Domain.Models.RequestModels;
 using Pokemon.Infrastructure.Interfaces;
 using Pokemon.Services.Interfaces;
@@ -21,14 +20,8 @@ namespace PokemonBattle.ViewModels
     public class MoveViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
-        private readonly UIFacade _uiFacade;
+        private readonly MoveFacade _moveFacade;
 
-        private IPokemonFetchService _fetchService;
-        private IImageService _imageService;
-        private ITeamPokemonService _teamPokemonService;
-        private ITypeService _typeService;
-        private IMauiStorageDirectoryHelper _mauiStorageDirectoryHelper;
-        private IMoveService _moveService;
         public ICommand GetMovesCommand { get; }
         public ICommand AddMoveCommand { get; }
         public ICommand RemoveMoveCommand { get; }
@@ -130,22 +123,11 @@ namespace PokemonBattle.ViewModels
             }
         }
         public MoveViewModel(
-            IPokemonFetchService pokemonFetchService,
-            IImageService imageService,
-            ITeamPokemonService teamPokemonService,
-            ITypeService typeService,
-            IMauiStorageDirectoryHelper mauiStorageDirectoryHelper,
-            IMoveService moveService,
+            MoveFacade moveFacade,
             UIFacade uIFacade
             )
         {
-            _uiFacade = uIFacade;
-            _mauiStorageDirectoryHelper = mauiStorageDirectoryHelper;
-            _fetchService = pokemonFetchService;
-            _imageService = imageService;
-            _teamPokemonService = teamPokemonService;
-            _typeService = typeService;
-            _moveService = moveService;
+            _moveFacade = moveFacade;
             
             GetMovesCommand = new Command(async () => await GetPokemonRequestModelMoves());
             AddMoveCommand = new Command(async () => await AddMoveToPokemon(), () => CurrentMove != null);
@@ -155,18 +137,17 @@ namespace PokemonBattle.ViewModels
 
         private async Task RemoveMoveFromPokemon(ListMoveDisplayModel move)
         {
-            if(move == null) return;
-            if(string.IsNullOrEmpty(move.Name)) return;
-            if(ActualPokemon==null) return;
-            if (!ActualPokemon.Moves.Any()) return;
-            Console.WriteLine("Removing move");
-
-            var thisMove = CurrentMoves.FirstOrDefault(x=>x.Name.ToLower() == move.Name.ToLower());
-            CurrentMoves.Remove(thisMove);
-
-            var thisMoveModel = _actualPokemon.Moves.FirstOrDefault(x => x.Name.ToLower() == move.Name.ToLower());
-            _actualPokemon.Moves.Remove(thisMoveModel);
-            _teamPokemonService.UpdateTeamMember(_actualPokemon);
+            if (move == null)
+            {
+                return;
+            }
+           
+            if (ActualPokemon == null)
+            {
+                return;
+            }
+           
+            ActualPokemon = await _moveFacade.RemoveMoveFromPokemon(ActualPokemon, move);
             await RenderCurrentMoves();
 
         }
@@ -182,30 +163,7 @@ namespace PokemonBattle.ViewModels
             {
                 return;
             }
-            List<ListMoveDisplayModel> listMoves = new List<ListMoveDisplayModel>();
-            foreach (var move in moves)
-            {
-                ListMoveDisplayModel newMove = new ListMoveDisplayModel(move);
-                if (!string.IsNullOrEmpty(newMove.Name))
-                {
-                    var typeInfo = await _fetchService.GetMoveModelAsync(newMove.Name);
-                    newMove.TypeName = typeInfo.MoveTypeInfo.Name.Capitalize();
-                    newMove.Name=newMove.Name.Capitalize();
-                }
-                listMoves.Add(newMove);
-            }
-
-            CurrentMoves = new ObservableCollection<ListMoveDisplayModel>(listMoves);
-            foreach (var move in CurrentMoves)
-            {
-                move.Name = move.Name.Capitalize();
-                Console.WriteLine(move.Name);
-            }
-            foreach (var move in CurrentMoves)
-            {
-                Console.WriteLine(move.Name);
-            }
-            Console.WriteLine(CurrentMoves);
+            CurrentMoves = await  _moveFacade.UpdateCurrentMovesDisplay(moves);
             OnPropertyChanged(nameof(CurrentMoves));
         }
 
@@ -213,10 +171,8 @@ namespace PokemonBattle.ViewModels
         {
             if (SelectedPokemonModel != null)
             {
-                var path = _imageService.GetPokemonSpriteAsyncPNG(SelectedPokemonModel.Name);
-
+                var path = _moveFacade.GetPokemonSpriteAsyncPNG(SelectedPokemonModel.Name);
             }
-
         }
 
         private async Task AddMoveToPokemon()
@@ -232,7 +188,7 @@ namespace PokemonBattle.ViewModels
             //Lägga till move till display list item
             //Och även den riktiga datamodellen
             //Eller rättare sagt, först party, sen den andra
-            var moveToAdd = await _uiFacade.AddMoveAsync(CurrentMove, _actualPokemon);
+            var moveToAdd = await _moveFacade.AddMoveAsync(CurrentMove, _actualPokemon);
             if (moveToAdd == null)
             {
                 return ;
@@ -245,33 +201,12 @@ namespace PokemonBattle.ViewModels
       
         public async Task GetPokemonRequestModelMoves()
         {
-            if (SelectedPokemonModel == null)
+            if (SelectedPokemonModel == null && SelectedPokemonModel.Name ==null)
             {
                 return;
             }
-            //request modellen
-            var pokemonData = await _fetchService.GetPokemonSingularAsync(SelectedPokemonModel.Name);
-
-            //ritkiga moves som blir display sen
-            List<MoveModel> moves = new List<MoveModel>();
-
-            //request
-            var currentMoves = pokemonData.LearnedMoves ?? new RequestMoveModel[4];
-            foreach (var move in currentMoves)
-            {
-                move.Move.Name = move.Move.Name.Capitalize();
-                var actualMove = await _fetchService.GetSerialisedMoveModelAsync(move.Move.Name);
-                moves.Add(actualMove);
-            }
-
-
-            var movesList = pokemonData.Moves?.Moves ?? new RequestMoveModel[1];
-            foreach (var move in movesList)
-            {
-                move.Move.Name = move.Move.Name.Capitalize();
-            }
-          
-            AvailableMoves = new ObservableCollection<RequestMoveModel>(movesList);
+            AvailableMoves = await _moveFacade.GetAvailableMoves(SelectedPokemonModel.Name);
+           
         }
         protected void OnPropertyChanged(string propertyName)
         {

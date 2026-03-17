@@ -45,6 +45,7 @@ namespace Domain.Services
         {
             var attackType = GetTypeModel(attackTypeName);
             var firstDefenderType = GetTypeModel(defenderTypeName);
+            //Hämta typ om andra typ strängen inte är null, är den null skippa delarna där vi kollar andra typen
             TypeModel? secondDefenderType = defenderOtherTypeName != null ? GetTypeModel(defenderOtherTypeName) : null;
 
             double multiplier = 1;
@@ -69,7 +70,7 @@ namespace Domain.Services
             }
                 
 
-            if (attackType.Resistances?.Any(x => x.Trim().ToLower() == firstDefenderType.Name.Trim().ToLower()) ?? false)
+            if (attackType.TypesResisting?.Any(x => x.Trim().ToLower() == firstDefenderType.Name.Trim().ToLower()) ?? false)
             {
                 multiplier *= 0.5;
             }
@@ -84,7 +85,7 @@ namespace Domain.Services
                 }
                   
 
-                if (attackType.Resistances?.Any(x => x.Trim().ToLower() == secondDefenderType.Name.Trim().ToLower()) ?? false)
+                if (attackType.TypesResisting?.Any(x => x.Trim().ToLower() == secondDefenderType.Name.Trim().ToLower()) ?? false)
                 {
                     multiplier *= 0.5;
                 }

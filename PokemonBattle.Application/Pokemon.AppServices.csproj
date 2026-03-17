@@ -11,8 +11,4 @@
     <ProjectReference Include="..\Pokemon.Infrastructure\Pokemon.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Interfaces\" />
-  </ItemGroup>
-
 </Project>

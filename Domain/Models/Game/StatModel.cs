@@ -4,6 +4,9 @@ namespace Domain.Models.Game
 {
     public class StatModel
     {
+        //b_ för basestat
+        //olika pokemon har base stat totals, som i spelen påverkas av IVS och EVs
+        //Inte till denna iterationen av projektet, senare tillfälle kanske
         [JsonPropertyName("b_health")]
         public int BaseHealth { get; set; }
 
@@ -24,7 +27,7 @@ namespace Domain.Models.Game
         /// <summary>
         /// /////////////
         /// </summary>
-
+        //Base stat * level / på något får vi aktiva health, attack osv för pokemon
         [JsonPropertyName("health")]
         public int Health { get; set; }
 
@@ -45,7 +48,8 @@ namespace Domain.Models.Game
 
 
 
-
+        //Evs, specialisering av poäng upp till 528 eller något? Tag sen jag kollat på Evs i spelen
+        //Slider till senare, om det är av intresse, blir lite mer competetive fokus då
 
         [JsonPropertyName("health_evs")]
         public int? HealthEvs;

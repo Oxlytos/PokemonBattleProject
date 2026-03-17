@@ -5,8 +5,6 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Domain.Models.Game;
-using Domain.Models.Models;
-
 namespace Domain.Models.Base
 {
     public class BasePokemon

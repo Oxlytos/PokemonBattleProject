@@ -11,17 +11,17 @@ using Pokemon.Infrastructure.Interfaces;
 using Pokemon.Infrastructure.Interfaces.AI;
 using Pokemon.Infrastructure.Models;
 using Pokemon.Repository.Interfaces;
+using Pokemon.Services.Interfaces;
 using PokemonBattle.ListModel;
 
 namespace PokemonBattle.Facades
 {
     public class BattleFacade
     {
-        private IJsonStorage _jsonStorage;
-        private IBattleService _battleService;
         private TypeDataService _typeDataService;
         private IPokemonFetchRepository _pokemonFetchRepository;
         private ITeamPokemonService _teamPokemonService;
+        private IImageService _imageService;
         private DamageCalculator _damageCalculator;
         private IAIService _aIService;
         private IAiTeamService _aiTeamService;
@@ -42,14 +42,14 @@ namespace PokemonBattle.Facades
             ITeamPokemonService teamPokemonService,
             DamageCalculator damageCalculator,
             IAIService aIService,
-            IAiTeamService aiTeamService
+            IAiTeamService aiTeamService,
+            IImageService imageService
             
             )
         {
+            _imageService = imageService;
             _aiTeamService= aiTeamService;
             _aIService = aIService;
-            _jsonStorage = jsonStorage;
-            _battleService = battleService;
             _typeDataService = typeDataService;
             _pokemonFetchRepository = pokemonFetchRepository;
             _teamPokemonService = teamPokemonService;
@@ -236,8 +236,12 @@ namespace PokemonBattle.Facades
             await Task.CompletedTask;
         }
 
-        private string GetEffectivnessStatus(int damageMultiplier)
+        private string GetEffectivnessStatus(double damageMultiplier)
         {
+            if(damageMultiplier == 1)
+            {
+                return "";
+            }
             if(damageMultiplier == 0)
             {
                 return "Had no effect...";
@@ -250,7 +254,8 @@ namespace PokemonBattle.Facades
             {
                 return "It was super effective!";
             }
-            return "";
+            return "It was not very effective!";
+
         }
         private (BattlePokemonModel first, BattlePokemonModel secound) WhoPeformesActionFirst(MoveModel move, MoveModel aiMove)
         {
@@ -306,6 +311,16 @@ namespace PokemonBattle.Facades
             throw new Exception("AI has no more usable pokemon left! Player wins?!");
             return null;
 
+        }
+
+        public async Task<ImageSource> LoadPokemonFrontSpritePathAsync(string name)
+        {
+            return await _imageService.GetPokemonSpriteAsyncPNG(name);
+        }
+
+        internal async Task<ImageSource> LoadPokemonBackSpritePathAsync(string name)
+        {
+            return await _imageService.GetPokemonBackSpriteAsyncPNG(name);
         }
     }
 }

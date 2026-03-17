@@ -22,9 +22,6 @@ namespace PokemonBattle.ViewModels
     public class BattleViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
-        private IBattleService _battleService;
-        private TypeDataService _typeDataService;
-        private UIFacade _uiFacade;
         private BattleFacade _battleFacade;
         private readonly ListPokemonDisplayModelFactory _displayModelFactory;
         public ObservableCollection<RequestPokeonModel> AllPokemon { get; }
@@ -129,21 +126,15 @@ namespace PokemonBattle.ViewModels
         }
         private async Task GetOpponentPokemonImage(BattlePokemonModel pokemon)
         {
-            OpponentPokemon=  await _uiFacade.LoadPokemonFrontSpritePathAsync(pokemon.PartyPokemon.Name);
+            OpponentPokemon =  await _battleFacade.LoadPokemonFrontSpritePathAsync(pokemon.PartyPokemon.Name);
         }
 
         private async Task GetPokemonImage(BattlePokemonModel pokemon)
         {
-            PlayerPokemonImage = await _uiFacade.LoadPokemonBackSpritePathAsync(pokemon.PartyPokemon.Name);
+            PlayerPokemonImage = await _battleFacade.LoadPokemonBackSpritePathAsync(pokemon.PartyPokemon.Name);
         }
 
         public ICommand ClickMoveCommand { get; }
-        public ICommand PlayerAction { get; }
-
-        public ICommand OpponentAction { get; }
-        public ICommand IncreaseTurn { get; }
-        public ICommand InflictDamage { get; }
-        public ICommand TakeDamage { get; }
 
         public ICommand SwitchPokemonCommand { get; }
 
@@ -162,28 +153,19 @@ namespace PokemonBattle.ViewModels
                 }
             }
         }
-        
-        public class MoveItem
+        public BattleViewModel(ListPokemonDisplayModelFactory displayModelFactory, BattleFacade battlefacade)
         {
-            public string Name { get; set; }
-            public ICommand ClickMoveCommand { get; set; }
-        }
-        public BattleViewModel(UIFacade uIFacade, ListPokemonDisplayModelFactory displayModelFactory, IBattleService battleService, TypeDataService typeDataService, BattleFacade battlefacade)
-        {
-           _typeDataService = typeDataService;
-            _uiFacade = uIFacade;
             _battleFacade = battlefacade;
-            _battleService = battleService;
             _displayModelFactory = displayModelFactory;
           
-            _ = LoadGraphics();
             ClickMoveCommand = new Command<string>(async (moveName) => await OnClickMoveCommand(moveName));
             SwitchPokemonCommand = new Command<ListPokemonDisplayModel>(async (listpokemon) => await OnClickSwitchPokemon(listpokemon));
 
+            //Boolen används för att kalla eventen/voiden att sepelare måste btta pokemon
             _battleFacade.OnPlayerMustSwitch += HandlePlayerMustSwitch;
 
+            //När modellen (battleviewmodel) skapas, starta matchen, alternativt någon stor knapp?
             StartMatch();
-            //DisplayTeamPokemon = new ObservableCollection<ListPokemonDisplayModel> _uiFacade.GetPokemonTeamAsync();
         }
 
         private void HandlePlayerMustSwitch()
@@ -211,8 +193,7 @@ namespace PokemonBattle.ViewModels
 
             IsSwitching = false;
             StatusMessage = "";
-            RebuildTeamDisplay();
-            //await OnClickMoveCommand("");
+            await RebuildTeamDisplay();
         }
 
         private async Task StartMatch()
@@ -259,12 +240,12 @@ namespace PokemonBattle.ViewModels
                 CurrentAiPokemon = newPokemon;
                 await RebuildTeamDisplay();
             }
-           
-            
         }
 
         private async Task PrintBattleInfo(List<string> battleActionMessages)
         {
+            //Gå igenom listan av saker som hänt i striden
+            //2 sek delay så hinner man läsa
             foreach (var message in battleActionMessages)
             {
                 StatusMessage = message;
@@ -292,10 +273,6 @@ namespace PokemonBattle.ViewModels
 
             PlayerPokemonImage = ImageSource.FromFile(currentPokemonBackFacing.SpritePath);
             
-        }
-        public async Task LoadGraphics()
-        {
-
         }
 
         public void OnPropertyChanged(string propertyName)
