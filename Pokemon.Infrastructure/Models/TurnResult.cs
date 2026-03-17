@@ -26,5 +26,8 @@ namespace Pokemon.Infrastructure.Models
         public bool PlayerFainted { get; set; } = false;
         public bool AiFainted { get;set; } = false;
 
+        public bool PlayerWin {  get; set; } = false;
+        public bool AiWin { get; set;} = false;
+
     }
 }

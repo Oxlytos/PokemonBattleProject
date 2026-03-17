@@ -111,8 +111,6 @@ namespace PokemonBattle
             builder.Services.AddSingleton<ListPokemonDisplayModelFactory>();
 
 
-
-
             //Ladda datan för alla typer i förväg (om vi har något)
             var app = builder.Build();
             var loader = app.Services.GetRequiredService<ITypeDataLoader>();

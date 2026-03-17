@@ -43,7 +43,7 @@ namespace PokemonBattle.Facades
 
         public async Task<ObservableCollection<ListMoveDisplayModel>>? UpdateCurrentMovesDisplay(List<MoveModel> moves)
         {
-            List<ListMoveDisplayModel> listMoves = new List<ListMoveDisplayModel>();
+            ObservableCollection<ListMoveDisplayModel> listMoves = new ObservableCollection<ListMoveDisplayModel>();
             foreach (var move in moves)
             {
                 ListMoveDisplayModel newMove = new ListMoveDisplayModel(move);
@@ -56,19 +56,13 @@ namespace PokemonBattle.Facades
                 listMoves.Add(newMove);
             }
 
-            var movesToReturn = new ObservableCollection<ListMoveDisplayModel>(listMoves);
-            foreach (var move in movesToReturn)
+            foreach (var move in listMoves)
             {
                 move.Name = move.Name.Capitalize();
                 Console.WriteLine(move.Name);
             }
-            foreach (var move in movesToReturn)
-            {
-                Console.WriteLine(move.Name);
-                throw new NotImplementedException();
-            }
 
-            return movesToReturn;
+            return listMoves;
         }
         public async Task<ListMoveDisplayModel?> AddMoveAsync(RequestMoveModel currentMove, PartyPokemonModel pokemon)
         {

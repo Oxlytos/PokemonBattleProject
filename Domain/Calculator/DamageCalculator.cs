@@ -39,7 +39,7 @@ namespace Domain.Calculator
             //STAB damage, om en eld pokemon använder en elda ttack får den en damage bonus
             if (attacker.Types.Contains(move.Type.Name))
             {
-                baseDamage *= 1.15;
+                baseDamage *= 1.5;
             }
 
             return(((int)(baseDamage)), (double)(damageMultiploer));

@@ -34,6 +34,8 @@ namespace Pokemon.Infrastructure.Models
 
         public IReadOnlyList<MoveModel> Moves => PartyPokemon.Moves;
 
+        public string NicknameOrName => PartyPokemon.Nickname ?? PartyPokemon.Name;
+
         public string DisplayHealth => $"Health: {CurrentHealth}/{PartyPokemon.Stats.Health}";
 
         public BattlePokemonModel(PartyPokemonModel pokemon)

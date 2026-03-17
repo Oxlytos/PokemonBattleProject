@@ -68,7 +68,7 @@
                         TextColor="Black"
                         />
                     <Label
-                        Text="{Binding CurrentAiPokemon.PartyPokemon.Nickname}"
+                        Text="{Binding CurrentAiPokemon.NicknameOrName}"
                         TextColor="Black"/>
                     <Label
                         Text="{Binding CurrentAiPokemon.PartyPokemon.Level}"
@@ -130,9 +130,9 @@
                             <Grid BackgroundColor="Red" Margin="2">
                         <!--Irreterand sätt att gå upp i hiearkin från knapp till viewmodel/binding context för att nå command-->
                         <Button
-                        Text="{Binding}"
+                        Text="{Binding DisplayInfo}"
                         Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ClickMoveCommand}"                            
-                        CommandParameter="{Binding}"
+                        CommandParameter="{Binding Name}"
                         TextTransform="Uppercase"
                         BackgroundColor="Beige"
                         CornerRadius="0"
@@ -194,7 +194,7 @@
                         TextColor="Black"
                         />
                     <Label 
-                     Text="{Binding CurrentPlayerPartyPokemon.PartyPokemon.Nickname}"
+                     Text="{Binding CurrentPlayerPartyPokemon.NicknameOrName}"
                      TextColor="Black"
                      /> 
                     <Label 

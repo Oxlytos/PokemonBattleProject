@@ -132,6 +132,7 @@ namespace PokemonBattle.ViewModels
             GetMovesCommand = new Command(async () => await GetPokemonRequestModelMoves());
             AddMoveCommand = new Command(async () => await AddMoveToPokemon(), () => CurrentMove != null);
             RemoveMoveCommand = new Command<ListMoveDisplayModel>(async(move) => await RemoveMoveFromPokemon(move));
+            _=RenderCurrentMoves();
             GetCorrectImage();
         }
 
@@ -164,6 +165,7 @@ namespace PokemonBattle.ViewModels
                 return;
             }
             CurrentMoves = await  _moveFacade.UpdateCurrentMovesDisplay(moves);
+            SelectedPokemonModel.DisplayMoves = CurrentMoves.ToArray();
             OnPropertyChanged(nameof(CurrentMoves));
         }
 

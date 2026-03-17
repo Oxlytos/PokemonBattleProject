@@ -27,16 +27,19 @@ namespace PokemonBattle.ViewModels
         public ObservableCollection<RequestPokeonModel> AllPokemon { get; }
         public ObservableCollection<ListPokemonDisplayModel> DisplayPlayerParty { get; } = new();
 
-        private ObservableCollection<string> _currentPlayerPokemonMoves;
-        public ObservableCollection<string> CurrentPlayerPokemonMoves
+        private ObservableCollection<ListMoveDisplayModel> _currentPlayerPokemonMoves;
+        public ObservableCollection<ListMoveDisplayModel> CurrentPlayerPokemonMoves
         {
             get => _currentPlayerPokemonMoves;
             set
             {
-                 var padded = new ObservableCollection<string>(value ?? new ObservableCollection<string>());
+                 var padded = new ObservableCollection<ListMoveDisplayModel>(value ?? new ObservableCollection<ListMoveDisplayModel>());
                 while (padded.Count < 4) 
                 {
-                    padded.Add("-");
+                    MoveModel moveModel = new MoveModel();
+                    moveModel.Name = "-";
+                    var emptyListMove = new ListMoveDisplayModel(moveModel);
+                    padded.Add(emptyListMove);
                 }
                 _currentPlayerPokemonMoves = padded;
                 OnPropertyChanged(nameof(CurrentPlayerPokemonMoves));
@@ -216,6 +219,7 @@ namespace PokemonBattle.ViewModels
         //Crazy
         private async Task OnClickMoveCommand(string moveName)
         {
+            Console.WriteLine(moveName);
             if (IsSwitching)
             {
                 return;
@@ -226,19 +230,46 @@ namespace PokemonBattle.ViewModels
             CurrentAiPokemon = turnResult.AiCurrentPokemon;
 
             await PrintBattleInfo(turnResult.BattleActionMessages);
+            await HandleTurnResult(turnResult);
+            await RebuildTeamDisplay();
+
+        }
+
+        private async Task HandleTurnResult(TurnResult turnResult)
+        {
+            if (turnResult.PlayerWin || turnResult.AiWin)
+            {
+                string whoWon = "";
+                if (turnResult.PlayerWin)
+                {
+                    whoWon = "Player";
+                }
+                if (turnResult.AiWin)
+                {
+                    whoWon = "AI";
+                }
+                StatusMessage = $"Match over! {whoWon} wins!";
+                await Task.Delay(6000);
+                await Shell.Current.Navigation.PopToRootAsync();
+                return;
+            }
             if (turnResult.PlayerCurrentPokemon.IsFainted)
             {
                 StatusMessage = "Your pokemon fainted! Choose a another one to keep battling!";
+
                 IsSwitching = true;
                 return;
             }
             if (turnResult.AiCurrentPokemon.IsFainted)
             {
-               
                 StatusMessage = "AI is changing pokemon....";
                 var newPokemon = await _battleFacade.AIChoosesNewPokemon();
+                if (newPokemon == null)
+                {
+                    //Win here
+                    await Shell.Current.Navigation.PopToRootAsync();
+                }
                 CurrentAiPokemon = newPokemon;
-                await RebuildTeamDisplay();
             }
         }
 
@@ -249,17 +280,17 @@ namespace PokemonBattle.ViewModels
             foreach (var message in battleActionMessages)
             {
                 StatusMessage = message;
-                await Task.Delay(2000); 
+                await Task.Delay(50); 
             }
             StatusMessage = "";
         }
 
         public async Task RebuildTeamDisplay()
         {
+            StatusMessage = "";
             DisplayPlayerParty.Clear();
-            var curMoves = CurrentPlayerPartyPokemon.PartyPokemon.Moves.Select(e => e.Name);
-
-            CurrentPlayerPokemonMoves = new ObservableCollection<string>(curMoves);
+            //CurrentPlayerPokemonMoves = await _battleFacade.GetCurrentPlayerMoves();
+            CurrentPlayerPokemonMoves = await _battleFacade.GetCurrentPlayerMoves();
 
             var pokemon = _battleFacade.PlayerTeam.ToList();
             foreach (var pokemin in pokemon)
