@@ -114,7 +114,7 @@ namespace Pokemon.Infrastructure.Repositories
             return null;
         }
 
-        public async Task<RequestPokeonModel> GetPokemonModelModelAsync(string name)
+        public async Task<RequestPokeonModel> GetPokemonModel(string name)
         {
             //detta är filvägen
             var localFileCheck = _jsonStorage.GetPokemon(name);
@@ -272,7 +272,7 @@ namespace Pokemon.Infrastructure.Repositories
 
         public async Task<TypeModel> GetSerialisedTypeModelAsync(string name)
         {
-            var localFileCheck = _jsonStorage.GetPokemon(name);
+            var localFileCheck = _jsonStorage.GetTypeM(name);
             if (localFileCheck == null && !File.Exists(localFileCheck))
             {
                 return null;

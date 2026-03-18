@@ -2,6 +2,7 @@
 using Domain.Models.Base;
 using Domain.Models.Game;
 using Pokemon.Repository.Interfaces;
+using Pokemon.Repository.Services;
 using PokemonBattle.Interfaces;
 
 namespace Pokemon.Repository.Repositories
@@ -12,11 +13,11 @@ namespace Pokemon.Repository.Repositories
     {
         HttpClient _client;
         private readonly string _dataFolderPath;
-        IMauiStorageDirectoryHelper _provider;
-        public JsonStorage(IMauiStorageDirectoryHelper provider)
+        private DirectoryHelperServic _directoryHelperServic;
+        public JsonStorage(DirectoryHelperServic provider)
         {
-            _provider = provider;
-            _dataFolderPath = Path.Combine(_provider.GetDirectory(), "JsonData");
+            _directoryHelperServic = provider;
+            _dataFolderPath = Path.Combine(_directoryHelperServic.GetDirectory(), "JsonData");
             Directory.CreateDirectory(_dataFolderPath);
             Directory.CreateDirectory(Path.Combine(_dataFolderPath, "moves"));
             Directory.CreateDirectory(Path.Combine(_dataFolderPath, "types"));
@@ -61,6 +62,14 @@ namespace Pokemon.Repository.Repositories
             {
             }
             return move;
+        }
+        public string? GetTypeM(string typeName)
+        {
+            var type = Path.Combine(_dataFolderPath, "types", typeName + ".json");
+            if (!File.Exists(type))
+            {
+            }
+            return type;
         }
         public async Task<string> GetTypeFolder(string typeName)
         {
@@ -121,5 +130,6 @@ namespace Pokemon.Repository.Repositories
             await File.WriteAllTextAsync(typePath, jsonData);
         }
 
+       
     }
 }

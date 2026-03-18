@@ -15,13 +15,16 @@ using Pokemon.Infrastructure.Models;
 using Pokemon.Repository.Interfaces;
 using Pokemon.Services.Interfaces;
 using Pokemon.Shared.Extensions;
+using PokemonBattle.Factories;
 using PokemonBattle.ListModel;
 
 namespace PokemonBattle.Facades
 {
     public class BattleFacade
     {
+        private TypeModelFactory _typeModelFactory;
         private BattlePokemonFactory _battlePokemonFactory;
+        private ListMoveModelFactory _moveModelFactory;
         private TypeDataService _typeDataService;
         private IPokemonFetchRepository _pokemonFetchRepository;
         private ITeamPokemonService _teamPokemonService;
@@ -31,6 +34,7 @@ namespace PokemonBattle.Facades
         private IAiTeamService _aiTeamService;
         private readonly IBattleService _battleService;
 
+       
         public List<BattlePokemonModel> PlayerTeam {  get; set; } = new List<BattlePokemonModel>();
         public List<BattlePokemonModel> AiTeam { get; set; }
 
@@ -52,10 +56,14 @@ namespace PokemonBattle.Facades
             IAIService aIService,
             IAiTeamService aiTeamService,
             IImageService imageService,
-            BattlePokemonFactory battlePokemonFactory
+            BattlePokemonFactory battlePokemonFactory,
+            TypeModelFactory typeModelFactory,
+            ListMoveModelFactory listMoveModelFactory
             
             )
         {
+            _moveModelFactory = listMoveModelFactory;
+            _typeModelFactory = typeModelFactory;
             _battlePokemonFactory = battlePokemonFactory;
             _battleService = battleService;
             _imageService = imageService;
@@ -265,27 +273,6 @@ namespace PokemonBattle.Facades
             await Task.CompletedTask;
         }
 
-        private string GetEffectivnessStatus(double damageMultiplier)
-        {
-            if(damageMultiplier == 1)
-            {
-                return "";
-            }
-            if(damageMultiplier == 0)
-            {
-                return "Had no effect...";
-            }
-            if (damageMultiplier < 1)
-            {
-                return "It was not very effective!";
-            }
-            if(damageMultiplier > 1)
-            {
-                return "It was super effective!";
-            }
-            return "It was not very effective!";
-
-        }
         private (BattlePokemonModel first, BattlePokemonModel secound) WhoPeformesActionFirst(MoveModel move, MoveModel aiMove)
         {
             if (move.Priority > aiMove.Priority)
@@ -355,21 +342,7 @@ namespace PokemonBattle.Facades
         public async Task<ObservableCollection<ListMoveDisplayModel>> GetCurrentPlayerMoves()
         {
             var moves = CurrentPlayerPokemon.Moves.ToList();
-            ObservableCollection<ListMoveDisplayModel> listMoves = new ObservableCollection<ListMoveDisplayModel>();
-            foreach (var move in moves)
-            {
-                ListMoveDisplayModel newMove = new ListMoveDisplayModel(move);
-                if (!string.IsNullOrEmpty(newMove.Name))
-                {
-                    var typeInfo = await _pokemonFetchRepository.GetMoveModelAsync(newMove.Name);
-                    newMove.TypeName = typeInfo.MoveTypeInfo.Name.Capitalize();
-                    newMove.Name = newMove.Name.Capitalize();
-                }
-                listMoves.Add(newMove);
-            }
-
-            return listMoves;
-
+            return await _moveModelFactory.CreateList(moves);
         }
        
     }

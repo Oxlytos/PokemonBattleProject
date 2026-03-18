@@ -40,7 +40,7 @@ namespace Pokemon.Services.Services
 
         public async Task<RequestPokeonModel> GetPokemonSingularAsync(string name)
         {
-            return await _repository.GetPokemonModelModelAsync(name);
+            return await _repository.GetPokemonModel(name);
         }
 
         public async Task<MoveModel> GetSerialisedMoveModelAsync(string name)

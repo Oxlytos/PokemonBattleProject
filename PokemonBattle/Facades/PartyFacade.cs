@@ -13,6 +13,7 @@ using Pokemon.Infrastructure.Models;
 using Pokemon.Infrastructure.Services;
 using Pokemon.Repository.Interfaces;
 using Pokemon.Services.Interfaces;
+using PokemonBattle.Factories;
 using PokemonBattle.Interfaces;
 using PokemonBattle.ListModel;
 using PokemonBattle.ViewModels;
@@ -29,6 +30,7 @@ namespace PokemonBattle.Facades
         private IAiTeamService _aiTeamService;
         private readonly ListPokemonDisplayModelFactory _displayModelFactory;
         private readonly PartyPokemonFactory _partyPokemonFactory;
+        private readonly ListMoveModelFactory _listMoveModelFactory;
 
         public UIFacade(
             IPokemonFetchService pokemonFetchService,
@@ -40,9 +42,10 @@ namespace PokemonBattle.Facades
             IMoveService moveService,
             IAiTeamService aiTeamService,
             PartyPokemonFactory partyPokemonFactory,
-            //IBattleService battleService,
+            ListMoveModelFactory listMoveModelFactory,
             ListPokemonDisplayModelFactory displayModelFactory)
         {
+            _listMoveModelFactory = listMoveModelFactory;
             _partyPokemonFactory = partyPokemonFactory;
             _aiTeamService = aiTeamService;
             //_battleService = battleService;
@@ -138,17 +141,29 @@ namespace PokemonBattle.Facades
         }
         public async Task<string?> LoadPokemonFrontSpritePathAsync(string name)
         {
-            //vägen dit (om den finns)
-            var path = await _imageService.GetPokemonSpriteAsyncPNG(name);
 
-            //finns inte
+            //Om det saknas någon bild överhuvudtaget => Ladda ner
             if (!_imageService.AreAllSpritesStored(name))
             {
-
                 var fullPokemonInfo = await _fetchService.GetPokemonSingularAsync(name);
+                //gick det för fort att försöka hämta, retunera null, sen försöker den igen
+                if (fullPokemonInfo?.Sprites?.SpriteModel == null)
+                {
+                    Console.WriteLine($"Missing sprite data for {name} :((");
+                    Console.WriteLine("Next call of method will prorably have it downloaded");
+                    return null;
+                }
+
+                Console.WriteLine(fullPokemonInfo);
                 await _imageService.SaveImage(name, fullPokemonInfo.Sprites.SpriteModel);
 
             }
+
+            //LITEN paus för at ladda ner
+            await Task.Delay(50);
+
+            string path = await _imageService.GetPokemonSpriteAsyncPNG(name);
+
             return path;
         }
         public async Task<string?> LoadPokemonBackSpritePathAsync(string name)
@@ -228,16 +243,16 @@ namespace PokemonBattle.Facades
 
             pokemon.Moves = await _moveService.AddMove(pokemon, actualMove);
 
-            ListMoveDisplayModel move = new ListMoveDisplayModel(actualMove);
-            move.Power = requestMove.Power != null ? (int?)requestMove.Power : null;
-            move.TypeName = requestMove.MoveTypeInfo.Name;
-
-            return move;
+            return await _listMoveModelFactory.Create(actualMove);
 
         }
         public async Task<bool> CanUserGoToBattlePage()
         {
             if(_teamPokemonService.TeamPokemon.Count == 0)
+            {
+                return false;
+            }
+            if (_teamPokemonService.TeamPokemon.Any(P => P.Moves.Count == 0))
             {
                 return false;
             }

@@ -31,7 +31,10 @@ namespace Domain.Calculator
 
             int attackStat = attacker.Stats.Attack;
             int defenseStat = defender.Stats.Defense;
-            int power = (int)move.Power;
+
+            //Buff moves har ingen power, ge den 0
+            float movePower = move.Power ?? 0;
+            int power = (int)movePower;
 
             double baseDamage = (((double)attackStat/(double)defenseStat) * power);
             baseDamage*=damageMultiploer;

@@ -13,6 +13,9 @@ namespace PokemonBattle.Services
         {
             //ge bara referens till vart MAUI har sina filer
             //Går väl och hårdkorda, fast det verkar lite onödigt
+            string path = FileSystem.AppDataDirectory;
+            Console.WriteLine(path);
+            Console.WriteLine(FileSystem.AppDataDirectory.ToString());
             return FileSystem.AppDataDirectory;
         }
     }

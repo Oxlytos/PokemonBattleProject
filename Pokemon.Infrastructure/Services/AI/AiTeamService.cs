@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Domain.Models.Game;
 using Pokemon.Infrastructure.Interfaces.AI;
 using Pokemon.Infrastructure.Models;
+using Pokemon.Repository.Services;
 using PokemonBattle.Interfaces;
 
 namespace Pokemon.Infrastructure.Services.AI
@@ -14,11 +15,11 @@ namespace Pokemon.Infrastructure.Services.AI
     public class AiTeamService : IAiTeamService
     {
         private string _folder;
-        private IMauiStorageDirectoryHelper _mauiStorageDirectoryHelper;
-        public AiTeamService(IMauiStorageDirectoryHelper provider)
+        private DirectoryHelperServic _directoryHelperServic;
+        public AiTeamService(DirectoryHelperServic provider)
         {
-            _mauiStorageDirectoryHelper = provider;
-            _folder = Path.Combine(_mauiStorageDirectoryHelper.GetDirectory(), "JsonData", "ai_teams");
+            _directoryHelperServic = provider;
+            _folder = Path.Combine(_directoryHelperServic.GetDirectory(), "JsonData", "ai_teams");
             Directory.CreateDirectory(_folder);
         }
       

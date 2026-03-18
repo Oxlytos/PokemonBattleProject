@@ -1,19 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using Domain.Models.Game;
 using Domain.Models.RequestModels;
-using Domain.Services;
 using Pokemon.AppServices.Factories;
-using Pokemon.Infrastructure.Interfaces;
 using Pokemon.Infrastructure.Models;
-using Pokemon.Infrastructure.Services;
 using PokemonBattle.Facades;
 using PokemonBattle.ListModel;
 
@@ -141,6 +132,8 @@ namespace PokemonBattle.ViewModels
 
         public ICommand SwitchPokemonCommand { get; }
 
+        public ICommand ForfeitCommand { get; }
+
         public bool IsSwitching { get; set; }
 
         private string _statusMessage;
@@ -163,12 +156,18 @@ namespace PokemonBattle.ViewModels
           
             ClickMoveCommand = new Command<string>(async (moveName) => await OnClickMoveCommand(moveName));
             SwitchPokemonCommand = new Command<ListPokemonDisplayModel>(async (listpokemon) => await OnClickSwitchPokemon(listpokemon));
-
+            ForfeitCommand = new Command(async () => await OnClickForfeit());
             //Boolen används för att kalla eventen/voiden att sepelare måste btta pokemon
             _battleFacade.OnPlayerMustSwitch += HandlePlayerMustSwitch;
 
             //När modellen (battleviewmodel) skapas, starta matchen, alternativt någon stor knapp?
             StartMatch();
+        }
+
+        private async Task OnClickForfeit()
+        {
+            await Shell.Current.Navigation.PopToRootAsync();
+            return;
         }
 
         private void HandlePlayerMustSwitch()
@@ -187,10 +186,17 @@ namespace PokemonBattle.ViewModels
             }
 
             int index = DisplayPlayerParty.IndexOf(listpokemon);
-            var changedPokemon = await _battleFacade.ChangeCurrentPokemon( index);
+            var changedPokemon = await _battleFacade.ChangeCurrentPokemon(index);
+            if (changedPokemon.IsFainted)
+            {
+                StatusMessage = "Can't change in to a fainted pokemon....";
+                await Task.Delay(1000);
+                return;
+            }
             if (changedPokemon != CurrentPlayerPartyPokemon)
             {
                 CurrentPlayerPartyPokemon = changedPokemon;
+                IsSwitching = false;
                 await RebuildTeamDisplay();
             }
 
@@ -203,20 +209,13 @@ namespace PokemonBattle.ViewModels
         {
             var turnResult = await _battleFacade.StartMatch();
 
-            if (turnResult == null)
-            {
-                throw new Exception("Something fucked up");
-            }
+           
             CurrentPlayerPartyPokemon = turnResult.PlayerCurrentPokemon;
             CurrentAiPokemon = turnResult.AiCurrentPokemon;
             await RebuildTeamDisplay();
         }
 
-        //Härifrån, battleservice/Facade för att hantera skada fiende
-        //Sen AI
-        //Sen mer grafik
-        //Färdig?
-        //Crazy
+        //När man klickar en giltig knapp
         private async Task OnClickMoveCommand(string moveName)
         {
             if(moveName == "-")
@@ -227,6 +226,7 @@ namespace PokemonBattle.ViewModels
             {
                 return;
             }
+            IsSwitching = false;
             var turnResult = await _battleFacade.NewTurn(moveName);
 
             CurrentPlayerPartyPokemon = turnResult.PlayerCurrentPokemon;
@@ -234,10 +234,11 @@ namespace PokemonBattle.ViewModels
 
             await PrintBattleInfo(turnResult.BattleActionMessages);
             await HandleTurnResult(turnResult);
-            await RebuildTeamDisplay();
+           
 
         }
 
+        //Hantera när någon vinner, eller faintar
         private async Task HandleTurnResult(TurnResult turnResult)
         {
             if (turnResult.PlayerWin || turnResult.AiWin)
@@ -245,10 +246,12 @@ namespace PokemonBattle.ViewModels
                 string whoWon = "";
                 if (turnResult.PlayerWin)
                 {
+                    OpponentPokemon = null;
                     whoWon = "Player";
                 }
                 if (turnResult.AiWin)
                 {
+                    PlayerPokemonImage = null;
                     whoWon = "AI";
                 }
                 StatusMessage = $"Match over! {whoWon} wins!";
@@ -256,24 +259,24 @@ namespace PokemonBattle.ViewModels
                 await Shell.Current.Navigation.PopToRootAsync();
                 return;
             }
+
             if (turnResult.PlayerCurrentPokemon.IsFainted)
             {
                 StatusMessage = "Your pokemon fainted! Choose a another one to keep battling!";
-                await Task.Delay(2000);
+                PlayerPokemonImage = null;
+
                 IsSwitching = true;
+
+                await Task.Delay(2000);
                 return;
             }
             if (turnResult.AiCurrentPokemon.IsFainted)
             {
                 StatusMessage = "AI is changing pokemon....";
                 var newPokemon = await _battleFacade.AIChoosesNewPokemon();
-                if (newPokemon == null)
-                {
-                    //Win here
-                    await Shell.Current.Navigation.PopToRootAsync();
-                }
                 CurrentAiPokemon = newPokemon;
             }
+            StatusMessage = "";
         }
 
         private async Task PrintBattleInfo(List<string> battleActionMessages)
@@ -283,7 +286,7 @@ namespace PokemonBattle.ViewModels
             foreach (var message in battleActionMessages)
             {
                 StatusMessage = message;
-                await Task.Delay(1); 
+                await Task.Delay(2000); 
             }
             StatusMessage = "";
         }

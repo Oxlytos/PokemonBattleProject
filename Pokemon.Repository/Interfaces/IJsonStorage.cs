@@ -18,6 +18,8 @@ namespace Pokemon.Repository.Interfaces
         string? GetMove(string moveName);
         //Hitta JSON pokemon data
         string? GetPokemon(string pokemonName);
+
+        string? GetTypeM(string typeName);
         //Info om typer
         Task<string> GetTypeFolder(string typeName);
         //Hämta enklaste möjliga domain/base pokemon som UI kan använda

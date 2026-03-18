@@ -45,6 +45,7 @@ namespace PokemonBattle.ViewModels
         public ICommand LoadTeamCommand { get; }
         public ICommand GoToBattlePageCommand { get; }
 
+        public ICommand UpdateSelectedImageCommand { get; }
         public ICommand SaveTeamForAiCommand { get; }
 
         private ImageSource _pokemonImage;
@@ -71,8 +72,8 @@ namespace PokemonBattle.ViewModels
         {
             get { return _pokemonName; }
         }
-        private RequestPokeonModel _teamPokemonModelSelected;
-        public RequestPokeonModel TeamPokemonModelSelected
+        private ListPokemonDisplayModel _teamPokemonModelSelected;
+        public ListPokemonDisplayModel TeamPokemonModelSelected
         {
             get { return _teamPokemonModelSelected; }
             set
@@ -94,6 +95,7 @@ namespace PokemonBattle.ViewModels
 
                 ((Command)AddToTeamCommand).ChangeCanExecute();
                 //Command load image?
+                _=UpdateSelectedImage(_pokemonName);
                 _ = LoadPokemonSpriteAsync();
             }
         }
@@ -116,6 +118,7 @@ namespace PokemonBattle.ViewModels
             GetMovesCommand = new Command(async () => await GetPokemonRequestModelMoves());
             GoToBattlePageCommand = new Command(async () => await GoToBattlePage());
             SaveTeamForAiCommand = new Command(async () => await SaveTeamForAi());
+            UpdateSelectedImageCommand = new Command<string>(async (name) => await UpdateSelectedImage(name)); 
         }
 
         private async Task SaveTeamForAi()
@@ -187,7 +190,6 @@ namespace PokemonBattle.ViewModels
         }
         public async Task RemoveFromTeam(ListPokemonDisplayModel listpokmeon)
         {
-
             if (listpokmeon == null)
             {
                 return;
@@ -200,22 +202,33 @@ namespace PokemonBattle.ViewModels
             DisplayTeamPokemon.RemoveAt(toRemove.Value);
             
         }
+        public async Task UpdateSelectedImage(string name)
+        {
+            var sprite = await _uiFacade.LoadPokemonFrontSpritePathAsync(name);
+            if (sprite != null)
+            {
+                PokemonImage = ImageSource.FromFile(sprite);
+
+            }
+        }
         public async Task LoadPokemonSpriteAsync()
         {
             //har vi tryckt på en pokemon i listan, annars returnera
             if (SelectedPokemonModel == null) return;
 
             var path = await _uiFacade.LoadPokemonFrontSpritePathAsync(SelectedPokemonModel.Name);
+            if (path != null)
+            {
+                PokemonImage = ImageSource.FromFile(path);
 
-            PokemonImage = ImageSource.FromFile(path);
-           
-
+            }
         }
         public async Task LoadSpriteForPokemonListItemAsync(ListPokemonDisplayModel listItem)
         {
             if (listItem == null) return;
 
             listItem.SpriteTypePaths = await _uiFacade.LoadTypeSpritePaths(listItem.Name);
+            PokemonImage = listItem.SpriteImage;
 
         }
         public async Task AddToTeam()
@@ -231,6 +244,7 @@ namespace PokemonBattle.ViewModels
             var uiMember = await _displayModelFactory.CreateFrontFacingSprite(partyPokemon);
 
             await LoadSpriteForPokemonListItemAsync(uiMember);
+            PokemonImage = uiMember.SpriteImage;
             DisplayTeamPokemon.Add(uiMember);
 
             SelectedPokemonModel = null;

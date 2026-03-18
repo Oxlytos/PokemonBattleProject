@@ -12,7 +12,7 @@ namespace Pokemon.Infrastructure.Interfaces
     public interface IPokemonFetchRepository
     {
         public Task<List<RequestPokeonModel>> GetPokemonModelsAsync();
-        public Task<RequestPokeonModel> GetPokemonModelModelAsync(string name);
+        public Task<RequestPokeonModel> GetPokemonModel(string name);
         public Task<RequestTypeModel> GetTypeModelAsync(string name);
         public Task<RequestMoveModel> GetMoveModelAsync(string name);
         public Task<BasePokemon> GetBasePokemonAsync(string name);

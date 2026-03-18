@@ -119,8 +119,7 @@
                 <CollectionView
                     ItemsSource="{Binding CurrentPlayerPokemonMoves}"
                     ItemSizingStrategy="MeasureAllItems"
-                        VerticalOptions="Start"
-                        HorizontalOptions="Fill"
+                        VerticalOptions="FillAndExpand"
                         >
                 <CollectionView.ItemsLayout>
                     <GridItemsLayout Orientation="Vertical" Span="2"/>
@@ -152,7 +151,7 @@
                 Grid.Row="1"
                 ItemsSource="{Binding DisplayPlayerParty}"
                 VerticalOptions="Center"
-                     TranslationY="-140"
+                     TranslationY="-200"
                 HorizontalOptions="Center">
                 <CollectionView.ItemsLayout>
                     <LinearItemsLayout Orientation="Horizontal"/>
@@ -182,10 +181,11 @@
                   Padding="15" 
                 BackgroundColor="Bisque"
                 HorizontalOptions="Fill"
-                VerticalOptions="Center">
+                VerticalOptions="FillAndExpand">
                 <VerticalStackLayout 
                     Spacing="10"
                     HorizontalOptions="Fill"
+                    VerticalOptions="StartAndExpand"
                     >
                    
                     <Label 
@@ -202,12 +202,12 @@
                         Text="{Binding CurrentPlayerPartyPokemon.PartyPokemon.Level}"
                         TextTransform="Uppercase"
                         TextColor="Black"/>
+
                     <Button
                         CornerRadius="0"
-                        Text="Party"/>
-                    <Button
-                        CornerRadius="0"
-                        Text="Forfeit"></Button>
+                        Text="Forfeit"
+                        Command="{Binding ForfeitCommand}"/>
+
                 </VerticalStackLayout>
             </Border>
             

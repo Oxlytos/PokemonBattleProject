@@ -16,13 +16,19 @@ namespace Pokemon.Services.Interfaces
 
         //Endast en
         public Task<RequestPokeonModel> GetPokemonSingularAsync(string name);
-
+        //Type
         public Task<RequestTypeModel> GetTypeModelAsync(string name);
 
+        //Move
         public Task<RequestMoveModel> GetMoveModelAsync(string name);
 
+        //Absolut mest basic pokemon
         public Task<BasePokemon> GetBasePokemonAsync(string name);
+
+        //Användbar movemodel
         public Task<MoveModel> GetSerialisedMoveModelAsync(string name);    
+
+        //Användbar typ
         public Task<TypeModel> GetSerialisedTypeModelAsync(string name);
     }
 }

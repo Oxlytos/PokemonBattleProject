@@ -6,23 +6,37 @@ using System.Text;
 using System.Threading.Tasks;
 using Domain.Models.Game;
 using Domain.Models.RequestModels;
+using Pokemon.Infrastructure.Factories;
 using Pokemon.Infrastructure.Interfaces;
 using Pokemon.Infrastructure.Services;
 using Pokemon.Services.Interfaces;
 using Pokemon.Services.Services;
 using Pokemon.Shared.Extensions;
+using PokemonBattle.Factories;
 using PokemonBattle.ListModel;
 
 namespace PokemonBattle.Facades
 {
     public class MoveFacade
     {
+        private readonly MoveModelFactory _moveModelFactory;
         private readonly ITeamPokemonService _teamPokemonService;
         private readonly IPokemonFetchRepository _pokemonFetchRepository;
         private readonly IMoveService _moveService;
         private readonly IImageService _imageService;
-        public MoveFacade(ITeamPokemonService teamPokemonService, IPokemonFetchRepository pokemonFetchRepository, IMoveService moveService, IImageService imageService)
+        private readonly ListMoveModelFactory _listMoveModelFactory;
+        public MoveFacade
+            (ITeamPokemonService teamPokemonService, 
+            IPokemonFetchRepository pokemonFetchRepository, 
+            IMoveService moveService, 
+            IImageService imageService,
+            ListMoveModelFactory listMoveModelFactory,
+            MoveModelFactory moveModelFactory
+            
+            )
         {
+            _moveModelFactory = moveModelFactory;
+            _listMoveModelFactory = listMoveModelFactory;
             _imageService = imageService;
             _teamPokemonService = teamPokemonService;
             _pokemonFetchRepository = pokemonFetchRepository;
@@ -44,25 +58,9 @@ namespace PokemonBattle.Facades
         public async Task<ObservableCollection<ListMoveDisplayModel>>? UpdateCurrentMovesDisplay(List<MoveModel> moves)
         {
             ObservableCollection<ListMoveDisplayModel> listMoves = new ObservableCollection<ListMoveDisplayModel>();
-            foreach (var move in moves)
-            {
-                ListMoveDisplayModel newMove = new ListMoveDisplayModel(move);
-                if (!string.IsNullOrEmpty(newMove.Name))
-                {
-                    var typeInfo = await _pokemonFetchRepository.GetMoveModelAsync(newMove.Name);
-                    newMove.TypeName = typeInfo.MoveTypeInfo.Name.Capitalize();
-                    newMove.Name = newMove.Name.Capitalize();
-                }
-                listMoves.Add(newMove);
-            }
 
-            foreach (var move in listMoves)
-            {
-                move.Name = move.Name.Capitalize();
-                Console.WriteLine(move.Name);
-            }
-
-            return listMoves;
+            return await _listMoveModelFactory.CreateList(moves);
+            
         }
         public async Task<ListMoveDisplayModel?> AddMoveAsync(RequestMoveModel currentMove, PartyPokemonModel pokemon)
         {
@@ -79,32 +77,26 @@ namespace PokemonBattle.Facades
                 return null;
             }
 
-            var requestMove = await _pokemonFetchRepository.GetMoveModelAsync(currentMove.Move.Name);
 
-            var actualMove = await _pokemonFetchRepository.GetSerialisedMoveModelAsync(requestMove.Move.Name);
-
-            var typeData = await _pokemonFetchRepository.GetTypeModelAsync(requestMove.MoveTypeInfo.Name);
+            var actualMove = await _moveModelFactory.Create(currentMove);
 
             pokemon.Moves = await _moveService.AddMove(pokemon, actualMove);
 
-            ListMoveDisplayModel move = new ListMoveDisplayModel(actualMove);
-            move.Power = requestMove.Power != null ? (int?)requestMove.Power : null;
-            move.TypeName = requestMove.MoveTypeInfo.Name;
-
-            return move;
+            return await _listMoveModelFactory.Create(actualMove);
 
         }
 
         public async Task <ObservableCollection<RequestMoveModel>>? GetAvailableMoves(string name)
         {
             //request modellen
-            var pokemonData = await _pokemonFetchRepository.GetPokemonModelModelAsync(name);
+            var pokemonData = await _pokemonFetchRepository.GetPokemonModel(name);
 
-            //ritkiga moves som blir display sen
-            List<MoveModel> moves = new List<MoveModel>();
+           
 
             //request
             var currentMoves = pokemonData.LearnedMoves ?? new RequestMoveModel[4];
+            //ritkiga moves som blir display sen
+            List<MoveModel> moves = await _moveModelFactory.CreateList(currentMoves);
             foreach (var move in currentMoves)
             {
                 move.Move.Name = move.Move.Name.Capitalize();

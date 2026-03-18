@@ -3,6 +3,7 @@ using Domain.Models.Game;
 using Domain.Models.RequestModels;
 using Domain.Services;
 using Pokemon.Repository.Interfaces;
+using Pokemon.Repository.Services;
 using PokemonBattle.Interfaces;
 
 namespace Pokemon.Repository.Repositories
@@ -10,14 +11,14 @@ namespace Pokemon.Repository.Repositories
     public class TypeDataLoader : ITypeDataLoader
     {
         private readonly TypeDataService _typeDataService;
-        IMauiStorageDirectoryHelper _provider;
+        private DirectoryHelperServic _directoryHelperServic;
         ITypeModelFactory _typeModelFactory;
         string _dataFolder;
-        public TypeDataLoader(TypeDataService typeDataService, IMauiStorageDirectoryHelper mauiStorageDirectoryHelper, ITypeModelFactory typeModelFactory)
+        public TypeDataLoader(TypeDataService typeDataService, DirectoryHelperServic directoryHelperServic, ITypeModelFactory typeModelFactory)
         {
             _typeDataService = typeDataService;
-            _provider = mauiStorageDirectoryHelper;
-            var baseDir = _provider.GetDirectory();
+            _directoryHelperServic = directoryHelperServic;
+            var baseDir = _directoryHelperServic.GetDirectory();
             _dataFolder = Path.Combine(baseDir, "JsonData");
             _typeModelFactory = typeModelFactory;
             //_dataFolder = Path.Combine(_provider.GetDirectory(), "JsonData", "types");
