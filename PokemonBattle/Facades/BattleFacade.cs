@@ -26,7 +26,7 @@ namespace PokemonBattle.Facades
         private BattlePokemonFactory _battlePokemonFactory;
         private ListMoveModelFactory _moveModelFactory;
         private TypeDataService _typeDataService;
-        private IPokemonFetchRepository _pokemonFetchRepository;
+        private IFetchService _pokemonFetchRepository;
         private ITeamPokemonService _teamPokemonService;
         private IImageService _imageService;
         private DamageCalculator _damageCalculator;
@@ -50,7 +50,7 @@ namespace PokemonBattle.Facades
             IJsonStorage jsonStorage,
             IBattleService battleService,
             TypeDataService typeDataService,
-            IPokemonFetchRepository pokemonFetchRepository,
+            IFetchService pokemonFetchRepository,
             ITeamPokemonService teamPokemonService,
             DamageCalculator damageCalculator,
             IAIService aIService,

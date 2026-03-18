@@ -93,10 +93,16 @@ namespace PokemonBattle
             builder.Services.AddTransient<IImageService, ImageService>();
             builder.Services.AddSingleton<ITeamPokemonService, TeamPokemonService>();
             builder.Services.AddSingleton<IBattleService, BattleService>();
-            builder.Services.AddSingleton<IPokemonFetchService, FetchService>();
-            builder.Services.AddSingleton<IPokemonFetchRepository, PokemonFetchRepository>();
+
+            builder.Services.AddSingleton<IFetchRepository, PokemonFetchRepository>();
+
+
+
+            builder.Services.AddSingleton<IFetchService, FetchService>();
             builder.Services.AddSingleton<ITypeService, TypeService>();
             builder.Services.AddSingleton<ITypeRepo, TypeRepo>();
+
+
             builder.Services.AddSingleton<ITypeModelFactory, TypeModelFactory>();
             builder.Services.AddSingleton<IStatCalculator, GenerationThreeStatCalculator>();
           
@@ -133,16 +139,29 @@ namespace PokemonBattle
             builder.Services.AddSingleton<BattlePokemonFactory>();
 
             //Till fabrikerna
-            builder.Services.AddSingleton<ITypeMapper, TypeMapper>();
+            builder.Services.AddSingleton<ITypeMapper, TypeListMapper>();
             builder.Services.AddSingleton<IStatMapper, StatMapper>();
             builder.Services.AddSingleton<IGeneralMapper, GeneralMapper>();
 
             //Ladda datan för alla typer i förväg (om vi har något)
             var app = builder.Build();
+
+            //referenser
             var loader = app.Services.GetRequiredService<ITypeDataLoader>();
-            loader.LoadTypesFromJsonFolderAsync().GetAwaiter().GetResult();
+            var factory = app.Services.GetRequiredService<ITypeModelFactory>();
+            var typeDataService = app.Services.GetRequiredService<TypeDataService>();
+
+            // json typerna
+            var rawTypes = loader.LoadTypesFromJsonFolderAsync().GetAwaiter().GetResult();
+
+            // lkonvertera till användbara typer
+            foreach (var rawType in rawTypes)
+            {
+                typeDataService.AddType(rawType);
+            }
+
+
             return app;
-            //return builder.Build();
         }
     }
 }

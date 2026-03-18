@@ -3,21 +3,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Domain.Interface;
 using Domain.Models.Game;
+using Domain.Models.RequestModels;
 
 namespace Domain.Services
 {
     public class TypeDataService
     {
+        private readonly ITypeModelFactory _typeFactory;
+
         //Namn och typ värdena
         private readonly Dictionary<string, TypeModel> _typeDataDic = new();
-        public void AddType(TypeModel type)
+
+        public TypeDataService(ITypeModelFactory typeModelFactory)
         {
+            _typeFactory = typeModelFactory;
+        }
+
+        public void AddType(RequestTypeModel type)
+        {
+            var actualType = _typeFactory.Create(type);
             //finns inte "grass"
             if (!_typeDataDic.ContainsKey(type.Name))
             {
                 //ny nyckel som heter "grass", med alla värden för gräs typen
-                _typeDataDic[type.Name] = type;
+                _typeDataDic[type.Name] = actualType;
                 Console.WriteLine(type);
                 Console.WriteLine(_typeDataDic);
             }

@@ -21,13 +21,13 @@ namespace PokemonBattle.Facades
     {
         private readonly MoveModelFactory _moveModelFactory;
         private readonly ITeamPokemonService _teamPokemonService;
-        private readonly IPokemonFetchRepository _pokemonFetchRepository;
+        private readonly IFetchService _pokemonFetchRepository;
         private readonly IMoveService _moveService;
         private readonly IImageService _imageService;
         private readonly ListMoveModelFactory _listMoveModelFactory;
         public MoveFacade
-            (ITeamPokemonService teamPokemonService, 
-            IPokemonFetchRepository pokemonFetchRepository, 
+            (ITeamPokemonService teamPokemonService,
+            IFetchService pokemonFetchRepository, 
             IMoveService moveService, 
             IImageService imageService,
             ListMoveModelFactory listMoveModelFactory,
@@ -89,7 +89,7 @@ namespace PokemonBattle.Facades
         public async Task <ObservableCollection<RequestMoveModel>>? GetAvailableMoves(string name)
         {
             //request modellen
-            var pokemonData = await _pokemonFetchRepository.GetPokemonModel(name);
+            var pokemonData = await _pokemonFetchRepository.GetPokemonSingularAsync(name);
 
            
 

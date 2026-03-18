@@ -13,11 +13,11 @@ using Pokemon.Services.Interfaces;
 
 namespace Pokemon.Services.Services
 {
-    public class FetchService : IPokemonFetchService
+    public class FetchService : IFetchService
     {
-        private readonly IPokemonFetchRepository _repository;
+        private readonly IFetchRepository _repository;
         public FetchService(
-            IPokemonFetchRepository pokemonFetchRepository
+            IFetchRepository pokemonFetchRepository
             )
         {
             _repository = pokemonFetchRepository;

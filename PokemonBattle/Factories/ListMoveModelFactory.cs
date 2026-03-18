@@ -15,8 +15,8 @@ namespace PokemonBattle.Factories
 {
     public class ListMoveModelFactory
     {
-        private IPokemonFetchService _pokemonFetchService;
-        public ListMoveModelFactory(IPokemonFetchService pokemonFetchService)
+        private IFetchService _pokemonFetchService;
+        public ListMoveModelFactory(IFetchService pokemonFetchService)
         {
             _pokemonFetchService = pokemonFetchService;
         }

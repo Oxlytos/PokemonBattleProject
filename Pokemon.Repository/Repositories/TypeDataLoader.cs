@@ -12,51 +12,42 @@ namespace Pokemon.Repository.Repositories
     {
         private readonly TypeDataService _typeDataService;
         private DirectoryHelperServic _directoryHelperServic;
-        ITypeModelFactory _typeModelFactory;
         string _dataFolder;
-        public TypeDataLoader(TypeDataService typeDataService, DirectoryHelperServic directoryHelperServic, ITypeModelFactory typeModelFactory)
+        public TypeDataLoader(TypeDataService typeDataService, DirectoryHelperServic directoryHelperServic)
         {
             _typeDataService = typeDataService;
             _directoryHelperServic = directoryHelperServic;
             var baseDir = _directoryHelperServic.GetDirectory();
             _dataFolder = Path.Combine(baseDir, "JsonData");
-            _typeModelFactory = typeModelFactory;
             //_dataFolder = Path.Combine(_provider.GetDirectory(), "JsonData", "types");
             //_dataFolderPath = Path.Combine(_provider.GetDirectory(), "JsonData");
 
 
         }
-        public async Task LoadTypesFromJsonFolderAsync()
+        public async Task<List<RequestTypeModel>> LoadTypesFromJsonFolderAsync()
         {
             var folder = Path.Combine(_dataFolder, "types");
 
             Directory.CreateDirectory(folder);
 
-            try
+            var result = new List<RequestTypeModel>();
+
+            var files = Directory.GetFiles(folder);
+            Console.WriteLine(files.Length);
+            foreach (var file in files)
             {
-                var files = Directory.GetFiles(folder);
-                Console.WriteLine(files.Length);
-                foreach (var file in files)
+                var json = File.ReadAllText(file);
+                var type = JsonSerializer.Deserialize<RequestTypeModel>(json);
+                if (type != null)
                 {
-                    Console.WriteLine(file);
-                    var json =  File.ReadAllText(file);
-                    var type = JsonSerializer.Deserialize<RequestTypeModel>(json);
-                    if (type == null)
-                    {
-                        continue;
-                    }
-                    var actualType = _typeModelFactory.Create(type);
-                    Console.WriteLine(type);
-                    _typeDataService.AddType(actualType);
+                    result.Add(type);
                 }
+
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
-            
+            return result;
+
         }
-        public async Task AddTypeModel(TypeModel newType)
+        public async Task AddTypeModel(RequestTypeModel newType)
         {
             _typeDataService.AddType(newType);
         }

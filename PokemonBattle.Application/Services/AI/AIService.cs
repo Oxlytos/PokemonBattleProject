@@ -14,8 +14,8 @@ namespace Pokemon.Infrastructure.Services.AI
     public class AIService : IAIService
     {
         private readonly DamageCalculator _damageCalculator;
-        private readonly IPokemonFetchService _pokeFetchService;
-        public AIService(DamageCalculator damageCalculator, IPokemonFetchService pokemonFetchService)
+        private readonly IFetchService _pokeFetchService;
+        public AIService(DamageCalculator damageCalculator, IFetchService pokemonFetchService)
         {
             _pokeFetchService = pokemonFetchService;
             _damageCalculator = damageCalculator;

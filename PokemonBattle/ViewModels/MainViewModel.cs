@@ -17,7 +17,7 @@ namespace PokemonBattle.ViewModels
         public ICommand GoToTeamBuilderPageCommand { get; }
 
         public event PropertyChangedEventHandler? PropertyChanged;
-        public MainViewModel(IPokemonFetchService pokemonFetchService, IImageService imageService)
+        public MainViewModel(IFetchService pokemonFetchService, IImageService imageService)
         {
             GoToTeamBuilderPageCommand = new Command(async () => await GoToTeamBuilder());
         }

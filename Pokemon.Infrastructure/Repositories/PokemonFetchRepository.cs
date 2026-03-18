@@ -9,27 +9,24 @@ using System.Threading.Tasks;
 using Domain.Models.Base;
 using Domain.Models.Game;
 using Domain.Models.RequestModels;
-using Pokemon.Infrastructure.Factories;
 using Pokemon.Infrastructure.Interfaces;
 using Pokemon.Repository.Interfaces;
 using Pokemon.Repository.Repositories;
 
 namespace Pokemon.Infrastructure.Repositories
 {
-    public class PokemonFetchRepository : IPokemonFetchRepository
+    public class PokemonFetchRepository : IFetchRepository
     {
         private readonly HttpClient _client;
         private readonly IJsonStorage _jsonStorage;
         private readonly ITypeDataLoader _typeDataLoader;
-        private readonly ITypeModelFactory _typeModelFactory;
         private string baseUrl = "https://pokeapi.co/api/v2/";
-        public PokemonFetchRepository(HttpClient client, IJsonStorage jsonStorage, ITypeDataLoader typeDataLoader, ITypeModelFactory typeModelFactory)
+        public PokemonFetchRepository(HttpClient client, IJsonStorage jsonStorage, ITypeDataLoader typeDataLoader)
         {
             _client = client;
             _client.BaseAddress = new Uri(baseUrl);
             _jsonStorage = jsonStorage;
             _typeDataLoader = typeDataLoader;
-            _typeModelFactory = typeModelFactory;
         }
 
         public async Task<RequestPokeonModel> DeserializePokemonModel(string jsonResponse)
@@ -61,14 +58,10 @@ namespace Pokemon.Infrastructure.Repositories
             return move;
         }
 
-
-
         public async Task<RequestTypeModel> DeserializeTypeModel(string jsonResponse)
         {
             var typeJson = JsonSerializer.Deserialize<RequestTypeModel>(jsonResponse);
-            var typemodel = _typeModelFactory.Create(typeJson);
-            Console.WriteLine(typemodel);
-            await _typeDataLoader.AddTypeModel(typemodel);
+            await _typeDataLoader.AddTypeModel(typeJson);
             return typeJson;
         }
 
@@ -213,9 +206,6 @@ namespace Pokemon.Infrastructure.Repositories
                     var typeJson = await DeserializeTypeModel(content);
                     //await _typeDataLoader.add
                     await _jsonStorage.SaveTypeData(name, content);
-                    var typemodel = _typeModelFactory.Create(typeJson);
-                    Console.WriteLine(typemodel);
-                    await _typeDataLoader.AddTypeModel(typemodel);
                     return typeJson;
                 }
             }

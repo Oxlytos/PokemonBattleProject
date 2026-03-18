@@ -14,8 +14,8 @@ namespace Pokemon.Infrastructure.Factories
     {
         private readonly ITypeService _typeService;
         private readonly IMoveService _moveService;
-        private readonly IPokemonFetchRepository _pokeFetchRepository;
-        public MoveModelFactory(IPokemonFetchRepository pokeFetchRepository, IMoveService moveService, ITypeService typeService)
+        private readonly IFetchRepository _pokeFetchRepository;
+        public MoveModelFactory(IFetchRepository pokeFetchRepository, IMoveService moveService, ITypeService typeService)
         {
             _pokeFetchRepository = pokeFetchRepository;
             _moveService = moveService;

@@ -120,7 +120,11 @@ namespace PokemonBattle.ViewModels
         }
         private async Task GetOpponentPokemonImage(BattlePokemonModel pokemon)
         {
-            OpponentPokemon =  await _battleFacade.LoadPokemonFrontSpritePathAsync(pokemon.PartyPokemon.Name);
+            if (pokemon != null)
+            {
+                OpponentPokemon = await _battleFacade.LoadPokemonFrontSpritePathAsync(pokemon.PartyPokemon.Name);
+
+            }
         }
 
         private async Task GetPokemonImage(BattlePokemonModel pokemon)

@@ -9,7 +9,7 @@ using Pokemon.AppServices.Interfaces;
 
 namespace Pokemon.AppServices.Mappers
 {
-    public class TypeMapper : ITypeMapper
+    public class TypeListMapper : ITypeMapper
     {
         public List<string> MapTypes(RequestPokeonModel request)
         {

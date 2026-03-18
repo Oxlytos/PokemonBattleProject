@@ -1,10 +1,11 @@
 ﻿using Domain.Models.Game;
+using Domain.Models.RequestModels;
 
 namespace Pokemon.Repository.Interfaces
 {
     public interface ITypeDataLoader
     {
-        Task LoadTypesFromJsonFolderAsync();
-        public Task AddTypeModel(TypeModel newType);
+        Task<List<RequestTypeModel>> LoadTypesFromJsonFolderAsync();
+        public Task AddTypeModel(RequestTypeModel newType);
     }
 }

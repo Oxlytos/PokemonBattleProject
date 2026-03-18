@@ -22,7 +22,7 @@ namespace PokemonBattle.Facades
 {
     public class UIFacade
     {
-        private IPokemonFetchService _fetchService;
+        private IFetchService _fetchService;
         private IImageService _imageService;
         private ITeamPokemonService _teamPokemonService;
         private IJsonStorage _jsonStorage;
@@ -33,7 +33,7 @@ namespace PokemonBattle.Facades
         private readonly ListMoveModelFactory _listMoveModelFactory;
 
         public UIFacade(
-            IPokemonFetchService pokemonFetchService,
+            IFetchService pokemonFetchService,
             IImageService imageService,
             ITeamPokemonService teamPokemonService,
             ITypeService typeService,

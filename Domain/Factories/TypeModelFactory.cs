@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Domain.Interface;
 using Domain.Models.Game;
 using Domain.Models.RequestModels;
 using Pokemon.Infrastructure.Mappers;
-using Pokemon.Repository.Interfaces;
 
 namespace Pokemon.Infrastructure.Factories
 {

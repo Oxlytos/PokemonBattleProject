@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Domain.Models.Game;
 using Domain.Models.RequestModels;
 
-namespace Pokemon.Repository.Interfaces
+namespace Domain.Interface
 {
     public interface ITypeModelFactory
     {
