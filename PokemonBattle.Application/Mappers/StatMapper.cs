@@ -5,12 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Domain.Models.Game;
 using Domain.Models.RequestModels;
+using Pokemon.AppServices.Interfaces;
 
 namespace Pokemon.AppServices.Mappers
 {
-    public static class StatMapper
+    public class StatMapper : IStatMapper
     {
-        public static StatModel MapStats(RequestPokeonModel request)
+        public StatModel MapStats(RequestPokeonModel request)
         {
             StatModel model = new StatModel();
             request.SetBaseStatTotals();

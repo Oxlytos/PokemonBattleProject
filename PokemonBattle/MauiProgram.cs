@@ -18,6 +18,8 @@ using System.Threading.Tasks;
 using Pokemon.Infrastructure.Factories;
 using Pokemon.Infrastructure.Interfaces.AI;
 using Pokemon.Infrastructure.Services.AI;
+using Pokemon.AppServices.Interfaces;
+using Pokemon.AppServices.Mappers;
 
 namespace PokemonBattle
 {
@@ -70,6 +72,8 @@ namespace PokemonBattle
              */
             //Väldigt viktiga JSON service & storage först så det inte skapar problem senare
             builder.Services.AddSingleton<IJsonStorage, JsonStorage>();
+            builder.Services.AddSingleton<ITypeDataLoader, TypeDataLoader>();
+
 
             builder.Services.AddTransient<MainPage>();
 
@@ -93,12 +97,17 @@ namespace PokemonBattle
             builder.Services.AddSingleton<ITypeRepo, TypeRepo>();
             builder.Services.AddSingleton<ITypeModelFactory, TypeModelFactory>();
             builder.Services.AddSingleton<IStatCalculator, GenerationThreeStatCalculator>();
-            builder.Services.AddSingleton<IAIService, AIService>();
-            builder.Services.AddSingleton<IAiTeamService, AiTeamService>();
+          
             builder.Services.AddSingleton<TypeDataService>();
             builder.Services.AddSingleton<DamageCalculator>();
-            builder.Services.AddSingleton<ITypeDataLoader, TypeDataLoader>();
+         
+            //Hämtar fil directory till MAUI, som andra delar får veta
+            //För redovisning, visa alternativ metod
             builder.Services.AddSingleton<IMauiStorageDirectoryHelper, MauiStorageDirectoryHelperService>();
+
+            //AI logik
+            builder.Services.AddSingleton<IAIService, AIService>();
+            builder.Services.AddSingleton<IAiTeamService, AiTeamService>();
 
 
             //Facader vi gömmer våra services bakom
@@ -107,9 +116,15 @@ namespace PokemonBattle
             builder.Services.AddTransient<BattleFacade>();
 
 
-            //Special case att där det behövs en display factory så finns det tillgängligt
+            //Våra fabriker med DI
             builder.Services.AddSingleton<ListPokemonDisplayModelFactory>();
+            builder.Services.AddSingleton<PartyPokemonFactory>();
+            builder.Services.AddSingleton<BattlePokemonFactory>();
 
+            //Till fabrikerna
+            builder.Services.AddSingleton<ITypeMapper, TypeMapper>();
+            builder.Services.AddSingleton<IStatMapper, StatMapper>();
+            builder.Services.AddSingleton<IGeneralMapper, GeneralMapper>();
 
             //Ladda datan för alla typer i förväg (om vi har något)
             var app = builder.Build();

@@ -33,7 +33,7 @@ namespace PokemonBattle.ViewModels
             get => _currentPlayerPokemonMoves;
             set
             {
-                 var padded = new ObservableCollection<ListMoveDisplayModel>(value ?? new ObservableCollection<ListMoveDisplayModel>());
+                var padded = new ObservableCollection<ListMoveDisplayModel>(value ?? new ObservableCollection<ListMoveDisplayModel>());
                 while (padded.Count < 4) 
                 {
                     MoveModel moveModel = new MoveModel();
@@ -219,7 +219,10 @@ namespace PokemonBattle.ViewModels
         //Crazy
         private async Task OnClickMoveCommand(string moveName)
         {
-            Console.WriteLine(moveName);
+            if(moveName == "-")
+            {
+                return;
+            }
             if (IsSwitching)
             {
                 return;
@@ -256,7 +259,7 @@ namespace PokemonBattle.ViewModels
             if (turnResult.PlayerCurrentPokemon.IsFainted)
             {
                 StatusMessage = "Your pokemon fainted! Choose a another one to keep battling!";
-
+                await Task.Delay(2000);
                 IsSwitching = true;
                 return;
             }
@@ -280,7 +283,7 @@ namespace PokemonBattle.ViewModels
             foreach (var message in battleActionMessages)
             {
                 StatusMessage = message;
-                await Task.Delay(50); 
+                await Task.Delay(1); 
             }
             StatusMessage = "";
         }

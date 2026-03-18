@@ -10,8 +10,6 @@ using PokemonBattle.Services;
 
 namespace Pokemon.AppServices.Factories
 {
-    //Andra fabriker är static
-    //Denna är inte för jag ville få med imageservice
     public class ListPokemonDisplayModelFactory
     {
         private readonly IImageService _imageService;

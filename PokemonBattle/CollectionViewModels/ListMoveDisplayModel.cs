@@ -53,11 +53,19 @@ namespace PokemonBattle.ListModel
         }
         public ListMoveDisplayModel(MoveModel move)
         {
+            if(move.Name=="-")
+            {
+                Name = "-";
+                Power = 0;
+                Accuracy = 0;
+                PP =  0;
+                TypeName = "Unknown";
+            }
             Name = move.Name;
             Power = move.Power;
             Accuracy = move.Accuracy;
-            PP = move.Pp;
-            TypeName=move.Type.Name;
+            PP = move.Pp ?? 0;
+
         }
     }
 }

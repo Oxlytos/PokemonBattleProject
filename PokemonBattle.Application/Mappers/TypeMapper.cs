@@ -5,12 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Domain.Models.Game;
 using Domain.Models.RequestModels;
+using Pokemon.AppServices.Interfaces;
 
 namespace Pokemon.AppServices.Mappers
 {
-    public static class TypeMapper
+    public class TypeMapper : ITypeMapper
     {
-        public static List<string> MapTypes(RequestPokeonModel request)
+        public List<string> MapTypes(RequestPokeonModel request)
         {
             List<string> typeModels = new List<string>();
 

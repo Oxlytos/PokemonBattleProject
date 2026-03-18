@@ -5,12 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Domain.Models.Game;
 using Domain.Models.RequestModels;
+using Pokemon.AppServices.Interfaces;
 
 namespace Pokemon.AppServices.Mappers
 {
-    public static class GeneralMapper
+    public class GeneralMapper : IGeneralMapper
     {
-        public static PartyPokemonModel MapBasic(RequestPokeonModel model)
+        public PartyPokemonModel MapBasic(RequestPokeonModel model)
         {
             var pokemon = new PartyPokemonModel();
             pokemon.Name = model.Name;

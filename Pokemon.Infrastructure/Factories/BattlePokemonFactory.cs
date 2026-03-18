@@ -8,14 +8,14 @@ using Pokemon.Infrastructure.Models;
 
 namespace Pokemon.Infrastructure.Factories
 {
-    public static class BattlePokemonFactory
+    public class BattlePokemonFactory
     {
-        public static BattlePokemonModel Create(PartyPokemonModel partyPokemonModel)
+        public  BattlePokemonModel Create(PartyPokemonModel partyPokemonModel)
         {
             BattlePokemonModel battle = new BattlePokemonModel(partyPokemonModel);
             return battle;
         }
-        public static List<BattlePokemonModel> CreateBattleTeam(List<PartyPokemonModel> team)
+        public List<BattlePokemonModel> CreateBattleTeam(List<PartyPokemonModel> team)
         {
             List<BattlePokemonModel> battleTeam = new List<BattlePokemonModel>();
             foreach (PartyPokemonModel party in team)

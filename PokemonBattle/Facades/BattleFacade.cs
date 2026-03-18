@@ -21,6 +21,7 @@ namespace PokemonBattle.Facades
 {
     public class BattleFacade
     {
+        private BattlePokemonFactory _battlePokemonFactory;
         private TypeDataService _typeDataService;
         private IPokemonFetchRepository _pokemonFetchRepository;
         private ITeamPokemonService _teamPokemonService;
@@ -50,10 +51,12 @@ namespace PokemonBattle.Facades
             DamageCalculator damageCalculator,
             IAIService aIService,
             IAiTeamService aiTeamService,
-            IImageService imageService
+            IImageService imageService,
+            BattlePokemonFactory battlePokemonFactory
             
             )
         {
+            _battlePokemonFactory = battlePokemonFactory;
             _battleService = battleService;
             _imageService = imageService;
             _aiTeamService= aiTeamService;
@@ -67,7 +70,7 @@ namespace PokemonBattle.Facades
         {
             TurnResult result = new TurnResult();
             var playerTeam =  _teamPokemonService.TeamPokemon.ToList();
-            PlayerTeam = BattlePokemonFactory.CreateBattleTeam(playerTeam);
+            PlayerTeam = _battlePokemonFactory.CreateBattleTeam(playerTeam);
             CurrentPlayerPokemon = PlayerTeam.First();
             var pokemon = await _teamPokemonService.GetFirstPartyPokemon();
             //AI får sin egna senare
@@ -78,7 +81,7 @@ namespace PokemonBattle.Facades
             }
 
             var thisTeam = aiTeam.FirstOrDefault();
-            AiTeam = BattlePokemonFactory.CreateBattleTeam(thisTeam.AiPokemon);
+            AiTeam = _battlePokemonFactory.CreateBattleTeam(thisTeam.AiPokemon);
             CurrentAIPokemon = AiTeam.First();
             Console.WriteLine(CurrentAIPokemon);
 
@@ -120,33 +123,18 @@ namespace PokemonBattle.Facades
                 return turnResult;
             }
             //Kolla vilket move det är i CurrentPlayerMove
-            Console.WriteLine(playerMove);
             var move = CurrentPlayerPokemon.Moves.FirstOrDefault(x=>x.Name.ToLower() == playerMove.ToLower());
-
-            Console.WriteLine(move);
             var moveWithType = await _pokemonFetchRepository.GetMoveModelAsync(move.Name);
             var actualMoveType =   _typeDataService.GetTypeModel(moveWithType.MoveTypeInfo.Name);
             move.Type = actualMoveType;
-            //
             var damage = _damageCalculator.CalculatDamage(CurrentPlayerPokemon.PartyPokemon, CurrentAIPokemon.PartyPokemon, move);
 
-
-            string aiFirstType = CurrentAIPokemon.PartyPokemon.Types.First();
-            string aiSecondType = CurrentAIPokemon.PartyPokemon.Types.Last();
-
-
-
-
-            var opponentFirstType = CurrentAIPokemon.PartyPokemon.Types.FirstOrDefault();
 
             var opponentSecoundType = CurrentAIPokemon.PartyPokemon.Types.LastOrDefault();
             if (opponentSecoundType == CurrentAIPokemon.PartyPokemon.Types.First())
             {
                 opponentSecoundType = null;
             }
-
-            ///////////////////
-            ///AI del här senare
 
             MoveModel aiMove = new MoveModel();
             if (!CurrentAIPokemon.IsFainted)
@@ -156,7 +144,6 @@ namespace PokemonBattle.Facades
             ////////////
             ///Avgör vem som går först
             ///
-
             var moveOrder =  WhoPeformesActionFirst(move, aiMove);
 
             //Är player först

@@ -28,6 +28,7 @@ namespace PokemonBattle.Facades
         private IMoveService _moveService;
         private IAiTeamService _aiTeamService;
         private readonly ListPokemonDisplayModelFactory _displayModelFactory;
+        private readonly PartyPokemonFactory _partyPokemonFactory;
 
         public UIFacade(
             IPokemonFetchService pokemonFetchService,
@@ -38,9 +39,11 @@ namespace PokemonBattle.Facades
             IJsonStorage jsonStorage,
             IMoveService moveService,
             IAiTeamService aiTeamService,
+            PartyPokemonFactory partyPokemonFactory,
             //IBattleService battleService,
             ListPokemonDisplayModelFactory displayModelFactory)
         {
+            _partyPokemonFactory = partyPokemonFactory;
             _aiTeamService = aiTeamService;
             //_battleService = battleService;
             _moveService = moveService;
@@ -181,7 +184,7 @@ namespace PokemonBattle.Facades
             Console.WriteLine(newMember.Nickname);
             newMember = await _fetchService.GetPokemonSingularAsync(newMember.Name);
             Console.WriteLine(newMember.Nickname);
-            var partyPokemon = PartyPokemonFactory.Create(newMember);
+            var partyPokemon = _partyPokemonFactory.Create(newMember);
 
             var displayPokemon = await _displayModelFactory.CreateFrontFacingSprite(partyPokemon);
             Console.WriteLine(displayPokemon.Nickname);
@@ -196,7 +199,7 @@ namespace PokemonBattle.Facades
                 return null;
             }
              newMember = await _fetchService.GetPokemonSingularAsync(newMember.Name);
-            var partyPokemon = PartyPokemonFactory.Create(newMember);
+            var partyPokemon = _partyPokemonFactory.Create(newMember);
             Console.WriteLine(newMember.Nickname);
             await _teamPokemonService.AddToTeam(partyPokemon);
             return partyPokemon;

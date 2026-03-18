@@ -6,29 +6,34 @@ using System.Threading.Tasks;
 using Domain.Factories;
 using Domain.Models.Game;
 using Domain.Models.RequestModels;
+using Pokemon.AppServices.Interfaces;
 using Pokemon.AppServices.Mappers;
 using Pokemon.Shared.Extensions;
 
 namespace Pokemon.AppServices.Factories;
 
-public static class PartyPokemonFactory
+public class PartyPokemonFactory
 {
-    public static PartyPokemonModel Create(RequestPokeonModel request)
+    private IGeneralMapper _generalMapper;
+    private IStatMapper _statMapper;
+    private ITypeMapper _typeMapper;
+    public PartyPokemonFactory(IGeneralMapper generalMapper, ITypeMapper typeMapper, IStatMapper statMapper)
     {
-        Console.WriteLine(request);
-        var partyPoke = GeneralMapper.MapBasic(request);
-        Console.WriteLine(partyPoke.Nickname);
-        Console.WriteLine(request);
+        _typeMapper = typeMapper;
+        _generalMapper = generalMapper;
+        _statMapper = statMapper;
+    }
+    public PartyPokemonModel Create(RequestPokeonModel request)
+    {
+        var partyPoke = _generalMapper.MapBasic(request);
         //Map stats
-        partyPoke.Stats=StatMapper.MapStats(request);
+        partyPoke.Stats= _statMapper.MapStats(request);
 
+        //Calc for assigning effective stats from base stats
         var calc = StatCalculatorFactory.GetCalculator();
         partyPoke.Stats = calc.CalculateEffectiveStats(partyPoke.Stats);
-        Console.WriteLine(partyPoke.Stats.BaseSpecialDefense);
-        Console.WriteLine(partyPoke.Stats.SpecialDefense);
         //Map type
-        partyPoke.Types = TypeMapper.MapTypes(request);
-
+        partyPoke.Types = _typeMapper.MapTypes(request);
 
         return partyPoke;
        
