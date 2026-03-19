@@ -15,7 +15,27 @@ namespace Domain.Models.RequestModels
 
         [JsonPropertyName("type")]
         public RequestTypeModel Types { get; set; }
+
+      
     }
+    public class OldTypes
+    {
+        [JsonPropertyName("generation")]
+        public GenerationInfo? GenInfo;
+        public string? Generation {  get; set; }
+
+        [JsonPropertyName("types")]
+        public TypeRequest[]? OldTypesInfo { get; set; }
+        
+    }
+    public class GenerationInfo
+    {
+        [JsonPropertyName("name")]
+        public string? Gen { get; set; }
+
+    }
+
+
     public class TypeData
     {
         [JsonPropertyName("name")]
@@ -56,11 +76,20 @@ namespace Domain.Models.RequestModels
         [JsonPropertyName("damage_relations")]
         public DamageRelations DamageRelations { get; set; }
 
+        [JsonPropertyName("move_damage_class")]
+        public DamageClass DamageTypeClass { get; set; }
+
         [JsonPropertyName("sprites")]
         public TypeSpriteCollection Sprites { get; set; }
 
         //Stark emot => Gräs mot vatten
         
+    }
+    public class DamageClass
+    {
+        [JsonPropertyName("name")]
+        public string DamageType { get; set; }
+
     }
     public class TypeSpriteCollection
     {

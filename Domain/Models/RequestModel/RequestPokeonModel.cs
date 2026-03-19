@@ -33,6 +33,9 @@ namespace Domain.Models.RequestModels
         [JsonPropertyName("types")]
         public TypeRequest[] Types { get; set; }
 
+        [JsonPropertyName("past_types")]
+        public OldTypes[]? OldTypes { get; set; }
+
         [JsonPropertyName("learned_moves")]
         public RequestMoveModel[] LearnedMoves { get; set; } = Array.Empty<RequestMoveModel>();
 
@@ -78,10 +81,6 @@ namespace Domain.Models.RequestModels
             Speed = await speedTask;
         }
        
-        RequestSpriteModel GetSprite()
-        {
-            return null;
-        }
         async Task<int?> SetHealthBaseStat()
         {
             return Stats[0].BaseStat;
@@ -120,71 +119,14 @@ namespace Domain.Models.RequestModels
             public string? Url { get; set; }
         }
        
-        public class AbilityDetails()
-        {
-
-        }
-        public class MoveDetails()
-        {
-
-        }
-        public class TypeDetails()
-        {
-
-        }
+      
         public class StatDetails()
         {
 
         }
        
-        public class PokemonAbility
-        {
-            [JsonPropertyName("ability")]
-            public APIResourceConnection<AbilityDetails> Ability { get; set; }
 
-            [JsonPropertyName("is_hidden")]
-            public bool IsHidden { get; set; }
-
-            [JsonPropertyName("slot")]
-            public int Slot { get; set; }
-        }
-
-        public class Ability2
-        {
-            [JsonPropertyName("name")]
-            public string Name { get; set; }
-
-            [JsonPropertyName("url")]
-            public string Url { get; set; }
-        }
-
-
-        public class Item
-        {
-            [JsonPropertyName("name")]
-            public string Name { get; set; }
-
-            [JsonPropertyName("url")]
-            public string Url { get; set; }
-        }
-
-        public class PokemonMove
-        {
-            [JsonPropertyName("move")]
-            public APIResourceConnection<MoveDetails> Move { get; set; }
-
-            public MoveDetails? MoveDetails { get; set; }
-
-        }
-       
-        public class Move2
-        {
-            [JsonPropertyName("name")]
-            public string Name { get; set; }
-
-            [JsonPropertyName("url")]
-            public string Url { get; set; }
-        }
+   
         public class PokemonStat
         {
             [JsonPropertyName("base_stat")]
@@ -197,14 +139,7 @@ namespace Domain.Models.RequestModels
             public APIResourceConnection<StatDetails> Stat { get; set; }
         }
 
-        public class PokemonType
-        {
-            [JsonPropertyName("slot")]
-            public int Slot { get; set; }
-
-            [JsonPropertyName("type")]
-            public APIResourceConnection<TypeDetails> Type { get; set; }
-        }
+       
 
 
     }

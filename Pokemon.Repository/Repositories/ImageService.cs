@@ -237,7 +237,7 @@ namespace PokemonBattle.Services
 
         }
 
-        public async Task<string> GetPokemonSpriteAsyncPNG(string name, string version = "front_default")
+        public async Task<string> GetPokemonSpriteAsyncPNG(string name, string version)
         {
             if (string.IsNullOrEmpty(name))
             {
@@ -276,7 +276,7 @@ namespace PokemonBattle.Services
             }
 
         }
-        public async Task<string> GetPokemonBackSpriteAsyncPNG(string name, string version = "back_default")
+        public async Task<string> GetPokemonBackSpriteAsyncPNG(string name, string version)
         {
             if (string.IsNullOrEmpty(name))
             {

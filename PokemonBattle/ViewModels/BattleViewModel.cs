@@ -118,16 +118,18 @@ namespace PokemonBattle.ViewModels
                 }
             }
         }
+        //Hämta relevant bild, shiny eller inte
         private async Task GetOpponentPokemonImage(BattlePokemonModel pokemon)
         {
             if (pokemon != null)
             {
-                string version = pokemon.IsShiny ? "front_default" : "front_shiny";
+                string version = pokemon.IsShiny ? "front_shiny" : "front_default";
                 OpponentPokemon = await _battleFacade.LoadPokemonFrontSpritePathAsync(pokemon.PartyPokemon.Name, version);
 
             }
         }
 
+        //Shiny eller inte
         private async Task GetPokemonImage(BattlePokemonModel pokemon)
         {
             string version = pokemon.IsShiny ? "front_default" : "front_shiny";
@@ -142,6 +144,8 @@ namespace PokemonBattle.ViewModels
         public ICommand ForfeitCommand { get; }
 
         public bool IsSwitching { get; set; }
+
+        public bool CanInput { get; set; } = false;
 
         private string _statusMessage;
         public string StatusMessage
@@ -214,6 +218,7 @@ namespace PokemonBattle.ViewModels
 
         private async Task StartMatch()
         {
+            CanInput = true;
             var turnResult = await _battleFacade.StartMatch();
 
            
@@ -230,6 +235,10 @@ namespace PokemonBattle.ViewModels
                 return;
             }
             if (IsSwitching)
+            {
+                return;
+            }
+            if (!CanInput)
             {
                 return;
             }
@@ -290,12 +299,14 @@ namespace PokemonBattle.ViewModels
         {
             //Gå igenom listan av saker som hänt i striden
             //2 sek delay så hinner man läsa
+            CanInput = false;
             foreach (var message in battleActionMessages)
             {
                 StatusMessage = message;
                 await Task.Delay(2000); 
             }
             StatusMessage = "";
+            CanInput = true;
         }
 
         public async Task RebuildTeamDisplay()

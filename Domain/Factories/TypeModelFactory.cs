@@ -17,6 +17,8 @@ namespace Pokemon.Infrastructure.Factories
             //skapa objekt
             TypeModel model = new TypeModel();
 
+            Console.WriteLine(apiType);
+
             //mappa ut allt
             model = TypeMapper.MapType(apiType);
 

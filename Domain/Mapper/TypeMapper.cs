@@ -28,17 +28,25 @@ namespace Pokemon.Infrastructure.Mappers
 
             MapSource(model.TypesResisting, request.DamageRelations?.TypesResisting);
 
+            if (request.DamageTypeClass.DamageType == "special")
+            {
+                model.IsSpecialDamage = true;
+            }
+            else
+            {
+                model.IsSpecialDamage = false;
+            }
 
             return model;
         }
         //Lista till X från Y, exakt samma för varje del av typemodel och request
         public static void MapSource(List<string> toThis, TypeData[] fromThis)
         {
-            if(fromThis == null)
+            if (fromThis == null)
             {
                 return;
             }
-            toThis.AddRange(fromThis.Select(x=>x.TypeName));
+            toThis.AddRange(fromThis.Select(x => x.TypeName));
         }
     }
 }

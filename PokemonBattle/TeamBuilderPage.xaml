@@ -40,8 +40,16 @@
         <BoxView Grid.Column="4" Grid.RowSpan="5" WidthRequest="1" BackgroundColor="Blue"/>
         <!-- Extra right line -->
         <BoxView Grid.Column="4" Grid.RowSpan="5" WidthRequest="1" BackgroundColor="Blue" HorizontalOptions="End"/>
-       
-      
+
+        <Label
+            Grid.Column="2"
+            Grid.Row="0"
+            TextColor="Red"
+            FontSize="28"
+            
+            Text="{Binding ErrorName}"
+            />
+
         <Label
             Text="Current Team"
             Grid.Column="3"

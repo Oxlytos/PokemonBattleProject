@@ -15,6 +15,9 @@ namespace Domain.Calculator
         {
             _typeDataService = typeDataService;
         }
+        //Räkna skada spelare kommer göra
+        //AI loopar över hela dena metod för att hitta bästa attacken
+        //Har AI:et 4 attacker, kör den fyra gånger, använd bästa attacken
         public (int damage, double multiplier) CalculatDamage(PartyPokemonModel attacker, PartyPokemonModel defender, MoveModel move)
         {
 
@@ -26,11 +29,24 @@ namespace Domain.Calculator
                 secoundDefenderType = null;
             }
 
-            Console.WriteLine(move.Type.Name);
             double damageMultiploer = _typeDataService.GetTypeAttackMultiplier(move.Type.Name, firstDefenderType, secoundDefenderType);
 
-            int attackStat = attacker.Stats.Attack;
-            int defenseStat = defender.Stats.Defense;
+
+            //Eld attack använder special attack
+            //Fighting fysisk
+            //Så var det från gen 1-3
+            int attackStat;
+            int defenseStat;
+            if (move.Type.IsSpecialDamage)
+            {
+                attackStat = attacker.Stats.SpecialAttack;
+                defenseStat = defender.Stats.SpecialDefense;
+            }
+            else
+            {
+                attackStat = attacker.Stats.Attack;
+                defenseStat = defender.Stats.Defense;
+            }
 
             //Buff moves har ingen power, ge den 0
             float movePower = move.Power ?? 0;
@@ -45,6 +61,7 @@ namespace Domain.Calculator
                 baseDamage *= 1.5;
             }
 
+            //Vi använder främst damagemultiploer för att printa "It's super effective!"
             return(((int)(baseDamage)), (double)(damageMultiploer));
 
         }

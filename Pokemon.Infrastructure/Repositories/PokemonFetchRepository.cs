@@ -32,6 +32,11 @@ namespace Pokemon.Infrastructure.Repositories
         public async Task<RequestPokeonModel> DeserializePokemonModel(string jsonResponse)
         {
             var normalPokemon = JsonSerializer.Deserialize<RequestPokeonModel>(jsonResponse);
+
+            if(normalPokemon.Types.Any(e=>e.Types.Name == "fairy"))
+            {
+                normalPokemon = await FairyProcuationHandler(normalPokemon);
+            }
             normalPokemon.Name = char.ToUpper(normalPokemon.Name[0]) + normalPokemon.Name.Substring(1);
             var sprites = JsonSerializer.Deserialize<SpriteCollection>(jsonResponse);
             normalPokemon.Sprites = sprites;
@@ -42,6 +47,18 @@ namespace Pokemon.Infrastructure.Repositories
             //Gör till den fånigt långa och komplicerade spritecollectionen
             return normalPokemon;
 
+        }
+        public async Task<RequestPokeonModel> FairyProcuationHandler(RequestPokeonModel normalPokemon)
+        {
+            List<TypeRequest> oldTypes = new List<TypeRequest>();
+            foreach(var oldType in normalPokemon.OldTypes)
+            {
+                var oldies = oldType.OldTypesInfo.ToList();
+                oldTypes.AddRange(oldies);
+            }
+
+            normalPokemon.Types = oldTypes.ToArray();
+            return normalPokemon;
         }
 
         public async Task<RequestMoveModel> DeserializeMoveModel(string jsonResponse)
@@ -61,8 +78,16 @@ namespace Pokemon.Infrastructure.Repositories
         public async Task<RequestTypeModel> DeserializeTypeModel(string jsonResponse)
         {
             var typeJson = JsonSerializer.Deserialize<RequestTypeModel>(jsonResponse);
-            await _typeDataLoader.AddTypeModel(typeJson);
-            return typeJson;
+            if (typeJson.Name == "fairy")
+            {
+                return null;
+            }
+            else
+            {
+                await _typeDataLoader.AddTypeModel(typeJson);
+                return typeJson;
+            }
+        
         }
 
         public async Task<RequestMoveModel> GetMoveModelAsync(string name)
@@ -90,11 +115,7 @@ namespace Pokemon.Infrastructure.Repositories
 
                     var moveInfo = JsonSerializer.Deserialize<Move>(content);
                     var moveType = JsonSerializer.Deserialize<MoveType>(content);
-                    Console.WriteLine(moveInfo.Name);
                     move.Move = moveInfo;
-                    Console.WriteLine(move.Move.Name);
-
-                    Console.WriteLine(move);
                     await _jsonStorage.SaveMoveData(name, content);
                     return move;
                 }
@@ -187,6 +208,10 @@ namespace Pokemon.Infrastructure.Repositories
 
         public async Task<RequestTypeModel> GetTypeModelAsync(string name)
         {
+            if(name == "fairy")
+            {
+                name = "normal";
+            }
             var localFileCheck = Path.Combine(await _jsonStorage.GetTypeFolder(name), name + ".json");
             if (localFileCheck != null && File.Exists(localFileCheck))
             {
@@ -231,6 +256,7 @@ namespace Pokemon.Infrastructure.Repositories
         public async Task<TypeModel> GetTypeModelDeseralized(string jsonContet)
         {
             var type = JsonSerializer.Deserialize<TypeModel>(jsonContet);
+            
             return type;
         }
 

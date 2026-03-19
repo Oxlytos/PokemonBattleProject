@@ -8,6 +8,8 @@ namespace Domain.Models.Game
         //Vet inget om omvärlden
         public string Name { get; set; }
 
+        public bool IsSpecialDamage { get; set; }
+
         [JsonPropertyName("effective_against")]
         public List<string>? Effectivnesses { get; set; } = new List<string>();
 

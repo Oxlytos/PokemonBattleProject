@@ -33,8 +33,9 @@ namespace PokemonBattle.ListModel
 
         public string? TypeName { get; set; }
         public string? TypeIconPath { get; set; }
+        public string? DamageClass { get; set; }
 
-        public string? DisplayInfo => $"{Name} | {TypeName} | {Power} | {Accuracy} | {PP} ";
+        public string? DisplayInfo => $"{Name} | {TypeName} | {Power} | {Accuracy} | {DamageClass} ";
 
         private ImageSource _typeIconSource;
         public ImageSource TypeIconSource
@@ -65,6 +66,10 @@ namespace PokemonBattle.ListModel
             Power = move.Power;
             Accuracy = move.Accuracy;
             PP = move.Pp ?? 0;
+            if (move.Type != null)
+            {
+                DamageClass = move.Type.IsSpecialDamage ? "Special" : "Physical";
+            }
 
         }
     }

@@ -34,6 +34,20 @@ namespace PokemonBattle.ViewModels
 
             }
         }
+        private string _errorName;
+
+        public string ErrorName
+        {
+            get { return _errorName; }
+            set
+            {
+                if (_errorName != value)
+                {
+                    _errorName = value;
+                    OnPropertyChanged(nameof(ErrorName));
+                }
+            }
+        }
         public ICommand GetPokemonCommand { get; }
         public ICommand AddToTeamCommand { get; }
         public ICommand RemoveFromTeamCommand { get; }
@@ -185,6 +199,9 @@ namespace PokemonBattle.ViewModels
                 var partyMember = await _uiFacade.GetPartyPokemon(listmodel, DisplayTeamPokemon);
                 if (partyMember == null)
                 {
+                    ErrorName = "Something went wrong with retrieving party member...";
+                    await Task.Delay(2000);
+                    ErrorName = "";
                     return;
                 }
 
@@ -200,6 +217,9 @@ namespace PokemonBattle.ViewModels
         {
             if (!await _uiFacade.CanUserGoToBattlePage())
             {
+                ErrorName = "Can't enter battle, either a pokemon has no moves, or there's no AI teams";
+                await Task.Delay(5000);
+                ErrorName = "";
                 return ;
             }
             var battleView = App.Current.Handler.MauiContext.Services.GetService<BattleViewModel>();
