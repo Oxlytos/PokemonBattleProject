@@ -15,7 +15,7 @@ namespace Domain.Models.Game
         public string? Nickname { get; set; }
 
         [JsonPropertyName("moves")]
-        public List<MoveModel> Moves { get; set; } = new List<MoveModel>();
+        public List<string> Moves { get; set; } = new List<string>();
 
         [JsonPropertyName("types")]
         public List<string> Types { get; set; }
@@ -26,8 +26,8 @@ namespace Domain.Models.Game
         [JsonPropertyName("level")]
         public int Level { get; set; } = 50;
 
-
-        
+        [JsonPropertyName("shiny")]
+        public bool IsShiny { get; set; } = false;
 
 
     }

@@ -13,6 +13,7 @@ namespace Pokemon.Infrastructure.Models
     {
         public PartyPokemonModel PartyPokemon { get; }
 
+        public bool IsShiny => PartyPokemon.IsShiny;
 
         private int _currentHealth;
 
@@ -32,7 +33,7 @@ namespace Pokemon.Infrastructure.Models
 
         public bool IsFainted => CurrentHealth <= 0;
 
-        public IReadOnlyList<MoveModel> Moves => PartyPokemon.Moves;
+        public List<MoveModel> Moves { get; set; }
 
         public string NicknameOrName => PartyPokemon.Nickname ?? PartyPokemon.Name;
 

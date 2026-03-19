@@ -12,14 +12,10 @@ namespace Pokemon.Infrastructure.Factories
 {
     public class MoveModelFactory
     {
-        private readonly ITypeService _typeService;
-        private readonly IMoveService _moveService;
         private readonly IFetchRepository _pokeFetchRepository;
-        public MoveModelFactory(IFetchRepository pokeFetchRepository, IMoveService moveService, ITypeService typeService)
+        public MoveModelFactory(IFetchRepository pokeFetchRepository)
         {
             _pokeFetchRepository = pokeFetchRepository;
-            _moveService = moveService;
-            _typeService = typeService;
         }
         public async Task<MoveModel> Create(RequestMoveModel reqMove)
         {

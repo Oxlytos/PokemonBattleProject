@@ -21,8 +21,13 @@ namespace Pokemon.AppServices.Factories
         public async Task<ListPokemonDisplayModel> CreateFrontFacingSprite(PartyPokemonModel model)
         {
             var listPoke = new ListPokemonDisplayModel(model);
+            string shinyStatus = "front_default";
             listPoke.Types = model.Types.ToArray();
-            listPoke.SpritePath = await _imageService.GetPokemonSpriteAsyncPNG(listPoke.Name);
+            if (model.IsShiny)
+            {
+                shinyStatus = "front_shiny";
+            }
+            listPoke.SpritePath = await _imageService.GetPokemonSpriteAsyncPNG(listPoke.Name, shinyStatus);
             listPoke.SpriteTypePaths = await _imageService.GetTypeSprite(listPoke.Types);
             return listPoke;
 
@@ -31,7 +36,12 @@ namespace Pokemon.AppServices.Factories
         {
             var listPoke = new ListPokemonDisplayModel(model);
             listPoke.Types = model.Types.ToArray();
-            listPoke.SpritePath = await _imageService.GetPokemonBackSpriteAsyncPNG(listPoke.Name);
+            string shinyStatus = "back_default";
+            if (model.IsShiny)
+            {
+                shinyStatus = "back_shiny";
+            }
+            listPoke.SpritePath = await _imageService.GetPokemonBackSpriteAsyncPNG(listPoke.Name, shinyStatus);
             listPoke.SpriteTypePaths = await _imageService.GetTypeSprite(listPoke.Types);
             return listPoke;
         }

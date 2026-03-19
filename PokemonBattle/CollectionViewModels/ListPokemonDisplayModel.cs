@@ -22,6 +22,8 @@ namespace PokemonBattle.ListModel
         //Orginella pokemonen
         public PartyPokemonModel PartyPoke { get; set; }
 
+        public bool IsShiny => PartyPoke.IsShiny;
+
         private string[] _types;
         public string[] Types
         {

@@ -22,13 +22,13 @@ namespace PokemonBattle.Facades
 {
     public class BattleFacade
     {
-        private TypeModelFactory _typeModelFactory;
         private BattlePokemonFactory _battlePokemonFactory;
         private ListMoveModelFactory _moveModelFactory;
         private TypeDataService _typeDataService;
         private IFetchService _pokemonFetchRepository;
         private ITeamPokemonService _teamPokemonService;
         private IImageService _imageService;
+        private IMoveService _moveService;
         private DamageCalculator _damageCalculator;
         private IAIService _aIService;
         private IAiTeamService _aiTeamService;
@@ -56,14 +56,15 @@ namespace PokemonBattle.Facades
             IAIService aIService,
             IAiTeamService aiTeamService,
             IImageService imageService,
+            IMoveService moveService,
             BattlePokemonFactory battlePokemonFactory,
             TypeModelFactory typeModelFactory,
             ListMoveModelFactory listMoveModelFactory
             
             )
         {
+            _moveService = moveService;
             _moveModelFactory = listMoveModelFactory;
-            _typeModelFactory = typeModelFactory;
             _battlePokemonFactory = battlePokemonFactory;
             _battleService = battleService;
             _imageService = imageService;
@@ -78,8 +79,10 @@ namespace PokemonBattle.Facades
         {
             TurnResult result = new TurnResult();
             var playerTeam =  _teamPokemonService.TeamPokemon.ToList();
-            PlayerTeam = _battlePokemonFactory.CreateBattleTeam(playerTeam);
+            PlayerTeam = await _battlePokemonFactory.CreateBattleTeam(playerTeam);
             CurrentPlayerPokemon = PlayerTeam.First();
+
+            await GetCurrentPlayerMoves();
             var pokemon = await _teamPokemonService.GetFirstPartyPokemon();
             //AI får sin egna senare
             var aiTeam = await _aiTeamService.GetTeams();
@@ -89,9 +92,10 @@ namespace PokemonBattle.Facades
             }
 
             var thisTeam = aiTeam.FirstOrDefault();
-            AiTeam = _battlePokemonFactory.CreateBattleTeam(thisTeam.AiPokemon);
+            AiTeam = await _battlePokemonFactory.CreateBattleTeam(thisTeam.AiPokemon);
+
             CurrentAIPokemon = AiTeam.First();
-            Console.WriteLine(CurrentAIPokemon);
+            await GetCurrentAiMoves();
 
             result.PlayerCurrentPokemon = CurrentPlayerPokemon;
             result.AiCurrentPokemon= CurrentAIPokemon;
@@ -101,6 +105,9 @@ namespace PokemonBattle.Facades
 
             return result;
         }
+
+       
+
         public async Task<BattlePokemonModel> ChangeCurrentPokemon(int playerPokemon)
         {
             if(playerPokemon < 0 || playerPokemon >= PlayerTeam.Count)
@@ -115,7 +122,8 @@ namespace PokemonBattle.Facades
         }
         public async Task<TurnResult> NewTurn(string? playerMove)
         {
-            Console.WriteLine(playerMove);
+            await GetCurrentPlayerMoves();
+            await GetCurrentAiMoves();
             TurnResult turnResult = new TurnResult();
             if (string.IsNullOrEmpty(playerMove))
             {
@@ -329,21 +337,29 @@ namespace PokemonBattle.Facades
 
         }
 
-        public async Task<ImageSource> LoadPokemonFrontSpritePathAsync(string name)
+        public async Task<ImageSource> LoadPokemonFrontSpritePathAsync(string name, string version)
         {
-            return await _imageService.GetPokemonSpriteAsyncPNG(name);
+            return await _imageService.GetPokemonSpriteAsyncPNG(name, version);
         }
 
-        internal async Task<ImageSource> LoadPokemonBackSpritePathAsync(string name)
+        internal async Task<ImageSource> LoadPokemonBackSpritePathAsync(string name, string version)
         {
-            return await _imageService.GetPokemonBackSpriteAsyncPNG(name);
+            return await _imageService.GetPokemonBackSpriteAsyncPNG(name, version);
         }
 
         public async Task<ObservableCollection<ListMoveDisplayModel>> GetCurrentPlayerMoves()
         {
-            var moves = CurrentPlayerPokemon.Moves.ToList();
-            return await _moveModelFactory.CreateList(moves);
+            var baseMoves = CurrentPlayerPokemon.PartyPokemon.Moves.ToList();
+
+            CurrentPlayerPokemon.Moves = await _moveService.GetMoveModels(baseMoves);
+
+            return await _moveModelFactory.CreateList(CurrentPlayerPokemon.Moves);
         }
-       
+        private async Task GetCurrentAiMoves()
+        {
+            var baseMoves = CurrentAIPokemon.PartyPokemon.Moves.ToList();
+            CurrentAIPokemon.Moves = await _moveService.GetMoveModels(baseMoves);
+        }
+
     }
 }

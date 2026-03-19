@@ -46,20 +46,20 @@ namespace PokemonBattle.Facades
         {
             Console.WriteLine("Removing move");
 
-            var thisMove = actualPokemon.Moves.FirstOrDefault(x => x.Name.ToLower() == move.Name.ToLower());
+            var thisMove = actualPokemon.Moves.FirstOrDefault(x => x.ToLower() == move.Name.ToLower());
             actualPokemon.Moves.Remove(thisMove);
 
-            var thisMoveModel = actualPokemon.Moves.FirstOrDefault(x => x.Name.ToLower() == move.Name.ToLower());
+            var thisMoveModel = actualPokemon.Moves.FirstOrDefault(x => x.ToLower() == move.Name.ToLower());
             actualPokemon.Moves.Remove(thisMoveModel);
             _teamPokemonService.UpdateTeamMember(actualPokemon);
             return actualPokemon;
         }
 
-        public async Task<ObservableCollection<ListMoveDisplayModel>>? UpdateCurrentMovesDisplay(List<MoveModel> moves)
+        public async Task<ObservableCollection<ListMoveDisplayModel>>? UpdateCurrentMovesDisplay(List<string> moves)
         {
-            ObservableCollection<ListMoveDisplayModel> listMoves = new ObservableCollection<ListMoveDisplayModel>();
+            var theseMoveModels = await _moveService.GetMoveModels(moves);
 
-            return await _listMoveModelFactory.CreateList(moves);
+            return await _listMoveModelFactory.CreateList(theseMoveModels);
             
         }
         public async Task<ListMoveDisplayModel?> AddMoveAsync(RequestMoveModel currentMove, PartyPokemonModel pokemon)
@@ -72,7 +72,7 @@ namespace PokemonBattle.Facades
                 return null;
             }
             //inte samma move 4 gånger
-            if (pokemon.Moves.Any(e => e.Name.ToLower() == currentMove.Move.Name.ToLower()))
+            if (pokemon.Moves.Any(e => e.ToLower() == currentMove.Move.Name.ToLower()))
             {
                 return null;
             }
@@ -115,9 +115,9 @@ namespace PokemonBattle.Facades
             return returnMovset;
         }
 
-        public Task<string> GetPokemonSpriteAsyncPNG(string name)
+        public Task<string> GetPokemonSpriteAsyncPNG(string name, string version)
         {
-            return _imageService.GetPokemonSpriteAsyncPNG(name);
+            return _imageService.GetPokemonSpriteAsyncPNG(name, version);
         }
     }
 }

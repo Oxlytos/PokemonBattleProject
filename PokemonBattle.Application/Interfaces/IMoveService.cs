@@ -10,10 +10,10 @@ namespace Pokemon.Infrastructure.Interfaces
 {
     public interface IMoveService
     {
-
-        Task<List<MoveModel>> AddMove(PartyPokemonModel pokemon, MoveModel newMove);
-        Task<List<MoveModel>> RemoveMove(PartyPokemonModel pokemon, MoveModel move);
+        Task<List<string>> AddMove(PartyPokemonModel pokemon, MoveModel newMove);
+        Task<List<string>> RemoveMove(PartyPokemonModel pokemon, MoveModel move);
         Task<bool> CanWeAddAMove(PartyPokemonModel partyPokemonModel);
+        Task<List<MoveModel>> GetMoveModels(List<string> moves);
     }
 
 }

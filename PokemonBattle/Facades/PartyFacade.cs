@@ -162,14 +162,18 @@ namespace PokemonBattle.Facades
             //LITEN paus för at ladda ner
             await Task.Delay(50);
 
-            string path = await _imageService.GetPokemonSpriteAsyncPNG(name);
+            string version = "front_default";
+
+            string path = await _imageService.GetPokemonSpriteAsyncPNG(name, version);
 
             return path;
         }
         public async Task<string?> LoadPokemonBackSpritePathAsync(string name)
         {
             //vägen dit (om den finns)
-            var path = await _imageService.GetPokemonBackSpriteAsyncPNG(name);
+            string version = "back_default";
+
+            var path = await _imageService.GetPokemonBackSpriteAsyncPNG(name, version);
 
             //finns inte
             if (!_imageService.AreAllSpritesStored(name))
@@ -230,7 +234,7 @@ namespace PokemonBattle.Facades
                 return null;    
             }
             //inte samma move 4 gånger
-            if (pokemon.Moves.Any(e=>e.Name.ToLower()==currentMove.Move.Name.ToLower()))
+            if (pokemon.Moves.Any(e=>e.ToLower()==currentMove.Move.Name.ToLower()))
             {
                 return null;
             }

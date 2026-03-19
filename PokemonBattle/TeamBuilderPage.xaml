@@ -181,6 +181,14 @@
                             Command="{Binding Source={x:Reference TeamCollectionView}, Path=BindingContext.RemoveFromTeamCommand}"
                             CommandParameter="{Binding .}"
                             />
+                        <Button
+                        Text="☆"
+                        TextColor="Black"
+                        WidthRequest="150"
+                        BackgroundColor="Orange"
+                        Command="{Binding Source={x:Reference TeamCollectionView}, Path=BindingContext.ShinyCommand}"
+                        CommandParameter="{Binding .}"
+                        />  
                     </VerticalStackLayout>
                 </DataTemplate>
             </CollectionView.ItemTemplate>

@@ -122,14 +122,17 @@ namespace PokemonBattle.ViewModels
         {
             if (pokemon != null)
             {
-                OpponentPokemon = await _battleFacade.LoadPokemonFrontSpritePathAsync(pokemon.PartyPokemon.Name);
+                string version = pokemon.IsShiny ? "front_default" : "front_shiny";
+                OpponentPokemon = await _battleFacade.LoadPokemonFrontSpritePathAsync(pokemon.PartyPokemon.Name, version);
 
             }
         }
 
         private async Task GetPokemonImage(BattlePokemonModel pokemon)
         {
-            PlayerPokemonImage = await _battleFacade.LoadPokemonBackSpritePathAsync(pokemon.PartyPokemon.Name);
+            string version = pokemon.IsShiny ? "front_default" : "front_shiny";
+
+            PlayerPokemonImage = await _battleFacade.LoadPokemonBackSpritePathAsync(pokemon.PartyPokemon.Name, version);
         }
 
         public ICommand ClickMoveCommand { get; }
@@ -301,7 +304,7 @@ namespace PokemonBattle.ViewModels
             DisplayPlayerParty.Clear();
             //CurrentPlayerPokemonMoves = await _battleFacade.GetCurrentPlayerMoves();
             CurrentPlayerPokemonMoves = await _battleFacade.GetCurrentPlayerMoves();
-
+            Console.WriteLine(CurrentPlayerPokemonMoves);
             var pokemon = _battleFacade.PlayerTeam.ToList();
             foreach (var pokemin in pokemon)
             {

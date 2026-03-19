@@ -48,6 +48,8 @@ namespace PokemonBattle.ViewModels
         public ICommand UpdateSelectedImageCommand { get; }
         public ICommand SaveTeamForAiCommand { get; }
 
+        public ICommand ShinyCommand { get; }
+
         private ImageSource _pokemonImage;
         public ImageSource PokemonImage
         {
@@ -118,7 +120,23 @@ namespace PokemonBattle.ViewModels
             GetMovesCommand = new Command(async () => await GetPokemonRequestModelMoves());
             GoToBattlePageCommand = new Command(async () => await GoToBattlePage());
             SaveTeamForAiCommand = new Command(async () => await SaveTeamForAi());
-            UpdateSelectedImageCommand = new Command<string>(async (name) => await UpdateSelectedImage(name)); 
+            UpdateSelectedImageCommand = new Command<string>(async (name) => await UpdateSelectedImage(name));
+            ShinyCommand = new Command<ListPokemonDisplayModel>(async (poke) => await ShinyOrRegular(poke));
+        }
+
+        private async Task ShinyOrRegular(ListPokemonDisplayModel poke)
+        {
+            if(poke == null) return;
+            if (poke.IsShiny)
+            {
+                poke.PartyPoke.IsShiny = false;
+            }
+            else
+            {
+                poke.PartyPoke.IsShiny = true;
+            }
+
+            await RebuildTeamDisplay();
         }
 
         private async Task SaveTeamForAi()

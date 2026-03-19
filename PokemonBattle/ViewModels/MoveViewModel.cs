@@ -173,7 +173,12 @@ namespace PokemonBattle.ViewModels
         {
             if (SelectedPokemonModel != null)
             {
-                var path = _moveFacade.GetPokemonSpriteAsyncPNG(SelectedPokemonModel.Name);
+                string version = "front_default";
+                if (SelectedPokemonModel.IsShiny)
+                {
+                    version = "front_shiny";
+                }
+                var path = _moveFacade.GetPokemonSpriteAsyncPNG(SelectedPokemonModel.Name, version);
             }
         }
 
