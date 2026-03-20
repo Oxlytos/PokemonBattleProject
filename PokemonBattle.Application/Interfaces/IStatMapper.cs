@@ -1,5 +1,5 @@
 ﻿using Domain.Models.Game;
-using Domain.Models.RequestModels;
+using Pokemon.ContractDTOs.RequestModel;
 
 namespace Pokemon.AppServices.Interfaces
 {

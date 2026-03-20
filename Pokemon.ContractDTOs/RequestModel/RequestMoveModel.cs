@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Domain.Models.RequestModels
+namespace Pokemon.ContractDTOs.RequestModel
 {
     public class MoveRequestCollection
     {

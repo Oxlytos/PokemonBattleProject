@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using PokemonBattle.Interfaces;
+using Pokemon.Infrastructure.Interfaces;
 
 namespace PokemonBattle.Services
 {

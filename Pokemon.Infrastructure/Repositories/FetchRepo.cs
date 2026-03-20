@@ -8,25 +8,21 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Domain.Models.Base;
 using Domain.Models.Game;
-using Domain.Models.RequestModels;
+using Pokemon.ContractDTOs.RequestModel;
 using Pokemon.Infrastructure.Interfaces;
-using Pokemon.Repository.Interfaces;
-using Pokemon.Repository.Repositories;
 
 namespace Pokemon.Infrastructure.Repositories
 {
-    public class PokemonFetchRepository : IFetchRepository
+    public class FetchRepo : IFetchRepository
     {
         private readonly HttpClient _client;
         private readonly IJsonStorage _jsonStorage;
-        private readonly ITypeDataLoader _typeDataLoader;
         private string baseUrl = "https://pokeapi.co/api/v2/";
-        public PokemonFetchRepository(HttpClient client, IJsonStorage jsonStorage, ITypeDataLoader typeDataLoader)
+        public FetchRepo(HttpClient client, IJsonStorage jsonStorage)
         {
             _client = client;
             _client.BaseAddress = new Uri(baseUrl);
             _jsonStorage = jsonStorage;
-            _typeDataLoader = typeDataLoader;
         }
 
         public async Task<RequestPokeonModel> DeserializePokemonModel(string jsonResponse)
@@ -68,10 +64,6 @@ namespace Pokemon.Infrastructure.Repositories
             Console.WriteLine(moveInfo);
             move.Move = moveInfo;
 
-            var moveType = JsonSerializer.Deserialize<RequestTypeModel>(jsonResponse);
-            //var typemodel = TypeModelFactory.Create(moveType);
-            //Console.WriteLine(typemodel);
-            //await _typeDataLoader.AddTypeModel(typemodel);
             return move;
         }
 
@@ -84,7 +76,6 @@ namespace Pokemon.Infrastructure.Repositories
             }
             else
             {
-                await _typeDataLoader.AddTypeModel(typeJson);
                 return typeJson;
             }
         
@@ -255,13 +246,17 @@ namespace Pokemon.Infrastructure.Repositories
 
         public async Task<TypeModel> GetTypeModelDeseralized(string jsonContet)
         {
+            Console.WriteLine(jsonContet);
             var type = JsonSerializer.Deserialize<TypeModel>(jsonContet);
-            
+            Console.WriteLine(type);
+
+
             return type;
         }
 
         public async Task<BasePokemon> GetBasePokemonAsync(string name)
         {
+            await Task.Delay(50);
             var localFileCheck = _jsonStorage.GetPokemon(name);
             if (localFileCheck == null && !File.Exists(localFileCheck))
             {
@@ -275,6 +270,7 @@ namespace Pokemon.Infrastructure.Repositories
 
         public async Task<MoveModel> GetSerialisedMoveModelAsync(string name)
         {
+            await Task.Delay(50);
             var localFileCheck = _jsonStorage.GetMove(name);
             if (localFileCheck == null && !File.Exists(localFileCheck))
             {
@@ -288,6 +284,7 @@ namespace Pokemon.Infrastructure.Repositories
 
         public async Task<TypeModel> GetSerialisedTypeModelAsync(string name)
         {
+            await Task.Delay(50);
             var localFileCheck = _jsonStorage.GetTypeM(name);
             if (localFileCheck == null && !File.Exists(localFileCheck))
             {

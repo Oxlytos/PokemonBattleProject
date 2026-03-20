@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PokemonBattle.Interfaces
+namespace Pokemon.Infrastructure.Interfaces
 {
     public interface IMauiStorageDirectoryHelper
     {

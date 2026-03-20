@@ -5,16 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Domain.Models.Game;
-using Domain.Models.RequestModels;
+using Domain.Services;
 using Pokemon.AppServices.Factories;
+using Pokemon.AppServices.Interfaces;
+using Pokemon.AppServices.Interfaces.AI;
+using Pokemon.ContractDTOs.RequestModel;
 using Pokemon.Infrastructure.Interfaces;
-using Pokemon.Infrastructure.Interfaces.AI;
-using Pokemon.Infrastructure.Models;
 using Pokemon.Infrastructure.Services;
-using Pokemon.Repository.Interfaces;
-using Pokemon.Services.Interfaces;
 using PokemonBattle.Factories;
-using PokemonBattle.Interfaces;
 using PokemonBattle.ListModel;
 using PokemonBattle.ViewModels;
 
@@ -28,6 +26,8 @@ namespace PokemonBattle.Facades
         private IJsonStorage _jsonStorage;
         private IMoveService _moveService;
         private IAiTeamService _aiTeamService;
+        private ITypeModelFactory _typeModelFactory;
+        private TypeDataService _typeDataService;
         private readonly ListPokemonDisplayModelFactory _displayModelFactory;
         private readonly PartyPokemonFactory _partyPokemonFactory;
         private readonly ListMoveModelFactory _listMoveModelFactory;
@@ -36,15 +36,18 @@ namespace PokemonBattle.Facades
             IFetchService pokemonFetchService,
             IImageService imageService,
             ITeamPokemonService teamPokemonService,
-            ITypeService typeService,
             IMauiStorageDirectoryHelper mauiStorageDirectoryHelper,
             IJsonStorage jsonStorage,
             IMoveService moveService,
             IAiTeamService aiTeamService,
+            ITypeModelFactory typeModelFactory,
+            TypeDataService typeDataService,
             PartyPokemonFactory partyPokemonFactory,
             ListMoveModelFactory listMoveModelFactory,
             ListPokemonDisplayModelFactory displayModelFactory)
         {
+            _typeDataService = typeDataService;
+            _typeModelFactory = typeModelFactory;
             _listMoveModelFactory = listMoveModelFactory;
             _partyPokemonFactory = partyPokemonFactory;
             _aiTeamService = aiTeamService;
@@ -202,6 +205,14 @@ namespace PokemonBattle.Facades
             }
             Console.WriteLine(newMember.Nickname);
             newMember = await _fetchService.GetPokemonSingularAsync(newMember.Name);
+
+            foreach(var type in newMember.Types)
+            {
+                var requestType = await _fetchService.GetTypeModelAsync(type.Types.Name);
+                var properType = _typeModelFactory.Create(requestType);
+                _typeDataService.AddType(properType);
+            }
+
             Console.WriteLine(newMember.Nickname);
             var partyPokemon = _partyPokemonFactory.Create(newMember);
 
@@ -217,7 +228,7 @@ namespace PokemonBattle.Facades
             {
                 return null;
             }
-             newMember = await _fetchService.GetPokemonSingularAsync(newMember.Name);
+            newMember = await _fetchService.GetPokemonSingularAsync(newMember.Name);
             var partyPokemon = _partyPokemonFactory.Create(newMember);
             Console.WriteLine(newMember.Nickname);
             await _teamPokemonService.AddToTeam(partyPokemon);

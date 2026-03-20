@@ -1,20 +1,15 @@
 ﻿using System.Text.Json;
 using Domain.Models.Base;
 using Domain.Models.Game;
-using Pokemon.Repository.Interfaces;
-using Pokemon.Repository.Services;
-using PokemonBattle.Interfaces;
+using Pokemon.Infrastructure.Interfaces;
 
-namespace Pokemon.Repository.Repositories
-{
-  
+namespace Pokemon.Infrastructure.Services;
 
     public class JsonStorage : IJsonStorage
     {
-        HttpClient _client;
         private readonly string _dataFolderPath;
-        private DirectoryHelperServic _directoryHelperServic;
-        public JsonStorage(DirectoryHelperServic provider)
+        private IMauiStorageDirectoryHelper _directoryHelperServic;
+        public JsonStorage(IMauiStorageDirectoryHelper provider)
         {
             _directoryHelperServic = provider;
             _dataFolderPath = Path.Combine(_directoryHelperServic.GetDirectory(), "JsonData");
@@ -22,7 +17,6 @@ namespace Pokemon.Repository.Repositories
             Directory.CreateDirectory(Path.Combine(_dataFolderPath, "moves"));
             Directory.CreateDirectory(Path.Combine(_dataFolderPath, "types"));
             Directory.CreateDirectory(Path.Combine(_dataFolderPath, "pokemon"));
-            _client = new HttpClient();
         }
         public async Task SaveTeamAsync(List<PartyPokemonModel> team)
         {
@@ -132,4 +126,3 @@ namespace Pokemon.Repository.Repositories
 
        
     }
-}

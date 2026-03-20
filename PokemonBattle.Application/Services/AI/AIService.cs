@@ -5,19 +5,20 @@ using System.Text;
 using System.Threading.Tasks;
 using Domain.Calculator;
 using Domain.Models.Game;
-using Pokemon.Infrastructure.Interfaces.AI;
-using Pokemon.Infrastructure.Models;
-using Pokemon.Services.Interfaces;
+using Pokemon.AppServices.Interfaces;
+using Pokemon.AppServices.Interfaces.AI;
+using Pokemon.AppServices.Models;
+using Pokemon.Infrastructure.Interfaces;
 
-namespace Pokemon.Infrastructure.Services.AI
+namespace Pokemon.AppServices.Services.AI
 {
     public class AIService : IAIService
     {
         private readonly DamageCalculator _damageCalculator;
-        private readonly IFetchService _pokeFetchService;
-        public AIService(DamageCalculator damageCalculator, IFetchService pokemonFetchService)
+        private readonly IMoveService _moveService;
+        public AIService(DamageCalculator damageCalculator, IMoveService moveService)
         {
-            _pokeFetchService = pokemonFetchService;
+            _moveService = moveService;
             _damageCalculator = damageCalculator;
         }
         //här får AI välja move
@@ -29,12 +30,18 @@ namespace Pokemon.Infrastructure.Services.AI
             //Så fiende golem borde föredra att använda rock throw mot en Charizard (x4 multiplier) över double edge typ
             MoveModel bestMove = null;
             int bestPossibleDamage = 0;
-            foreach (var move in aiPokemon.Moves)
+            List<string> moves = aiPokemon.Moves.Select(x => x.Name).ToList();
+
+            Console.WriteLine(moves);
+            List<MoveModel> movesWithData = new List<MoveModel>();
+            Console.WriteLine(movesWithData);
+            movesWithData = await _moveService.GetMoveModels(moves);
+
+            Console.WriteLine(movesWithData);
+            foreach (var move in movesWithData)
             {
-                var moveData = await _pokeFetchService.GetMoveModelAsync(move.Name);
-                Console.WriteLine(moveData);
-                move.Type.Name = moveData.MoveTypeInfo.Name;
                 //gör kalk, hitta det som ger högst int
+                Console.WriteLine(move);
                 var damage = _damageCalculator.CalculatDamage(aiPokemon.PartyPokemon, player.PartyPokemon, move);
                 if(damage.damage > bestPossibleDamage)
                 {

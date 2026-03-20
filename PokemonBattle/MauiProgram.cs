@@ -1,14 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
 using Pokemon.Infrastructure.Interfaces;
 using Pokemon.Infrastructure.Repositories;
-using Pokemon.Services.Interfaces;
-using Pokemon.Services.Services;
 using PokemonBattle.Interfaces;
 using PokemonBattle.ViewModels;
 using Pokemon.Infrastructure.Services;
 using PokemonBattle.Services;
-using Pokemon.Repository.Repositories;
-using Pokemon.Repository.Interfaces;
 using Pokemon.AppServices.Factories;
 using PokemonBattle.Facades;
 using Domain.Interface;
@@ -16,12 +12,12 @@ using Domain.Calculator;
 using Domain.Services;
 using System.Threading.Tasks;
 using Pokemon.Infrastructure.Factories;
-using Pokemon.Infrastructure.Interfaces.AI;
-using Pokemon.Infrastructure.Services.AI;
 using Pokemon.AppServices.Interfaces;
 using Pokemon.AppServices.Mappers;
 using PokemonBattle.Factories;
-using Pokemon.Repository.Services;
+using Pokemon.AppServices.Interfaces.AI;
+using Pokemon.AppServices.Services.AI;
+using Pokemon.AppServices.Services;
 
 namespace PokemonBattle
 {
@@ -74,7 +70,7 @@ namespace PokemonBattle
              */
             //Väldigt viktiga JSON service & storage först så det inte skapar problem senare
             builder.Services.AddSingleton<IJsonStorage, JsonStorage>();
-            builder.Services.AddSingleton<ITypeDataLoader, TypeDataLoader>();
+            builder.Services.AddSingleton<ITypeDataLoader, TypeDataJsonLoader>();
 
 
             builder.Services.AddTransient<MainPage>();
@@ -94,12 +90,11 @@ namespace PokemonBattle
             builder.Services.AddSingleton<ITeamPokemonService, TeamPokemonService>();
             builder.Services.AddSingleton<IBattleService, BattleService>();
 
-            builder.Services.AddSingleton<IFetchRepository, PokemonFetchRepository>();
+            builder.Services.AddSingleton<Pokemon.Infrastructure.Interfaces.IFetchRepository, FetchRepo>();
 
 
 
             builder.Services.AddSingleton<IFetchService, FetchService>();
-            builder.Services.AddSingleton<ITypeService, TypeService>();
             builder.Services.AddSingleton<ITypeRepo, TypeRepo>();
 
 
@@ -122,6 +117,7 @@ namespace PokemonBattle
             //AI logik
             builder.Services.AddSingleton<IAIService, AIService>();
             builder.Services.AddSingleton<IAiTeamService, AiTeamService>();
+            builder.Services.AddSingleton<IAiTeamRepo, AiTeamRepo>();
 
 
             //Facader vi gömmer våra services bakom
@@ -142,22 +138,15 @@ namespace PokemonBattle
             builder.Services.AddSingleton<ITypeMapper, TypeListMapper>();
             builder.Services.AddSingleton<IStatMapper, StatMapper>();
             builder.Services.AddSingleton<IGeneralMapper, GeneralMapper>();
+            builder.Services.AddSingleton<TypeInitalizerService>();
 
             //Ladda datan för alla typer i förväg (om vi har något)
             var app = builder.Build();
 
-            //referenser
-            var loader = app.Services.GetRequiredService<ITypeDataLoader>();
-            var factory = app.Services.GetRequiredService<ITypeModelFactory>();
-            var typeDataService = app.Services.GetRequiredService<TypeDataService>();
-
-            // json typerna
-            var rawTypes = loader.LoadTypesFromJsonFolderAsync().GetAwaiter().GetResult();
-
-            // lkonvertera till användbara typer
-            foreach (var rawType in rawTypes)
+            using (var scope = app.Services.CreateScope())
             {
-                typeDataService.AddType(rawType);
+                var initializer = scope.ServiceProvider.GetRequiredService<TypeInitalizerService>();
+                _= initializer.InitializeTypesAsync();
             }
 
 

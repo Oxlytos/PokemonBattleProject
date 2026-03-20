@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Domain.Models.RequestModels;
+using Pokemon.ContractDTOs.RequestModel;
 
-namespace Pokemon.Services.Interfaces
+namespace Pokemon.Infrastructure.Interfaces
 {
     public interface IImageService
     {

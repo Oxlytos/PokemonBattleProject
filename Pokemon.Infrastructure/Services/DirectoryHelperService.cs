@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualBasic;
-using PokemonBattle.Interfaces;
+using Pokemon.Infrastructure.Interfaces;
 
-namespace Pokemon.Repository.Services
+namespace Pokemon.Infrastructure.Services
 {
     public class DirectoryHelperServic
     {

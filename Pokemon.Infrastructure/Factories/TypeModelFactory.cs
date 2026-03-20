@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Domain.Interface;
 using Domain.Models.Game;
-using Domain.Models.RequestModels;
-using Pokemon.Infrastructure.Mappers;
+using Pokemon.ContractDTOs.RequestModel;
+using Pokemon.Infrastructure.Interfaces;
+using Pokemon.Infrastructure.Mapper;
 
 namespace Pokemon.Infrastructure.Factories
 {
@@ -25,5 +25,7 @@ namespace Pokemon.Infrastructure.Factories
             //retunera
             return model;
         }
+
+     
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Domain.Models.Base;
 using Domain.Models.Game;
 
-namespace Pokemon.Repository.Interfaces
+namespace Pokemon.Infrastructure.Interfaces
 {
     public interface IJsonStorage
     {

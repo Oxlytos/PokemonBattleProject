@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Domain.Models.RequestModels;
+using Pokemon.ContractDTOs.RequestModel;
 using PokemonBattle.ListModel;
 
 namespace PokemonBattle.Interfaces

@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
-using Domain.Models.RequestModels;
-using Pokemon.Services.Interfaces;
+using Pokemon.ContractDTOs.RequestModel;
 using PokemonBattle.Interfaces;
 using PokemonBattle.ViewModels;
 

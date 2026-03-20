@@ -6,10 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Domain.Models.Game;
-using Domain.Models.RequestModels;
-using Pokemon.Infrastructure.Interfaces;
+using Pokemon.AppServices.Interfaces;
 
-namespace Pokemon.Infrastructure.Services
+namespace Pokemon.AppServices.Services
 {
     public class TeamPokemonService : ITeamPokemonService
     {

@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Domain.Models.Game;
 
-namespace Pokemon.Infrastructure.Models
+namespace Pokemon.AppServices.Models
 {
     public class BattlePokemonModel : INotifyPropertyChanged
     {

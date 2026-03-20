@@ -5,30 +5,21 @@ using System.Text;
 using System.Threading.Tasks;
 using Domain.Interface;
 using Domain.Models.Game;
-using Domain.Models.RequestModels;
 
 namespace Domain.Services
 {
     public class TypeDataService
     {
-        private readonly ITypeModelFactory _typeFactory;
-
         //Namn och typ värdena
         private readonly Dictionary<string, TypeModel> _typeDataDic = new();
 
-        public TypeDataService(ITypeModelFactory typeModelFactory)
+        public void AddType(TypeModel type)
         {
-            _typeFactory = typeModelFactory;
-        }
-
-        public void AddType(RequestTypeModel type)
-        {
-            var actualType = _typeFactory.Create(type);
             //finns inte "grass"
             if (!_typeDataDic.ContainsKey(type.Name))
             {
                 //ny nyckel som heter "grass", med alla värden för gräs typen
-                _typeDataDic[type.Name] = actualType;
+                _typeDataDic[type.Name] = type;
                 Console.WriteLine(type);
                 Console.WriteLine(_typeDataDic);
             }
@@ -36,6 +27,10 @@ namespace Domain.Services
         }
         public TypeModel GetTypeModel(string name)
         {
+            if (string.IsNullOrEmpty(name))
+            {
+                return null;
+            }
             Console.WriteLine(name);
             if (_typeDataDic.ContainsKey(name))
             {
@@ -54,7 +49,14 @@ namespace Domain.Services
 
         public double GetTypeAttackMultiplier(string attackTypeName, string defenderTypeName, string? defenderOtherTypeName)
         {
+            Console.WriteLine(attackTypeName);
+            Console.WriteLine(defenderTypeName);
+            Console.WriteLine(defenderOtherTypeName);
             var attackType = GetTypeModel(attackTypeName);
+            if (attackType == null)
+            {
+                return 0;
+            }
             var firstDefenderType = GetTypeModel(defenderTypeName);
             //Hämta typ om andra typ strängen inte är null, är den null skippa delarna där vi kollar andra typen
             TypeModel? secondDefenderType = defenderOtherTypeName != null ? GetTypeModel(defenderOtherTypeName) : null;

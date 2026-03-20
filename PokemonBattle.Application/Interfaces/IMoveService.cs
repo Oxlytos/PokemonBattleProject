@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Domain.Models.Game;
-using Domain.Models.RequestModels;
+using Pokemon.ContractDTOs.RequestModel;
 
-namespace Pokemon.Infrastructure.Interfaces
+namespace Pokemon.AppServices.Interfaces
 {
     public interface IMoveService
     {
@@ -14,6 +14,6 @@ namespace Pokemon.Infrastructure.Interfaces
         Task<List<string>> RemoveMove(PartyPokemonModel pokemon, MoveModel move);
         Task<bool> CanWeAddAMove(PartyPokemonModel partyPokemonModel);
         Task<List<MoveModel>> GetMoveModels(List<string> moves);
-    }
 
+    }
 }

@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Domain.Models.Base;
 using Domain.Models.Game;
-using Domain.Models.RequestModels;
+using Pokemon.ContractDTOs.RequestModel;
 
-namespace Pokemon.Services.Interfaces
+namespace Pokemon.Infrastructure.Interfaces
 {
     public interface IFetchService
     {

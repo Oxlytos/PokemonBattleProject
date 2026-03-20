@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using Pokemon.Services.Interfaces;
 using PokemonBattle.Interfaces;
 using PokemonBattle.ViewModels;
 

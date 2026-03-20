@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Domain.Models.Game;
+using Pokemon.AppServices.Interfaces;
+using Pokemon.AppServices.Models;
 using Pokemon.Infrastructure.Interfaces;
-using Pokemon.Infrastructure.Models;
 
-namespace Pokemon.Infrastructure.Factories
+namespace Pokemon.AppServices.Factories
 {
     public class BattlePokemonFactory
     {

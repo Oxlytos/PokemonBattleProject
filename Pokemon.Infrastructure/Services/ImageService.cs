@@ -3,19 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Pokemon.Services.Interfaces;
 using Microsoft.VisualBasic;
 using System.IO;
 using System.Net.NetworkInformation;
-using Domain.Models.RequestModels;
 using System.Text.Json;
-using Pokemon.Repository.Interfaces;
 using System.Reflection.Metadata;
 using System.Xml.Linq;
 using Domain.Models.Game;
-using PokemonBattle.Interfaces;
+using Pokemon.Infrastructure.Interfaces;
+using Pokemon.ContractDTOs.RequestModel;
 
-namespace PokemonBattle.Services
+namespace Pokemon.Infrastructure.Services
 {
     public class ImageService : IImageService
     {

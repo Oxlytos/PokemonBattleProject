@@ -5,13 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Domain.Models.Base;
 using Domain.Models.Game;
-using Domain.Models.RequestModels;
+using Pokemon.ContractDTOs.RequestModel;
 using Pokemon.Infrastructure.Interfaces;
-using Pokemon.Repository.Interfaces;
-using Pokemon.Repository.Repositories;
-using Pokemon.Services.Interfaces;
 
-namespace Pokemon.Services.Services
+namespace Pokemon.Infrastructure.Services
 {
     public class FetchService : IFetchService
     {

@@ -1,28 +1,20 @@
 ﻿using System.Text.Json;
 using Domain.Models.Game;
-using Domain.Models.RequestModels;
 using Domain.Services;
-using Pokemon.Repository.Interfaces;
-using Pokemon.Repository.Services;
-using PokemonBattle.Interfaces;
+using Pokemon.ContractDTOs.RequestModel;
+using Pokemon.Infrastructure.Interfaces;
 
-namespace Pokemon.Repository.Repositories
+namespace Pokemon.Infrastructure.Services
 {
-    public class TypeDataLoader : ITypeDataLoader
+    public class TypeDataJsonLoader : ITypeDataLoader
     {
-        private readonly TypeDataService _typeDataService;
-        private DirectoryHelperServic _directoryHelperServic;
+        private IMauiStorageDirectoryHelper _directoryHelperServic;
         string _dataFolder;
-        public TypeDataLoader(TypeDataService typeDataService, DirectoryHelperServic directoryHelperServic)
+        public TypeDataJsonLoader(TypeDataService typeDataService, IMauiStorageDirectoryHelper directoryHelperServic)
         {
-            _typeDataService = typeDataService;
             _directoryHelperServic = directoryHelperServic;
             var baseDir = _directoryHelperServic.GetDirectory();
             _dataFolder = Path.Combine(baseDir, "JsonData");
-            //_dataFolder = Path.Combine(_provider.GetDirectory(), "JsonData", "types");
-            //_dataFolderPath = Path.Combine(_provider.GetDirectory(), "JsonData");
-
-
         }
         public async Task<List<RequestTypeModel>> LoadTypesFromJsonFolderAsync()
         {
@@ -46,10 +38,6 @@ namespace Pokemon.Repository.Repositories
             }
             return result;
 
-        }
-        public async Task AddTypeModel(RequestTypeModel newType)
-        {
-            _typeDataService.AddType(newType);
         }
     }
 }

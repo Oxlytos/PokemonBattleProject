@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Domain.Models.Game;
 using Pokemon.Infrastructure.Interfaces;
 using Pokemon.Infrastructure.Repositories;
-using Pokemon.Services.Interfaces;
 using Pokemon.Shared.Extensions;
 using PokemonBattle.ListModel;
 

@@ -8,8 +8,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Domain\Domain.csproj" />
-    <ProjectReference Include="..\Pokemon.ContractDTOs\Pokemon.ContractDTOs.csproj" />
-    <ProjectReference Include="..\Pokemon.Shared\Pokemon.Shared.csproj" />
   </ItemGroup>
 
 </Project>

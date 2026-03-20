@@ -4,9 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Domain.Models.Game;
-using Pokemon.Infrastructure.Models;
 
-namespace Pokemon.Infrastructure.Interfaces.AI
+namespace Pokemon.AppServices.Interfaces.AI
 {
     public interface IAiTeamService
     {

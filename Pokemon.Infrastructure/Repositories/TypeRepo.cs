@@ -4,9 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Domain.Models.RequestModels;
+using Pokemon.ContractDTOs.RequestModel;
 using Pokemon.Infrastructure.Interfaces;
-using Pokemon.Repository.Interfaces;
 
 namespace Pokemon.Infrastructure.Repositories
 {
@@ -49,6 +48,11 @@ namespace Pokemon.Infrastructure.Repositories
 
             }
             return null;
+        }
+
+        public Task<RequestTypeModel> GetTypes()
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<string> GetTypeSprite(string name)

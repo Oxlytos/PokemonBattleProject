@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Domain.Models.RequestModels
+namespace Pokemon.ContractDTOs.RequestModel
 {
     public class RequestPokeonModel
     {

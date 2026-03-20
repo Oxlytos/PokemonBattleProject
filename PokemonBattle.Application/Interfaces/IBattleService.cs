@@ -1,6 +1,6 @@
 ﻿using Domain.Models.Game;
 
-namespace Pokemon.Infrastructure.Interfaces
+namespace Pokemon.AppServices.Interfaces
 {
     public interface IBattleService
     {

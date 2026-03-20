@@ -8,7 +8,7 @@ namespace Domain.Models.Game
         public string Name { get; set; }
 
         [JsonPropertyName("pp")]
-        public int? Pp {  get; set; }
+        public int? Pp { get; set; }
 
         [JsonPropertyName("power")]
         public float? Power { get; set; }
@@ -31,21 +31,5 @@ namespace Domain.Models.Game
     {
         [JsonPropertyName("name")]
         public string Name { get; set; }
-    }
-    public class EffectChange
-    {
-        public int EffectChance { get; set; }
-    }
-    public enum MoveTypes
-    {
-        Physical, //Earthquake
-        Special, //Flamethrower
-        DecreaseOwnStat, //Shellsmash
-        IncreaseOwnStat, //Shellsmash again
-        DecreaseOtherStat, //Growl
-        IncreaseOtherStat, //Flatter
-        OneHitKO, //Fissure
-        Status, //Thunderwave, wish, yawn
-
     }
 }

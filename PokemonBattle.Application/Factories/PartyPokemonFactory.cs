@@ -5,10 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Domain.Factories;
 using Domain.Models.Game;
-using Domain.Models.RequestModels;
 using Pokemon.AppServices.Interfaces;
 using Pokemon.AppServices.Mappers;
-using Pokemon.Shared.Extensions;
+using Pokemon.ContractDTOs.RequestModel;
 
 namespace Pokemon.AppServices.Factories;
 

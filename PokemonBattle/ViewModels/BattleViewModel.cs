@@ -2,9 +2,9 @@
 using System.ComponentModel;
 using System.Windows.Input;
 using Domain.Models.Game;
-using Domain.Models.RequestModels;
 using Pokemon.AppServices.Factories;
-using Pokemon.Infrastructure.Models;
+using Pokemon.AppServices.Models;
+using Pokemon.ContractDTOs.RequestModel;
 using PokemonBattle.Facades;
 using PokemonBattle.ListModel;
 

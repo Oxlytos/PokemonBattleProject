@@ -4,21 +4,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Domain.Models.Game;
-using Domain.Models.RequestModels;
-using Pokemon.Infrastructure.Factories;
+using Pokemon.AppServices.Factories;
+using Pokemon.AppServices.Interfaces;
+using Pokemon.ContractDTOs.RequestModel;
 using Pokemon.Infrastructure.Interfaces;
 
-namespace Pokemon.Infrastructure.Services
+namespace Pokemon.AppServices.Services
 {
  
     public class MoveService : IMoveService
     {
+        private readonly IFetchRepository _fetchRepository;
+        private ITypeModelFactory _typeModelFactory;
         private MoveModelFactory _moveModelFactory;
-        private IFetchRepository _fetchRepository;
-        public MoveService(MoveModelFactory moveModelFactory, IFetchRepository fetchRepository)
+        public MoveService(MoveModelFactory moveModelFactory, IFetchRepository fetchRepository, ITypeModelFactory typeModelFactory)
         {
             _moveModelFactory = moveModelFactory;
             _fetchRepository = fetchRepository;
+            _typeModelFactory = typeModelFactory;
         }
         public async Task<RequestMoveModel[]> AddMove(RequestPokeonModel pokemon, RequestMoveModel newMove)
         {
@@ -80,14 +83,22 @@ namespace Pokemon.Infrastructure.Services
 
         public async Task<List<MoveModel>> GetMoveModels(List<string> moves)
         {
-
-            var moveReqModels = await Task.WhenAll(moves.Select(e=>_fetchRepository.GetMoveModelAsync(e)));
-
-            Console.WriteLine(moveReqModels);
-            var moveModels = await _moveModelFactory.CreateList(moveReqModels);
+            var moveModels = await Task.WhenAll(
+                moves.Select(e => _fetchRepository.GetSerialisedMoveModelAsync(e))
+            );
 
             Console.WriteLine(moveModels);
-            return moveModels;
+            
+            foreach (var moveModel in moveModels)
+            {
+                var basicType = await _fetchRepository.GetMoveModelAsync(moveModel.Name);
+                Console.WriteLine(basicType);
+                var data = await _fetchRepository.GetTypeModelAsync(basicType.MoveTypeInfo.Name);
+                var typeData = _typeModelFactory.Create(data);
+                moveModel.Type = typeData;
+            }
+            Console.WriteLine(moveModels);
+            return moveModels.ToList();
         }
     }
 }

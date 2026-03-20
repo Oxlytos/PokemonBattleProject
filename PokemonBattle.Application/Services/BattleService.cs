@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Domain.Models.Game;
-using Pokemon.Infrastructure.Interfaces;
-using Pokemon.Repository.Interfaces;
+using Pokemon.AppServices.Interfaces;
 
-namespace Pokemon.Infrastructure.Services
+namespace Pokemon.AppServices.Services
 {
     public class BattleService : IBattleService
     {
+        private ITeamPokemonService _teamPokemonService;
         public List<PartyPokemonModel> playerPartyPokemon = new List<PartyPokemonModel>();
         private readonly Dictionary<double, string> damageAndValuePairs = new Dictionary<double, string> 
         {
@@ -24,10 +24,9 @@ namespace Pokemon.Infrastructure.Services
         
         };
 
-        private readonly IJsonStorage _jsonStorage;
-        public BattleService(IJsonStorage jsonStorage)
+        public BattleService(ITeamPokemonService teamPokemonService)
         {
-            _jsonStorage = jsonStorage;
+            _teamPokemonService = teamPokemonService;
             LoadPartyPokemon();
         }
         public async Task<PartyPokemonModel> GetFirstPartyPokemon()
@@ -40,7 +39,7 @@ namespace Pokemon.Infrastructure.Services
         }
         public async Task LoadPartyPokemon()
         {
-            playerPartyPokemon = await _jsonStorage.LoadTeamAsync();
+            playerPartyPokemon = _teamPokemonService.TeamPokemon.ToList();
         }
 
         public async Task<string> GetEffectivnessStatus(double damageMultiplier)

@@ -1,7 +1,7 @@
 ﻿using Domain.Models.Game;
-using Pokemon.Infrastructure.Models;
+using Pokemon.AppServices.Models;
 
-namespace Pokemon.Infrastructure.Interfaces.AI
+namespace Pokemon.AppServices.Interfaces.AI
 {
     public interface IAIService
     {

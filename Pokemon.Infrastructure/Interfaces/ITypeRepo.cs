@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Domain.Models.RequestModels;
+using Pokemon.ContractDTOs.RequestModel;
 
 namespace Pokemon.Infrastructure.Interfaces
 {
@@ -13,5 +13,6 @@ namespace Pokemon.Infrastructure.Interfaces
         public Task<RequestTypeModel> GetTypeData(string name);
 
         public Task SaveTypeData(RequestTypeModel requestType);
+        public Task<RequestTypeModel> GetTypes();
     }
 }
