@@ -1,6 +1,6 @@
 ﻿using Domain.Models.Game;
 
-namespace Pokemon.AppServices.Interfaces
+namespace Pokemon.ContractDTOs.Interfaces
 {
     public interface IAiTeamRepo
     {

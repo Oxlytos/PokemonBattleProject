@@ -8,8 +8,10 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Domain.Models.Base;
 using Domain.Models.Game;
+using Pokemon.ContractDTOs.Interfaces;
 using Pokemon.ContractDTOs.RequestModel;
 using Pokemon.Infrastructure.Interfaces;
+using Pokemon.Infrastructure.Services;
 
 namespace Pokemon.Infrastructure.Repositories
 {
@@ -17,69 +19,17 @@ namespace Pokemon.Infrastructure.Repositories
     {
         private readonly HttpClient _client;
         private readonly IJsonStorage _jsonStorage;
+        private readonly IDeseralizerService _dealizerService;
         private string baseUrl = "https://pokeapi.co/api/v2/";
-        public FetchRepo(HttpClient client, IJsonStorage jsonStorage)
+        public FetchRepo(HttpClient client, IJsonStorage jsonStorage, IDeseralizerService deseralizerService)
         {
             _client = client;
             _client.BaseAddress = new Uri(baseUrl);
             _jsonStorage = jsonStorage;
+            _dealizerService = deseralizerService;
         }
 
-        public async Task<RequestPokeonModel> DeserializePokemonModel(string jsonResponse)
-        {
-            var normalPokemon = JsonSerializer.Deserialize<RequestPokeonModel>(jsonResponse);
-
-            if(normalPokemon.Types.Any(e=>e.Types.Name == "fairy"))
-            {
-                normalPokemon = await FairyProcuationHandler(normalPokemon);
-            }
-            normalPokemon.Name = char.ToUpper(normalPokemon.Name[0]) + normalPokemon.Name.Substring(1);
-            var sprites = JsonSerializer.Deserialize<SpriteCollection>(jsonResponse);
-            normalPokemon.Sprites = sprites;
-            var pokemonMoves = JsonSerializer.Deserialize<MoveRequestCollection>(jsonResponse);
-            Console.WriteLine(pokemonMoves);
-            normalPokemon.Moves = pokemonMoves;
-            Console.WriteLine(normalPokemon.Sprites);
-            //Gör till den fånigt långa och komplicerade spritecollectionen
-            return normalPokemon;
-
-        }
-        public async Task<RequestPokeonModel> FairyProcuationHandler(RequestPokeonModel normalPokemon)
-        {
-            List<TypeRequest> oldTypes = new List<TypeRequest>();
-            foreach(var oldType in normalPokemon.OldTypes)
-            {
-                var oldies = oldType.OldTypesInfo.ToList();
-                oldTypes.AddRange(oldies);
-            }
-
-            normalPokemon.Types = oldTypes.ToArray();
-            return normalPokemon;
-        }
-
-        public async Task<RequestMoveModel> DeserializeMoveModel(string jsonResponse)
-        {
-            var move = JsonSerializer.Deserialize<RequestMoveModel>(jsonResponse);
-            var moveInfo = JsonSerializer.Deserialize<Move>(jsonResponse);
-            Console.WriteLine(moveInfo);
-            move.Move = moveInfo;
-
-            return move;
-        }
-
-        public async Task<RequestTypeModel> DeserializeTypeModel(string jsonResponse)
-        {
-            var typeJson = JsonSerializer.Deserialize<RequestTypeModel>(jsonResponse);
-            if (typeJson.Name == "fairy")
-            {
-                return null;
-            }
-            else
-            {
-                return typeJson;
-            }
-        
-        }
+       
 
         public async Task<RequestMoveModel> GetMoveModelAsync(string name)
         {
@@ -88,7 +38,7 @@ namespace Pokemon.Infrastructure.Repositories
             {
                 //detta är filen, läs den istället för att ladda ner igen
                 var jsonContent = await File.ReadAllTextAsync(localFileCheck);
-                var result = await DeserializeMoveModel(jsonContent);
+                var result = await _dealizerService.DeserializeMoveModel(jsonContent);
                 return result;
             }
 
@@ -101,14 +51,9 @@ namespace Pokemon.Infrastructure.Repositories
                 if (msg.IsSuccessStatusCode)
                 {
                     var content = await msg.Content.ReadAsStringAsync();
-                    Console.WriteLine(content);
-                    var move = JsonSerializer.Deserialize<RequestMoveModel>(content);
-
-                    var moveInfo = JsonSerializer.Deserialize<Move>(content);
-                    var moveType = JsonSerializer.Deserialize<MoveType>(content);
-                    move.Move = moveInfo;
                     await _jsonStorage.SaveMoveData(name, content);
-                    return move;
+                    var result = await _dealizerService.DeserializeMoveModel(content);
+                    return result;
                 }
             }
             catch (Exception ex)
@@ -127,7 +72,7 @@ namespace Pokemon.Infrastructure.Repositories
             {
                 //detta är filen, läs den istället för att ladda ner igen
                 var jsonContent = await File.ReadAllTextAsync(localFileCheck);
-                var result = await DeserializePokemonModel(jsonContent);
+                var result = await _dealizerService.DeseralizePokemonModel(jsonContent);
                 return result;
             }
             //har vi inte redan infomrationen, ladda ner
@@ -143,26 +88,13 @@ namespace Pokemon.Infrastructure.Repositories
                 {
                     //Läs till sträng
                     var content = await msg.Content.ReadAsStringAsync();
-                    var normalPokemon = await DeserializePokemonModel(content);
-                    Console.WriteLine(normalPokemon);
-
-                    normalPokemon.Name = char.ToUpper(normalPokemon.Name[0]) + normalPokemon.Name.Substring(1);
-                    var sprites = JsonSerializer.Deserialize<SpriteCollection>(content);
-                    normalPokemon.Sprites = sprites;
-                    var pokemonMoves = JsonSerializer.Deserialize<MoveRequestCollection>(content);
-                    normalPokemon.Moves = pokemonMoves;
-                    Console.WriteLine(normalPokemon);
-
-                    var typeTsks = normalPokemon.Types.Select(e=>GetTypeModelAsync(e.Types.Name)).ToList();
-                    await Task.WhenAll(typeTsks);
+                    var normalPokemon = await _dealizerService.DeseralizePokemonModel(content);
 
                     await _jsonStorage.SavePokemonData(name, content);
                     return normalPokemon;
-
                 }
                 else
                 {
-
                     return null;
                 }
             }
@@ -206,7 +138,7 @@ namespace Pokemon.Infrastructure.Repositories
             var localFileCheck = Path.Combine(await _jsonStorage.GetTypeFolder(name), name + ".json");
             if (localFileCheck != null && File.Exists(localFileCheck))
             {
-                return await DeserializeTypeModel(localFileCheck);
+                return await _dealizerService.DeserializeTypeModel(localFileCheck);
             }
             //requestlänk för att hämta pokemon och bilder
             string request = "type/" + name;
@@ -219,7 +151,7 @@ namespace Pokemon.Infrastructure.Repositories
                 if (msg.IsSuccessStatusCode)
                 {
                     string content = await msg.Content.ReadAsStringAsync();
-                    var typeJson = await DeserializeTypeModel(content);
+                    var typeJson = await _dealizerService.DeserializeTypeModel(content);
                     //await _typeDataLoader.add
                     await _jsonStorage.SaveTypeData(name, content);
                     return typeJson;
@@ -235,22 +167,18 @@ namespace Pokemon.Infrastructure.Repositories
 
         public async Task<BasePokemon> GetBasePokemonDeseralized(string jsonContet)
         {
-            var poke = JsonSerializer.Deserialize<BasePokemon>(jsonContet);
+            var poke =await _dealizerService.GetBasePokemonDeseralized(jsonContet);
             return poke;
         }
         public async Task<MoveModel> GetMoveModelDeseralized(string jsonContet)
         {
-            var move = JsonSerializer.Deserialize<MoveModel>(jsonContet);
+            var move = await _dealizerService.GetMoveModelDeseralized(jsonContet);
             return move;
         }
 
         public async Task<TypeModel> GetTypeModelDeseralized(string jsonContet)
         {
-            Console.WriteLine(jsonContet);
-            var type = JsonSerializer.Deserialize<TypeModel>(jsonContet);
-            Console.WriteLine(type);
-
-
+            var type = await _dealizerService.DeseralizeTypeModel(jsonContet);
             return type;
         }
 

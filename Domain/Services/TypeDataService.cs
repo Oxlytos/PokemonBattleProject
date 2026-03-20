@@ -25,6 +25,13 @@ namespace Domain.Services
             }
            
         }
+        public void AddTypes(TypeModel[] types)
+        {
+            foreach (TypeModel type in types)
+            {
+                AddType(type);
+            }
+        }
         public TypeModel GetTypeModel(string name)
         {
             if (string.IsNullOrEmpty(name))

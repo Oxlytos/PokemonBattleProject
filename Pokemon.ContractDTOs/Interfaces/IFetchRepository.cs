@@ -7,7 +7,7 @@ using Domain.Models.Base;
 using Domain.Models.Game;
 using Pokemon.ContractDTOs.RequestModel;
 
-namespace Pokemon.Infrastructure.Interfaces
+namespace Pokemon.ContractDTOs.Interfaces
 {
     public interface IFetchRepository
     {

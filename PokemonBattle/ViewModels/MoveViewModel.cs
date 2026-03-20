@@ -10,6 +10,7 @@ using Domain.Models.Game;
 using Pokemon.ContractDTOs.RequestModel;
 using Pokemon.Infrastructure.Interfaces;
 using Pokemon.Shared.Extensions;
+using PokemonBattle.CollectionViewModels;
 using PokemonBattle.Facades;
 using PokemonBattle.Interfaces;
 using PokemonBattle.ListModel;
@@ -62,7 +63,8 @@ namespace PokemonBattle.ViewModels
                 _actualPokemon = value;
                 SelectedPokemonModel = _actualPokemon != null ? new ListPokemonDisplayModel(_actualPokemon) : null;
                 OnPropertyChanged(nameof(ActualPokemon));
-                RenderCurrentMoves();
+                _=GetBaseStatsTotal();
+                _=RenderCurrentMoves();
             }
         }
         private ListPokemonDisplayModel _selectedPokemonModel;
@@ -121,6 +123,16 @@ namespace PokemonBattle.ViewModels
                 ((Command)AddMoveCommand).ChangeCanExecute();
             }
         }
+        private ListStatDisplayModel _pokeStats;
+        public ListStatDisplayModel PokeStats
+        {
+            get { return _pokeStats; }
+            set
+            {
+                _pokeStats = value;
+                OnPropertyChanged(nameof(_pokeStats));
+            }
+        }
         public MoveViewModel(
             MoveFacade moveFacade,
             UIFacade uIFacade
@@ -132,7 +144,8 @@ namespace PokemonBattle.ViewModels
             AddMoveCommand = new Command(async () => await AddMoveToPokemon(), () => CurrentMove != null);
             RemoveMoveCommand = new Command<ListMoveDisplayModel>(async(move) => await RemoveMoveFromPokemon(move));
             _=RenderCurrentMoves();
-            GetCorrectImage();
+            _=GetCorrectImage();
+            _= GetBaseStatsTotal();
         }
 
         private async Task RemoveMoveFromPokemon(ListMoveDisplayModel move)
@@ -165,10 +178,12 @@ namespace PokemonBattle.ViewModels
             }
             CurrentMoves = await  _moveFacade.UpdateCurrentMovesDisplay(moves);
             SelectedPokemonModel.DisplayMoves = CurrentMoves.ToArray();
+            
+
             OnPropertyChanged(nameof(CurrentMoves));
         }
 
-        private void GetCorrectImage()
+        private async Task GetCorrectImage()
         {
             if (SelectedPokemonModel != null)
             {
@@ -178,7 +193,16 @@ namespace PokemonBattle.ViewModels
                     version = "front_shiny";
                 }
                 var path = _moveFacade.GetPokemonSpriteAsyncPNG(SelectedPokemonModel.Name, version);
+                await GetBaseStatsTotal();
             }
+        }
+        public async Task GetBaseStatsTotal()
+        {
+            if(ActualPokemon == null)
+            {
+                return;
+            }
+            PokeStats = await _moveFacade.GetDisplayBaseStats(ActualPokemon.Stats);
         }
 
         private async Task AddMoveToPokemon()

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Domain.Models.Base;
 using Domain.Models.Game;
+using Pokemon.ContractDTOs.Interfaces;
 using Pokemon.ContractDTOs.RequestModel;
 using Pokemon.Infrastructure.Interfaces;
 

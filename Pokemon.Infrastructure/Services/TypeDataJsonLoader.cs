@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using Domain.Models.Game;
 using Domain.Services;
+using Pokemon.ContractDTOs.Interfaces;
 using Pokemon.ContractDTOs.RequestModel;
 using Pokemon.Infrastructure.Interfaces;
 

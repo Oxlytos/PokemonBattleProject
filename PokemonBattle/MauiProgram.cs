@@ -18,6 +18,7 @@ using PokemonBattle.Factories;
 using Pokemon.AppServices.Interfaces.AI;
 using Pokemon.AppServices.Services.AI;
 using Pokemon.AppServices.Services;
+using Pokemon.ContractDTOs.Interfaces;
 
 namespace PokemonBattle
 {
@@ -90,7 +91,7 @@ namespace PokemonBattle
             builder.Services.AddSingleton<ITeamPokemonService, TeamPokemonService>();
             builder.Services.AddSingleton<IBattleService, BattleService>();
 
-            builder.Services.AddSingleton<Pokemon.Infrastructure.Interfaces.IFetchRepository, FetchRepo>();
+            builder.Services.AddSingleton<IFetchRepository, FetchRepo>();
 
 
 
@@ -103,6 +104,7 @@ namespace PokemonBattle
           
             builder.Services.AddSingleton<TypeDataService>();
             builder.Services.AddSingleton<DamageCalculator>();
+            builder.Services.AddSingleton<IDeseralizerService, DeseralizerService>();
          
             //Hämtar fil directory till MAUI, som andra delar får veta
             //DI in till andra services som behöver det
@@ -111,8 +113,6 @@ namespace PokemonBattle
 
             //Med skriven directory aka string
             builder.Services.AddSingleton<DirectoryHelperServic>();
-
-
 
             //AI logik
             builder.Services.AddSingleton<IAIService, AIService>();
@@ -133,6 +133,7 @@ namespace PokemonBattle
             builder.Services.AddSingleton<TypeModelFactory>();
             builder.Services.AddSingleton<PartyPokemonFactory>();
             builder.Services.AddSingleton<BattlePokemonFactory>();
+            builder.Services.AddScoped<ListStatDisplayFactory>();
 
             //Till fabrikerna
             builder.Services.AddSingleton<ITypeMapper, TypeListMapper>();

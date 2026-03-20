@@ -8,7 +8,6 @@ using Domain.Models.Game;
 using Pokemon.AppServices.Interfaces;
 using Pokemon.AppServices.Interfaces.AI;
 using Pokemon.AppServices.Models;
-using Pokemon.Infrastructure.Interfaces;
 
 namespace Pokemon.AppServices.Services.AI
 {

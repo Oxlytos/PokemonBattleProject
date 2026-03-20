@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Domain.Models.Game;
+using Pokemon.ContractDTOs.Interfaces;
 using Pokemon.ContractDTOs.RequestModel;
-using Pokemon.Infrastructure.Interfaces;
 using Pokemon.Infrastructure.Mapper;
 
 namespace Pokemon.Infrastructure.Factories

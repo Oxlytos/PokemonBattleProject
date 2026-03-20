@@ -12,6 +12,7 @@ using Pokemon.AppServices.Factories;
 using Pokemon.AppServices.Interfaces;
 using Pokemon.AppServices.Interfaces.AI;
 using Pokemon.AppServices.Models;
+using Pokemon.ContractDTOs.Interfaces;
 using Pokemon.Infrastructure.Factories;
 using Pokemon.Infrastructure.Interfaces;
 using Pokemon.Shared.Extensions;
@@ -33,7 +34,7 @@ namespace PokemonBattle.Facades
         private IAIService _aIService;
         private IAiTeamService _aiTeamService;
         private readonly IBattleService _battleService;
-
+        private TypeModelFactory _typeModelFactory;
        
         public List<BattlePokemonModel> PlayerTeam {  get; set; } = new List<BattlePokemonModel>();
         public List<BattlePokemonModel> AiTeam { get; set; }
@@ -63,6 +64,7 @@ namespace PokemonBattle.Facades
             
             )
         {
+            _typeModelFactory = typeModelFactory;
             _moveService = moveService;
             _moveModelFactory = listMoveModelFactory;
             _battlePokemonFactory = battlePokemonFactory;
@@ -94,6 +96,19 @@ namespace PokemonBattle.Facades
             var thisTeam = aiTeam.FirstOrDefault();
             AiTeam = await _battlePokemonFactory.CreateBattleTeam(thisTeam.AiPokemon);
 
+            List<string> types = new List<string>();
+            List<TypeModel> enemyTypes = new List<TypeModel>();
+            foreach (var pookemon in AiTeam)
+            {
+                types.AddRange(pookemon.PartyPokemon.Types);
+            }
+            foreach(var type in types)
+            {
+                var basicType = await _pokemonFetchRepository.GetTypeModelAsync(type);
+                var typeData = _typeModelFactory.Create(basicType);
+                enemyTypes.Add(typeData);
+            }
+            _typeDataService.AddTypes(enemyTypes.ToArray());
             CurrentAIPokemon = AiTeam.First();
             await GetCurrentAiMoves();
 

@@ -1,6 +1,6 @@
 ﻿using Domain.Models.Game;
 using Domain.Services;
-using Pokemon.Infrastructure.Interfaces;
+using Pokemon.ContractDTOs.Interfaces;
 
 namespace Pokemon.AppServices.Services
 {

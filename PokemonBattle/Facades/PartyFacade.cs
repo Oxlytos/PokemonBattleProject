@@ -9,6 +9,7 @@ using Domain.Services;
 using Pokemon.AppServices.Factories;
 using Pokemon.AppServices.Interfaces;
 using Pokemon.AppServices.Interfaces.AI;
+using Pokemon.ContractDTOs.Interfaces;
 using Pokemon.ContractDTOs.RequestModel;
 using Pokemon.Infrastructure.Interfaces;
 using Pokemon.Infrastructure.Services;

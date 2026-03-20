@@ -8,10 +8,12 @@ using Domain.Models.Game;
 using Domain.Services;
 using Pokemon.AppServices.Factories;
 using Pokemon.AppServices.Interfaces;
+using Pokemon.ContractDTOs.Interfaces;
 using Pokemon.ContractDTOs.RequestModel;
 using Pokemon.Infrastructure.Interfaces;
 using Pokemon.Infrastructure.Services;
 using Pokemon.Shared.Extensions;
+using PokemonBattle.CollectionViewModels;
 using PokemonBattle.Factories;
 using PokemonBattle.ListModel;
 
@@ -27,8 +29,10 @@ namespace PokemonBattle.Facades
         private readonly ListMoveModelFactory _listMoveModelFactory;
         private readonly ITypeModelFactory _typeModelFactory;
         private readonly TypeDataService _typeDataService;
+        private readonly ListStatDisplayFactory _listStatDisplayFactory;
         public MoveFacade
             (ITeamPokemonService teamPokemonService,
+            ListStatDisplayFactory listStatDisplayFactory,
             IFetchService pokemonFetchRepository, 
             IMoveService moveService, 
             IImageService imageService,
@@ -39,6 +43,8 @@ namespace PokemonBattle.Facades
             
             )
         {
+            _listStatDisplayFactory = listStatDisplayFactory;
+            _listMoveModelFactory = listMoveModelFactory;
             _teamPokemonService = teamPokemonService;
             _typeDataService = typeDataService;
             _typeModelFactory = typeModelFactory;
@@ -67,6 +73,14 @@ namespace PokemonBattle.Facades
         public async Task<ObservableCollection<ListMoveDisplayModel>>? UpdateCurrentMovesDisplay(List<string> moves)
         {
             var theseMoveModels = await Task.WhenAll(moves.Select(e => _pokemonFetchRepository.GetSerialisedMoveModelAsync(e)));
+            foreach (var moveModel in theseMoveModels)
+            {
+                var reqMove = await _pokemonFetchRepository.GetMoveModelAsync(moveModel.Name);
+                var typeInfo = await _pokemonFetchRepository.GetTypeModelAsync(reqMove.MoveTypeInfo.Name);
+                var type = _typeModelFactory.Create(typeInfo);
+                moveModel.Type = type;
+                Console.WriteLine(typeInfo);
+            }
             return await _listMoveModelFactory.CreateList(theseMoveModels.ToList());
             
         }
@@ -87,8 +101,6 @@ namespace PokemonBattle.Facades
             {
                 return null;
             }
-
-
             var reqMove = await _pokemonFetchRepository.GetMoveModelAsync(currentMove.Move.Name);
             var typeInfo = await _pokemonFetchRepository.GetTypeModelAsync(reqMove.MoveTypeInfo.Name);
             Console.WriteLine(typeInfo);
@@ -97,6 +109,7 @@ namespace PokemonBattle.Facades
 
             //få move från namn i fabrik
             var actualMove = await _pokemonFetchRepository.GetSerialisedMoveModelAsync(reqMove.Move.Name);
+            actualMove.Type = type;
             pokemon.Moves.Add(actualMove.Name);
             _teamPokemonService.UpdateTeamMember(pokemon);
 
@@ -114,12 +127,10 @@ namespace PokemonBattle.Facades
             //request
             var currentMoves = pokemonData.LearnedMoves ?? new RequestMoveModel[4];
             //ritkiga moves som blir display sen
-            List<MoveModel> moves =  _moveModelFactory.CreateList(currentMoves);
             foreach (var move in currentMoves)
             {
                 move.Move.Name = move.Move.Name.Capitalize();
                 var actualMove = await _pokemonFetchRepository.GetSerialisedMoveModelAsync(move.Move.Name);
-                moves.Add(actualMove);
             }
 
 
@@ -136,6 +147,11 @@ namespace PokemonBattle.Facades
         public Task<string> GetPokemonSpriteAsyncPNG(string name, string version)
         {
             return _imageService.GetPokemonSpriteAsyncPNG(name, version);
+        }
+
+        public async Task<ListStatDisplayModel> GetDisplayBaseStats(StatModel stats)
+        {
+            return await _listStatDisplayFactory.Create(stats);
         }
     }
 }

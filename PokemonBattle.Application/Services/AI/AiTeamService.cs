@@ -5,8 +5,8 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Domain.Models.Game;
-using Pokemon.AppServices.Interfaces;
 using Pokemon.AppServices.Interfaces.AI;
+using Pokemon.ContractDTOs.Interfaces;
 
 namespace Pokemon.AppServices.Services.AI
 {

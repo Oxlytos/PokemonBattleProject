@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Domain.Models.Game;
-using Pokemon.AppServices.Interfaces;
+using Pokemon.ContractDTOs.Interfaces;
 using Pokemon.Infrastructure.Interfaces;
 
 namespace Pokemon.Infrastructure.Services
@@ -29,7 +29,9 @@ namespace Pokemon.Infrastructure.Services
                 var json = await File.ReadAllTextAsync(file);
                 var team = JsonSerializer.Deserialize<AiTeam>(json);
                 if (team != null)
+                {
                     teams.Add(team);
+                }
             }
 
             return teams;
