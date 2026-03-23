@@ -33,7 +33,7 @@ namespace Domain.Calculator
 
         internal static int HealthFormula(int baseStat)
         {
-            //50 är level
+            //Health formula for gen 3
             //https://bulbapedia.bulbagarden.net/wiki/Stat#HP
             int effectiveHealthStat = ((2 * baseStat) * 50) / 100 + 50 + 10;
             return effectiveHealthStat;
@@ -41,6 +41,7 @@ namespace Domain.Calculator
 
         internal static int OtherStatFormula(int baseStat)
         {
+            //every other stat is the same
             int effectiveStat = ((2 * baseStat) * 50) / 100 + 5;
             return effectiveStat;
         }

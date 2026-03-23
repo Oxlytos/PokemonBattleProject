@@ -23,6 +23,7 @@ namespace Pokemon.AppServices.Services
             _fetchRepository = fetchRepository;
             _typeModelFactory = typeModelFactory;
         }
+        //Add move ifs not the same
         public async Task<RequestMoveModel[]> AddMove(RequestPokeonModel pokemon, RequestMoveModel newMove)
         {
             var moves = pokemon.LearnedMoves?.ToList() ?? new List<RequestMoveModel>();
@@ -32,12 +33,12 @@ namespace Pokemon.AppServices.Services
             }
             if (!moves.Any(e=>e.Move.Name==newMove.Move.Name))
             {
-               
                 moves.Add(newMove);
                 pokemon.LearnedMoves = moves.ToArray();
             }
             return pokemon.LearnedMoves;
         }
+        //basic check
         public async Task<bool> CanWeAddAMove(PartyPokemonModel partyPokemonModel)
         {
             if (partyPokemonModel == null)
@@ -50,10 +51,10 @@ namespace Pokemon.AppServices.Services
             }
             return false;
         }
+        //
 
         public async Task<List<string>> AddMove(PartyPokemonModel pokemon, MoveModel newMove)
         {
-            Console.WriteLine(pokemon.Moves);
             var currentMoves = pokemon.Moves?.ToList() ?? new List<string>();
             if(currentMoves.Count >= 4)
             {
@@ -66,12 +67,14 @@ namespace Pokemon.AppServices.Services
             }
             return currentMoves;
         }
+
         public async Task<List<string>> RemoveMove(PartyPokemonModel pokemon, MoveModel move)
         {
             string toRemove = move.Name;
             pokemon.Moves.Remove(toRemove);
             return pokemon.Moves;
         }
+
 
         public async Task<RequestMoveModel[]> RemoveMove(RequestPokeonModel pokemon, RequestMoveModel move)
         {
@@ -83,21 +86,17 @@ namespace Pokemon.AppServices.Services
 
         public async Task<List<MoveModel>> GetMoveModels(List<string> moves)
         {
-            var moveModels = await Task.WhenAll(
-                moves.Select(e => _fetchRepository.GetSerialisedMoveModelAsync(e))
-            );
+            //Get all movemodels for input moves
+            var moveModels = await Task.WhenAll(moves.Select(e => _fetchRepository.GetSerialisedMoveModelAsync(e)));
 
-            Console.WriteLine(moveModels);
-            
+            //Handles typing the moves
             foreach (var moveModel in moveModels)
             {
                 var basicType = await _fetchRepository.GetMoveModelAsync(moveModel.Name);
-                Console.WriteLine(basicType);
                 var data = await _fetchRepository.GetTypeModelAsync(basicType.MoveTypeInfo.Name);
                 var typeData = _typeModelFactory.Create(data);
                 moveModel.Type = typeData;
             }
-            Console.WriteLine(moveModels);
             return moveModels.ToList();
         }
     }

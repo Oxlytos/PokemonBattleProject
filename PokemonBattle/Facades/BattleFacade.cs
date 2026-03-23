@@ -64,6 +64,8 @@ namespace PokemonBattle.Facades
             
             )
         {
+
+            //Yup, thats a load of services
             _typeModelFactory = typeModelFactory;
             _moveService = moveService;
             _moveModelFactory = listMoveModelFactory;
@@ -77,6 +79,7 @@ namespace PokemonBattle.Facades
             _teamPokemonService = teamPokemonService;
             _damageCalculator = damageCalculator;
         }
+        //Start the match, get first pokemon and then moves
         public async Task<TurnResult> StartMatch()
         {
             TurnResult result = new TurnResult();
@@ -93,15 +96,20 @@ namespace PokemonBattle.Facades
                 return null;
             }
 
+            //Could use another method, random available team, first or default was enough for demo purposes
             var thisTeam = aiTeam.FirstOrDefault();
             AiTeam = await _battlePokemonFactory.CreateBattleTeam(thisTeam.AiPokemon);
 
+
+            //This is just to reload type data
             List<string> types = new List<string>();
             List<TypeModel> enemyTypes = new List<TypeModel>();
             foreach (var pookemon in AiTeam)
             {
                 types.AddRange(pookemon.PartyPokemon.Types);
             }
+
+            //This makes sure the AI teams pokemon types are properly loaded and they can calculate properly
             foreach(var type in types)
             {
                 var basicType = await _pokemonFetchRepository.GetTypeModelAsync(type);
@@ -112,6 +120,7 @@ namespace PokemonBattle.Facades
             CurrentAIPokemon = AiTeam.First();
             await GetCurrentAiMoves();
 
+            //This just handles standard return of turnresult
             result.PlayerCurrentPokemon = CurrentPlayerPokemon;
             result.AiCurrentPokemon= CurrentAIPokemon;
 
@@ -122,7 +131,7 @@ namespace PokemonBattle.Facades
         }
 
        
-
+        //We get and int from the frontend, which is same index order as the internal game team
         public async Task<BattlePokemonModel> ChangeCurrentPokemon(int playerPokemon)
         {
             if(playerPokemon < 0 || playerPokemon >= PlayerTeam.Count)
@@ -135,11 +144,15 @@ namespace PokemonBattle.Facades
             return CurrentPlayerPokemon;
 
         }
+
+        //every new turn
         public async Task<TurnResult> NewTurn(string? playerMove)
         {
             await GetCurrentPlayerMoves();
             await GetCurrentAiMoves();
             TurnResult turnResult = new TurnResult();
+
+            //Handle moves that are somehow how empty, end the player action early
             if (string.IsNullOrEmpty(playerMove))
             {
                 //Player has hopefully switched pokemon
@@ -161,34 +174,38 @@ namespace PokemonBattle.Facades
             var damage = _damageCalculator.CalculatDamage(CurrentPlayerPokemon.PartyPokemon, CurrentAIPokemon.PartyPokemon, move);
 
 
+            //Makes sure no Fire/Fire type
             var opponentSecoundType = CurrentAIPokemon.PartyPokemon.Types.LastOrDefault();
             if (opponentSecoundType == CurrentAIPokemon.PartyPokemon.Types.First())
             {
                 opponentSecoundType = null;
             }
 
+            //Ai gets to choose move
             MoveModel aiMove = new MoveModel();
             if (!CurrentAIPokemon.IsFainted)
             {
                 aiMove = await _aIService.AIChoosesMove(CurrentPlayerPokemon, CurrentAIPokemon);
             }
             ////////////
-            ///Avgör vem som går först
+            ///Who moves first, most of the time its the fastest
             ///
             var moveOrder =  WhoPeformesActionFirst(move, aiMove);
 
-            //Är player först
+            //Player first
             if (moveOrder.first == CurrentPlayerPokemon)
             {
                 await ExecuteMove(moveOrder.first, move, turnResult);
             }
 
-            //Är AI först
+            //Ai first
             else if (moveOrder.first == CurrentAIPokemon)
             {
                 await ExecuteMove(moveOrder.first, aiMove, turnResult);
             }
 
+
+            //Handle player logic to switch
             if (CurrentPlayerPokemon.IsFainted)
             {
                 turnResult.PlayerFainted = true;
@@ -203,6 +220,7 @@ namespace PokemonBattle.Facades
                 turnResult.AiWin = AiWin;
                 return turnResult;
             }
+            //Ai is simpler, but give the green flag to change pokemon
 
             if (CurrentAIPokemon.IsFainted)
             {
@@ -215,20 +233,22 @@ namespace PokemonBattle.Facades
                 return turnResult;
             }
 
-            //Är fiende vid liv
+            //Is the slower pokemon alive
             if (moveOrder.secound.IsFainted==false)
             {
-                //Är spelare vid liv
+                //Player
                 if (moveOrder.secound == CurrentPlayerPokemon)
                 {
                     await ExecuteMove(moveOrder.secound, move, turnResult);
                 }
-                //Är Ai vid liv
+                //AI
                 else if (moveOrder.secound == CurrentAIPokemon)
                 {
                     await ExecuteMove(moveOrder.secound, aiMove, turnResult);
                 }
             }
+
+            //Return result after both have attacked
             turnResult.PlayerCurrentPokemon = CurrentPlayerPokemon;
             turnResult.AiCurrentPokemon = CurrentAIPokemon;
             turnResult.PlayerParty = PlayerTeam;
@@ -241,11 +261,15 @@ namespace PokemonBattle.Facades
         }
         private async Task ExecuteMove(BattlePokemonModel attacker, MoveModel move, TurnResult result)
         {
-            //Vem blir slagen
+            //Accuracy roll, if moves accuracy is below roll, MISS!
             int accuracyCheck = await _battleService.GetAccuracyCheck();
+
+            //random roll to crit
             bool itsaCrit = await _battleService.GetCritChange();
             Console.WriteLine(accuracyCheck);
-            
+
+
+            //Vem blir slagen
             //Defender är AI om attacker är Player, annars är AI attacker
             BattlePokemonModel defender = attacker == CurrentPlayerPokemon ? CurrentAIPokemon : CurrentPlayerPokemon;
             if (defender.IsFainted)
@@ -258,7 +282,7 @@ namespace PokemonBattle.Facades
 
             string effectivenssStatus = await _battleService.GetEffectivnessStatus(damage.multiplier); 
            
-            //MISS! och skippa damage
+            //MISS!
             if (accuracyCheck > move.Accuracy)
             {
                 result.BattleActionMessages.Add("But it missed!");
@@ -268,7 +292,7 @@ namespace PokemonBattle.Facades
             {
                 result.BattleActionMessages.Add(effectivenssStatus);
             }
-            //
+            //Crit logic, get crit modifier which could be changed in the future to replicate different games (sometimes it 1.5x, sometimes 2x damage)
             if (itsaCrit)
             {
                 result.BattleActionMessages.Add("It's a critical hit!");
@@ -298,6 +322,7 @@ namespace PokemonBattle.Facades
 
         private (BattlePokemonModel first, BattlePokemonModel secound) WhoPeformesActionFirst(MoveModel move, MoveModel aiMove)
         {
+            //Quick attack goes first
             if (move.Priority > aiMove.Priority)
             {
                 return (CurrentPlayerPokemon, CurrentAIPokemon);
@@ -307,6 +332,7 @@ namespace PokemonBattle.Facades
                 return (CurrentAIPokemon, CurrentPlayerPokemon);
             }
 
+             //Fastest first
             if (CurrentPlayerPokemon.PartyPokemon.Stats.Speed > CurrentAIPokemon.PartyPokemon.Stats.Speed)
             {
                 return (CurrentPlayerPokemon, CurrentAIPokemon);
@@ -316,7 +342,7 @@ namespace PokemonBattle.Facades
                 return (CurrentAIPokemon, CurrentPlayerPokemon);
             }
 
-            //Samma speed, välj randomly, föredra spelaren för demo purpose
+            //Same speed, random roll
             int random = Random.Shared.Next(2);
             if (random == 0)
             {
@@ -332,6 +358,7 @@ namespace PokemonBattle.Facades
             }
         }
 
+        //Just get the next pokemon
         public async Task<BattlePokemonModel>? AIChoosesNewPokemon()
         {
              await Task.Delay(1000);
@@ -352,6 +379,7 @@ namespace PokemonBattle.Facades
 
         }
 
+        //Returns imgs
         public async Task<ImageSource> LoadPokemonFrontSpritePathAsync(string name, string version)
         {
             return await _imageService.GetPokemonSpriteAsyncPNG(name, version);
@@ -362,6 +390,7 @@ namespace PokemonBattle.Facades
             return await _imageService.GetPokemonBackSpriteAsyncPNG(name, version);
         }
 
+        //Load moves for UI
         public async Task<ObservableCollection<ListMoveDisplayModel>> GetCurrentPlayerMoves()
         {
             var baseMoves = CurrentPlayerPokemon.PartyPokemon.Moves.ToList();

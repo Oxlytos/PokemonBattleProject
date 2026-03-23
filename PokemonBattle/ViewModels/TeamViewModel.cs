@@ -14,6 +14,7 @@ namespace PokemonBattle.ViewModels
     public class TeamViewModel : ITeamViewModel, INotifyPropertyChanged
     {
 
+        //Handle clicking, adding and removing team members in this VM
         private UIFacade _uiFacade;
         private readonly ListPokemonDisplayModelFactory _displayModelFactory;
         public ObservableCollection<RequestPokeonModel> AllPokemon { get; }
@@ -122,6 +123,9 @@ namespace PokemonBattle.ViewModels
          
             _uiFacade = uIFacade;
             _displayModelFactory = displayModelFactory;
+
+
+            //All comands, that run async
             AllPokemon = new ObservableCollection<RequestPokeonModel>();
             GetPokemonCommand = new Command(async () => await LoadPokemonAsync());
             AddToTeamCommand = new Command(async () => await AddToTeam(), () => SelectedPokemonModel != null);
@@ -135,7 +139,7 @@ namespace PokemonBattle.ViewModels
             UpdateSelectedImageCommand = new Command<string>(async (name) => await UpdateSelectedImage(name));
             ShinyCommand = new Command<ListPokemonDisplayModel>(async (poke) => await ShinyOrRegular(poke));
         }
-
+        //Change shiny status
         private async Task ShinyOrRegular(ListPokemonDisplayModel poke)
         {
             if(poke == null) return;
@@ -151,15 +155,18 @@ namespace PokemonBattle.ViewModels
             await RebuildTeamDisplay();
         }
 
+        //Saving team for AI is just the current team on the screen => Create a "Fire Opponent" that just has fire pokemon => Simulate a fire gym leader or specialist
+        //Might also be for simplyfing this process, future, randomize?
         private async Task SaveTeamForAi()
         {
             await _uiFacade.SaveTeamForAI();
         }
 
+        //refresh display
         public async Task RebuildTeamDisplay()
         {
             DisplayTeamPokemon.Clear();
-            var pokemon = await _uiFacade.GetPokemonTeamAsync();
+            var pokemon = await _uiFacade.GetPokemonTeam();
             foreach (var pokemin in pokemon)
             {
                 var display = await _displayModelFactory.CreateFrontFacingSprite(pokemin);
@@ -168,17 +175,20 @@ namespace PokemonBattle.ViewModels
             }
         }
 
+        //Save current player teams, overwrites old one
         private async Task SaveTeam()
         {
             Microsoft.Maui.Controls.Application.Current?.MainPage?.Unfocus();
             await _uiFacade.SaveTeam();
         }
+        //get team, rebuild
         public async Task LoadTeamAsync()
         {
             await _uiFacade.LoadTeamAsync();
             await RebuildTeamDisplay();
         }
 
+        //Either just empty, or retrieves what the API got
         public async Task GetPokemonRequestModelMoves()
         {
             if(SelectedPokemonModel != null)
@@ -188,6 +198,7 @@ namespace PokemonBattle.ViewModels
 
             }
         }
+        //Gotta have a pokemon to assign moves to etc
         public async Task GoToMoveAssignerPage(ListPokemonDisplayModel listmodel)
         {
             if (listmodel != null)
@@ -211,6 +222,7 @@ namespace PokemonBattle.ViewModels
             }
            
         }
+        //Just check if there's a player team loaded and AI has a team
         public async Task GoToBattlePage()
         {
             if (!await _uiFacade.CanUserGoToBattlePage())
@@ -224,6 +236,7 @@ namespace PokemonBattle.ViewModels
             var page = new BattlePage(battleView);
             await Shell.Current.Navigation.PushAsync(page);
         }
+        //Find by index, remove that
         public async Task RemoveFromTeam(ListPokemonDisplayModel listpokmeon)
         {
             if (listpokmeon == null)
@@ -238,6 +251,7 @@ namespace PokemonBattle.ViewModels
             DisplayTeamPokemon.RemoveAt(toRemove.Value);
             
         }
+        
         public async Task UpdateSelectedImage(string name)
         {
             var sprite = await _uiFacade.LoadPokemonFrontSpritePathAsync(name);
@@ -267,6 +281,7 @@ namespace PokemonBattle.ViewModels
             PokemonImage = listItem.SpriteImage;
 
         }
+        //Creates a patymember model in the facade, then UI display
         public async Task AddToTeam()
         {
             //lägg inte till null

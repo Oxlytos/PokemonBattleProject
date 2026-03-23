@@ -49,12 +49,6 @@ namespace Pokemon.Infrastructure.Repositories
             }
             return null;
         }
-
-        public Task<RequestTypeModel> GetTypes()
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<string> GetTypeSprite(string name)
         {
 

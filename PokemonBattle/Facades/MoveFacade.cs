@@ -55,7 +55,7 @@ namespace PokemonBattle.Facades
             _pokemonFetchRepository = pokemonFetchRepository;
             _moveService = moveService;
         }
-        //Hitta move, ta bort
+        //Find move to remoev
         public async Task<PartyPokemonModel> RemoveMoveFromPokemon(Domain.Models.Game.PartyPokemonModel actualPokemon, ListMoveDisplayModel move)
         {
             Console.WriteLine("Removing move");
@@ -69,9 +69,10 @@ namespace PokemonBattle.Facades
             return actualPokemon;
         }
 
-        //retunera lista
+        //return UI list
         public async Task<ObservableCollection<ListMoveDisplayModel>>? UpdateCurrentMovesDisplay(List<string> moves)
         {
+            //Lil use of Task.WhenAll here, we get all types of moves, and add to game data in type
             var theseMoveModels = await Task.WhenAll(moves.Select(e => _pokemonFetchRepository.GetSerialisedMoveModelAsync(e)));
             foreach (var moveModel in theseMoveModels)
             {
@@ -79,35 +80,31 @@ namespace PokemonBattle.Facades
                 var typeInfo = await _pokemonFetchRepository.GetTypeModelAsync(reqMove.MoveTypeInfo.Name);
                 var type = _typeModelFactory.Create(typeInfo);
                 moveModel.Type = type;
-                Console.WriteLine(typeInfo);
+                _typeDataService.AddType(type);
             }
             return await _listMoveModelFactory.CreateList(theseMoveModels.ToList());
             
         }
 
-        //Vi kollar om vi kan lägga till
-        //Max 4 moves, får inte vara samma
-        //Lägg till i partymodellen
+        //Max 4 moves, not the same
         public async Task<ListMoveDisplayModel?> AddMoveAsync(RequestMoveModel currentMove, PartyPokemonModel pokemon)
         {
             var canWe = await _moveService.CanWeAddAMove(pokemon);
-            //kolla om det finns 4 moves redan
             if (!canWe)
             {
                 return null;
             }
-            //inte samma move 4 gånger
             if (pokemon.Moves.Any(e => e.ToLower() == currentMove.Move.Name.ToLower()))
             {
                 return null;
             }
+            //With how the request models are retrieved, we get move model, get type, the type data from there
             var reqMove = await _pokemonFetchRepository.GetMoveModelAsync(currentMove.Move.Name);
             var typeInfo = await _pokemonFetchRepository.GetTypeModelAsync(reqMove.MoveTypeInfo.Name);
-            Console.WriteLine(typeInfo);
             var type = _typeModelFactory.Create(typeInfo);
             _typeDataService.AddType(type);
 
-            //få move från namn i fabrik
+            //Get proper movemodel here, all relevant data is available
             var actualMove = await _pokemonFetchRepository.GetSerialisedMoveModelAsync(reqMove.Move.Name);
             actualMove.Type = type;
             pokemon.Moves.Add(actualMove.Name);
@@ -121,11 +118,13 @@ namespace PokemonBattle.Facades
 
         public async Task <ObservableCollection<RequestMoveModel>>? GetAvailableMoves(string name)
         {
-            //request modellen
+            //request model
             var pokemonData = await _pokemonFetchRepository.GetPokemonSingularAsync(name);
 
-            //request
+            //avialble learned moves or empty array of 4 moves that can be assigned
             var currentMoves = pokemonData.LearnedMoves ?? new RequestMoveModel[4];
+
+
             //ritkiga moves som blir display sen
             foreach (var move in currentMoves)
             {

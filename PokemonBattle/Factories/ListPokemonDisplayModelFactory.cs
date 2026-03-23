@@ -12,6 +12,9 @@ namespace Pokemon.AppServices.Factories
 {
     public class ListPokemonDisplayModelFactory
     {
+        //Create UI pokemon with images
+
+
         private readonly IImageService _imageService;
 
         public ListPokemonDisplayModelFactory(IImageService imageService)

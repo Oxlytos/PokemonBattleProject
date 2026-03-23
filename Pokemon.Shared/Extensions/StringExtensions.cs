@@ -4,9 +4,9 @@
     {
         public static string Capitalize(this string str)
         {
-            //Första tecknet stor
+            //First letter big
             str = char.ToUpper(str[0]) + str.Substring(1);
-            //Annat litet
+            //return the rest unmodified
             return str;
         }
     }

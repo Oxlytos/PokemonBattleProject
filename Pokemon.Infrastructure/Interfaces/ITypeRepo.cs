@@ -13,6 +13,5 @@ namespace Pokemon.Infrastructure.Interfaces
         public Task<RequestTypeModel> GetTypeData(string name);
 
         public Task SaveTypeData(RequestTypeModel requestType);
-        public Task<RequestTypeModel> GetTypes();
     }
 }

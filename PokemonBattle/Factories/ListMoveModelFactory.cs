@@ -12,6 +12,7 @@ using PokemonBattle.ListModel;
 
 namespace PokemonBattle.Factories
 {
+    //Create lists of moves for player to click on UI level
     public class ListMoveModelFactory
     {
         private IFetchService _pokemonFetchService;

@@ -32,9 +32,9 @@ namespace Domain.Calculator
             double damageMultiploer = _typeDataService.GetTypeAttackMultiplier(move.Type.Name, firstDefenderType, secoundDefenderType);
 
 
-            //Eld attack använder special attack
-            //Fighting fysisk
-            //Så var det från gen 1-3
+            //Fire is special
+            //Fighting physical
+            //Gen 4 implemented the big physical/special split, but not gen 3 (which this handles)
             int attackStat;
             int defenseStat;
             if (move.Type.IsSpecialDamage)
@@ -48,20 +48,20 @@ namespace Domain.Calculator
                 defenseStat = defender.Stats.Defense;
             }
 
-            //Buff moves har ingen power, ge den 0
+            //Buff moves has no damage value for now, as implenting the buff aspect modifier is a ways away
             float movePower = move.Power ?? 0;
             int power = (int)movePower;
 
             double baseDamage = (((double)attackStat/(double)defenseStat) * power);
             baseDamage*=damageMultiploer;
 
-            //STAB damage, om en eld pokemon använder en elda ttack får den en damage bonus
+            //STAB damage, if a fire type uses a fire type move, a FLAT 50% bonus 
             if (attacker.Types.Contains(move.Type.Name))
             {
                 baseDamage *= 1.5;
             }
 
-            //Vi använder främst damagemultiploer för att printa "It's super effective!"
+            //Return the damage (important) and the modifier (less importnat, just for printing "It's not very effective etc"
             return(((int)(baseDamage)), (double)(damageMultiploer));
 
         }

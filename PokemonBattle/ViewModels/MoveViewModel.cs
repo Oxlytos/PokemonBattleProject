@@ -182,7 +182,7 @@ namespace PokemonBattle.ViewModels
 
             OnPropertyChanged(nameof(CurrentMoves));
         }
-
+        //Load either basic or shiny
         private async Task GetCorrectImage()
         {
             if (SelectedPokemonModel != null)
@@ -196,6 +196,7 @@ namespace PokemonBattle.ViewModels
                 await GetBaseStatsTotal();
             }
         }
+        //retrieves display stats => "Health: 60"
         public async Task GetBaseStatsTotal()
         {
             if(ActualPokemon == null)
@@ -204,6 +205,7 @@ namespace PokemonBattle.ViewModels
             }
             PokeStats = await _moveFacade.GetDisplayBaseStats(ActualPokemon.Stats);
         }
+        //Try and add moves
 
         private async Task AddMoveToPokemon()
         {
@@ -216,8 +218,6 @@ namespace PokemonBattle.ViewModels
                 return;
             }
             //Lägga till move till display list item
-            //Och även den riktiga datamodellen
-            //Eller rättare sagt, först party, sen den andra
             var moveToAdd = await _moveFacade.AddMoveAsync(CurrentMove, _actualPokemon);
             if (moveToAdd == null)
             {
@@ -229,6 +229,7 @@ namespace PokemonBattle.ViewModels
 
         }
       
+        //Get current models moves, moves here are just the name and url, we get request model internally later when we add a move
         public async Task GetPokemonRequestModelMoves()
         {
             if (SelectedPokemonModel == null && SelectedPokemonModel.Name ==null)

@@ -10,6 +10,7 @@ namespace PokemonBattle.Factories
 {
     public class ListStatDisplayFactory
     {
+        //Return UI
         public async Task<ListStatDisplayModel> Create(StatModel model)
         {
             var listStast = new ListStatDisplayModel();

@@ -10,7 +10,7 @@ namespace Pokemon.AppServices.Models
     public class TurnResult
     {
 
-        //Används för att logga saker som händer under en battle
+        //Log battle events and actions
         //"It super effective!"
         //"Charizard used Flamethrower!"
         //"Sandlash fainted!"
@@ -22,10 +22,11 @@ namespace Pokemon.AppServices.Models
         public List<BattlePokemonModel> PlayerParty {  get; set; }
         public List<BattlePokemonModel> AiParty { get; set; }
 
-        //Har spelare eller AI faintad, se till att logik för att hantera det skickas till viewmodel
+        //When fainted
         public bool PlayerFainted { get; set; } = false;
         public bool AiFainted { get;set; } = false;
 
+        //On win
         public bool PlayerWin {  get; set; } = false;
         public bool AiWin { get; set;} = false;
 

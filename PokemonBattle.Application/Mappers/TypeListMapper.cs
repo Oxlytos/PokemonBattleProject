@@ -11,6 +11,7 @@ namespace Pokemon.AppServices.Mappers
 {
     public class TypeListMapper : ITypeMapper
     {
+        //Returns string of requestmodels typings
         public List<string> MapTypes(RequestPokeonModel request)
         {
             List<string> typeModels = new List<string>();

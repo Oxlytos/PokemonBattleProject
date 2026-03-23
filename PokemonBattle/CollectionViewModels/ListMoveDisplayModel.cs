@@ -51,6 +51,7 @@ namespace PokemonBattle.ListModel
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+        //emtpy moves are unknown, not really moves, just to spread out the UI properly, otherwise assignt he correct data
         public ListMoveDisplayModel(MoveModel move)
         {
             if(move.Name=="-")

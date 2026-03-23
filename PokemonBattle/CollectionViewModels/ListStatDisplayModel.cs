@@ -9,6 +9,7 @@ namespace PokemonBattle.CollectionViewModels
 {
     public class ListStatDisplayModel
     {
+        //format is "Health: XX"
         public string DisplayHealth { get; set; }
         public string DisplayAttack { get; set; }
         public string DisplayDefense { get; set; }

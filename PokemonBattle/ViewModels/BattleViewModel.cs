@@ -129,7 +129,7 @@ namespace PokemonBattle.ViewModels
             }
         }
 
-        //Shiny eller inte
+        //Shiny or not
         private async Task GetPokemonImage(BattlePokemonModel pokemon)
         {
             string version = pokemon.IsShiny ? "front_default" : "front_shiny";
@@ -143,6 +143,7 @@ namespace PokemonBattle.ViewModels
 
         public ICommand ForfeitCommand { get; }
 
+        //Handle switching after player gets KO-OD
         public bool IsSwitching { get; set; }
 
         public bool CanInput { get; set; } = false;
@@ -168,26 +169,29 @@ namespace PokemonBattle.ViewModels
             ClickMoveCommand = new Command<string>(async (moveName) => await OnClickMoveCommand(moveName));
             SwitchPokemonCommand = new Command<ListPokemonDisplayModel>(async (listpokemon) => await OnClickSwitchPokemon(listpokemon));
             ForfeitCommand = new Command(async () => await OnClickForfeit());
-            //Boolen används för att kalla eventen/voiden att sepelare måste btta pokemon
+
+            //Subscribe to this event/void thas just triggers IsSwitching = true
             _battleFacade.OnPlayerMustSwitch += HandlePlayerMustSwitch;
 
             //När modellen (battleviewmodel) skapas, starta matchen, alternativt någon stor knapp?
             StartMatch();
         }
 
+        //Quits the match
         private async Task OnClickForfeit()
         {
             await Shell.Current.Navigation.PopToRootAsync();
             return;
         }
 
+        //Event info and player can switch pokemon
         private void HandlePlayerMustSwitch()
         {
             StatusMessage = "Your pokemon fainted! Choose a another one to keep battling!";
             IsSwitching = true;
         }
 
-        //battle facade härifrån, se till att switch händer före move
+        //Can switch to available pokemon by index
         private async Task OnClickSwitchPokemon(ListPokemonDisplayModel listpokemon)
         {
             if(!IsSwitching) return;
@@ -216,6 +220,7 @@ namespace PokemonBattle.ViewModels
             await RebuildTeamDisplay();
         }
 
+        //Turnresult returns first party pokemon of player and AI, like the games
         private async Task StartMatch()
         {
             CanInput = true;
@@ -254,9 +259,10 @@ namespace PokemonBattle.ViewModels
 
         }
 
-        //Hantera när någon vinner, eller faintar
+        //Handle KO-OS and when somebody finally wins
         private async Task HandleTurnResult(TurnResult turnResult)
         {
+            //More epic win screen here in the future
             if (turnResult.PlayerWin || turnResult.AiWin)
             {
                 string whoWon = "";
@@ -275,6 +281,7 @@ namespace PokemonBattle.ViewModels
                 await Shell.Current.Navigation.PopToRootAsync();
                 return;
             }
+            //Prompt player to change
 
             if (turnResult.PlayerCurrentPokemon.IsFainted)
             {
@@ -286,6 +293,7 @@ namespace PokemonBattle.ViewModels
                 await Task.Delay(2000);
                 return;
             }
+            //New AI pokemon and image later
             if (turnResult.AiCurrentPokemon.IsFainted)
             {
                 StatusMessage = "AI is changing pokemon....";
@@ -294,11 +302,10 @@ namespace PokemonBattle.ViewModels
             }
             StatusMessage = "";
         }
-
+        //Prints lil battle log after eachother => "X used X"
         private async Task PrintBattleInfo(List<string> battleActionMessages)
         {
-            //Gå igenom listan av saker som hänt i striden
-            //2 sek delay så hinner man läsa
+            //2 sek delay so you can read
             CanInput = false;
             foreach (var message in battleActionMessages)
             {
@@ -309,6 +316,7 @@ namespace PokemonBattle.ViewModels
             CanInput = true;
         }
 
+        //Yeah just remake current UI stuff, moves and pokemon
         public async Task RebuildTeamDisplay()
         {
             StatusMessage = "";

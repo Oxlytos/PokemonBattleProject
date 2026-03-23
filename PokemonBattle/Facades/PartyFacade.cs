@@ -62,6 +62,7 @@ namespace PokemonBattle.Facades
 
         }
 
+        //Get current pokemon data by clicking on its image
         public async Task<PartyPokemonModel?> GetPartyPokemon(ListPokemonDisplayModel clickedThisItem, ObservableCollection<ListPokemonDisplayModel> currentTeam)
         {
             if (!currentTeam.Contains(clickedThisItem))
@@ -73,35 +74,38 @@ namespace PokemonBattle.Facades
 
             return thisPokemon;
         }
+        //remove function, by clicking on the button on the UI
         public async Task<int?> RemoveFromPartyAndUITeam(ListPokemonDisplayModel pokeom, ObservableCollection<ListPokemonDisplayModel> currentTeam )
         {
-            //Är denna listitem faktiskst i listan
             if (!currentTeam.Contains(pokeom))
             {
                 return null;
             }
             
-            //Hitta dess index i listan
+            //Remove with index
             int index = currentTeam.IndexOf(pokeom);
 
             Console.WriteLine(_teamPokemonService.TeamPokemon);
-            //Se till att party pokemon går bort också
+            //Remove the same pokemon in the acual team, they share the same index
             var correspondingPartyPokeon = _teamPokemonService.TeamPokemon[index];
             await _teamPokemonService.RemoveFromTeam(correspondingPartyPokeon);
-            //Ge index till UI som den tar bort
             return index;
 
         }
-        public async Task<List<PartyPokemonModel>> GetPokemonTeamAsync()
+        //
+        public Task<List<PartyPokemonModel>> GetPokemonTeam()
         {
             var team = _teamPokemonService.TeamPokemon;
-            return team.ToList();
+            return Task.FromResult(team.ToList());
         }
+        //Fetch all 151 first pokemon
         public async Task<List<RequestPokeonModel>> GetAllPokemonAsync()
         {
             var pokemon = await _fetchService.GetPokemonAsync();
             return pokemon;
         }
+
+        //Loads team async from JSON format
         public async Task LoadTeamAsync()
         {
             var team = await _jsonStorage.LoadTeamAsync();
@@ -116,6 +120,7 @@ namespace PokemonBattle.Facades
             }
 
         }
+        //Creates a AI team which can be used, by the AI
         public async Task SaveTeamForAI()
         {
             var aiTeam = _teamPokemonService.TeamPokemon.ToList();
@@ -138,11 +143,13 @@ namespace PokemonBattle.Facades
 
             }
         }
+        //Saves team in JSON format
         public async Task SaveTeam()
         {
             
             await _jsonStorage.SaveTeamAsync(_teamPokemonService.TeamPokemon.ToList());
         }
+        //Gets images, and tries and get if they're not all there
         public async Task<string?> LoadPokemonFrontSpritePathAsync(string name)
         {
 
@@ -150,7 +157,7 @@ namespace PokemonBattle.Facades
             if (!_imageService.AreAllSpritesStored(name))
             {
                 var fullPokemonInfo = await _fetchService.GetPokemonSingularAsync(name);
-                //gick det för fort att försöka hämta, retunera null, sen försöker den igen
+                //Failed, can be retried
                 if (fullPokemonInfo?.Sprites?.SpriteModel == null)
                 {
                     Console.WriteLine($"Missing sprite data for {name} :((");
@@ -163,7 +170,7 @@ namespace PokemonBattle.Facades
 
             }
 
-            //LITEN paus för at ladda ner
+            //SMALL pause, downloads are fast, but a small delay enables safety of loading images
             await Task.Delay(50);
 
             string version = "front_default";
@@ -174,7 +181,6 @@ namespace PokemonBattle.Facades
         }
         public async Task<string?> LoadPokemonBackSpritePathAsync(string name)
         {
-            //vägen dit (om den finns)
             string version = "back_default";
 
             var path = await _imageService.GetPokemonBackSpriteAsyncPNG(name, version);
@@ -198,15 +204,17 @@ namespace PokemonBattle.Facades
             var typePaths = (await _imageService.GetTypeSprite(typeNames)).ToArray();
             return typePaths;
         }
+        //Adds to ui team
         public async Task<ListPokemonDisplayModel?> AddToUITeam(RequestPokeonModel newMember)
         {
             if(!await _teamPokemonService.CanWeAddToTeam())
             {
                 return null;
             }
-            Console.WriteLine(newMember.Nickname);
             newMember = await _fetchService.GetPokemonSingularAsync(newMember.Name);
 
+            //Type images we get from images
+            //And also real types we add to game data
             foreach(var type in newMember.Types)
             {
                 var requestType = await _fetchService.GetTypeModelAsync(type.Types.Name);
@@ -214,15 +222,19 @@ namespace PokemonBattle.Facades
                 _typeDataService.AddType(properType);
             }
 
-            Console.WriteLine(newMember.Nickname);
+            //Create an acutal pokemon from ui image
+            //NOT SAVED, just for the displaymodelfactory
+            
             var partyPokemon = _partyPokemonFactory.Create(newMember);
 
+            //then just return a ready-for-ui element
             var displayPokemon = await _displayModelFactory.CreateFrontFacingSprite(partyPokemon);
-            Console.WriteLine(displayPokemon.Nickname);
             return displayPokemon;
 
 
         }
+
+        //Adds to actual team
         public async Task<PartyPokemonModel?> AddToPartyTeam(RequestPokeonModel newMember)
         {
             if(!await _teamPokemonService.CanWeAddToTeam())
@@ -231,7 +243,6 @@ namespace PokemonBattle.Facades
             }
             newMember = await _fetchService.GetPokemonSingularAsync(newMember.Name);
             var partyPokemon = _partyPokemonFactory.Create(newMember);
-            Console.WriteLine(newMember.Nickname);
             await _teamPokemonService.AddToTeam(partyPokemon);
             return partyPokemon;
         }
@@ -240,12 +251,11 @@ namespace PokemonBattle.Facades
         {
 
             var canWe = await _moveService.CanWeAddAMove(pokemon);
-            //kolla om det finns 4 moves redan
             if (!canWe)
             {
                 return null;    
             }
-            //inte samma move 4 gånger
+            //Cant have same move, no duplicates allowerd
             if (pokemon.Moves.Any(e=>e.ToLower()==currentMove.Move.Name.ToLower()))
             {
                 return null;
@@ -262,6 +272,7 @@ namespace PokemonBattle.Facades
             return await _listMoveModelFactory.Create(actualMove);
 
         }
+        //Stops from loading a battle with no pokemon
         public async Task<bool> CanUserGoToBattlePage()
         {
             if(_teamPokemonService.TeamPokemon.Count == 0)

@@ -14,15 +14,14 @@ namespace Pokemon.Infrastructure.Factories
     {
         public TypeModel Create(RequestTypeModel apiType)
         {
-            //skapa objekt
+            //sCreate object
             TypeModel model = new TypeModel();
 
-            Console.WriteLine(apiType);
 
-            //mappa ut allt
+            //mappa it out
             model = TypeMapper.MapType(apiType);
 
-            //retunera
+            //return
             return model;
         }
 

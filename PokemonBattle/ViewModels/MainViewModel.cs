@@ -13,6 +13,7 @@ namespace PokemonBattle.ViewModels
     public class MainViewModel:INotifyPropertyChanged
     {
         //Commands
+        //Just the main page with the amazing logo created by Oscar
         public ICommand GoToTeamBuilderPageCommand { get; }
 
         public event PropertyChangedEventHandler? PropertyChanged;

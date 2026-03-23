@@ -10,18 +10,15 @@ namespace Domain.Services
 {
     public class TypeDataService
     {
-        //Namn och typ värdena
+        //Name "fire" then all data with typemodel
         private readonly Dictionary<string, TypeModel> _typeDataDic = new();
 
         public void AddType(TypeModel type)
         {
-            //finns inte "grass"
+            //New typing
             if (!_typeDataDic.ContainsKey(type.Name))
             {
-                //ny nyckel som heter "grass", med alla värden för gräs typen
                 _typeDataDic[type.Name] = type;
-                Console.WriteLine(type);
-                Console.WriteLine(_typeDataDic);
             }
            
         }
@@ -32,6 +29,7 @@ namespace Domain.Services
                 AddType(type);
             }
         }
+        //get gamedata model of "fire" type
         public TypeModel GetTypeModel(string name)
         {
             if (string.IsNullOrEmpty(name))
@@ -49,6 +47,7 @@ namespace Domain.Services
             }
         }
 
+        //If ever needed, get all data
         public Dictionary<string, TypeModel> GetAllTypeData()
         {
             return _typeDataDic;

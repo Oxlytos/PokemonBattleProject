@@ -10,7 +10,7 @@ namespace Pokemon.Infrastructure.Mapper
 {
     public static class TypeMapper
     {
-        //Fire request till Fire model more or less
+        //Fire request to Fire model
         public static TypeModel MapType(RequestTypeModel request)
         {
             TypeModel model = new TypeModel();
@@ -39,7 +39,7 @@ namespace Pokemon.Infrastructure.Mapper
 
             return model;
         }
-        //Lista till X från Y, exakt samma för varje del av typemodel och request
+        //List X to array Y
         public static void MapSource(List<string> toThis, TypeData[] fromThis)
         {
             if (fromThis == null)

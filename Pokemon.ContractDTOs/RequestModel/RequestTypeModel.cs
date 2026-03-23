@@ -34,8 +34,6 @@ namespace Pokemon.ContractDTOs.RequestModel
         public string? Gen { get; set; }
 
     }
-
-
     public class TypeData
     {
         [JsonPropertyName("name")]

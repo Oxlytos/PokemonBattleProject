@@ -29,8 +29,7 @@ namespace Pokemon.Infrastructure.Repositories
             _dealizerService = deseralizerService;
         }
 
-       
-
+        //Check local, otherwise retrieve, then save and deseralize, return deseralized model
         public async Task<RequestMoveModel> GetMoveModelAsync(string name)
         {
             var localFileCheck = _jsonStorage.GetMove(name);
@@ -64,6 +63,7 @@ namespace Pokemon.Infrastructure.Repositories
             return null;
         }
 
+        //Check local, otherwise retrieve, then save and deseralize, return deseralized model
         public async Task<RequestPokeonModel> GetPokemonModel(string name)
         {
             //detta är filvägen
@@ -75,11 +75,8 @@ namespace Pokemon.Infrastructure.Repositories
                 var result = await _dealizerService.DeseralizePokemonModel(jsonContent);
                 return result;
             }
-            //har vi inte redan infomrationen, ladda ner
-            //requestlänk för att hämta pokemon och bilder
             string request = "pokemon/" + name;
 
-            //Hämta
             HttpResponseMessage msg = await _client.GetAsync(request);
 
             try
@@ -108,6 +105,7 @@ namespace Pokemon.Infrastructure.Repositories
 
         }
 
+        //Gets 151 first pokemon
         public async Task<List<RequestPokeonModel>> GetPokemonModelsAsync()
         {
             HttpResponseMessage responsemsg = await _client.GetAsync(_client.BaseAddress + "pokemon?limit=151&offset=0");
